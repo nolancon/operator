@@ -89,6 +89,9 @@ spec:
               debug:
                 description: Debug is to set debug mode of the cluster.
                 type: boolean
+              disableEtcdSync:
+                description: Disable ETCD to K8s sync.
+                type: boolean
               disableFencing:
                 description: "Disable Pod Fencing.  With StatefulSets, Pods are only
                   re-scheduled if the Pod has been marked as killed.  In practice

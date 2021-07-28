@@ -144,6 +144,9 @@ type StorageOSClusterSpec struct {
 
 	// Disable StorageOS scheduler extender.
 	DisableScheduler bool `json:"disableScheduler,omitempty"`
+
+	// Disable ETCD to K8s sync.
+	DisableETCDSync bool `json:"disableEtcdSync,omitempty"`
 }
 
 // ContainerImages contains image names of all the containers used by the operator.

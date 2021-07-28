@@ -124,8 +124,13 @@ func getAPIManagerBuilder(fs filesys.FileSystem, obj client.Object, kcl kubectl.
 
 	// Add secret volume transform.
 	apiSecretVolTF := stransform.SetPodTemplateSecretVolumeFunc("api-secret", cluster.Spec.SecretRefName, nil)
-
 	deploymentTransforms = append(deploymentTransforms, apiSecretVolTF)
+
+	// Add ETCD sync transform.
+	if !cluster.Spec.DisableETCDSync {
+		etcdSyncTF := stransform.AppendPodTemplateContainerArgsFunc("api-manager", []string{"--enable-etcd-sync", "--etcd-endpoint=" + cluster.Spec.KVBackend.Address})
+		deploymentTransforms = append(deploymentTransforms, etcdSyncTF)
+	}
 
 	roleBindingTransforms := []transform.TransformFunc{}
 
