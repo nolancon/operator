@@ -15,7 +15,7 @@ metadata:
               "address": "etcd-client:2379"
             },
             "secretRefName": "storageos-api",
-            "storageClassName": "storageos-sc"
+            "storageClassName": "storageos"
           }
         }
       ]
