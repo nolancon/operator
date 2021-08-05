@@ -41,7 +41,7 @@ above secret and refer the secret in the spec:
 apiVersion: storageos.com/v1
 kind: StorageOSCluster
 metadata:
-  name: storageoscluster-sample
+  name: default
   namespace: storageos
 spec:
   secretRefName: storageos-api

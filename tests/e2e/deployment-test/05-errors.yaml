@@ -1,5 +1,5 @@
 apiVersion: storageos.com/v1
 kind: StorageOSCluster
 metadata:
-  name: storageoscluster-sample2
+  name: default
   namespace: default

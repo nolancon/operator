@@ -1,7 +1,7 @@
 apiVersion: storageos.com/v1
 kind: StorageOSCluster
 metadata:
-  name: storageoscluster-sample
+  name: default
 spec:
   # Add fields here
   secretRefName: storageos-api

@@ -15,7 +15,7 @@ data:
 apiVersion: storageos.com/v1
 kind: StorageOSCluster
 metadata:
-  name: storageoscluster-sample
+  name: default
   namespace: default
 spec:
   secretRefName: storageos-api

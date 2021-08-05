@@ -127,7 +127,7 @@ metadata:
 apiVersion: storageos.com/v1
 kind: StorageOSCluster
 metadata:
-  name: storageoscluster-sample
+  name: default
   namespace: default
 status:
   conditions:
