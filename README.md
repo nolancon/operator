@@ -1,3 +1,11 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/storageos/operator)](https://goreportcard.com/report/github.com/storageos/operator)
+[![e2e test](https://github.com/storageos/operator/actions/workflows/kuttl-e2e-test.yaml/badge.svg)](https://github.com/storageos/operator/actions/workflows/kuttl-e2e-test.yaml)
+[![Lint and test](https://github.com/storageos/operator/actions/workflows/test.yml/badge.svg)](https://github.com/storageos/operator/actions/workflows/test.yml)
+[![CodeQL](https://github.com/storageos/operator/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/storageos/operator/actions/workflows/codeql-analysis.yml)
+[![Active](http://img.shields.io/badge/Status-Active-green.svg)](https://github.com/storageos/operator)
+[![PR's Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](https://github.com/storageos/operator/pulls)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
 # StorageOS Operator
 
 The StorageOS Operator deploys and configures a StorageOS cluster on Kubernetes.
