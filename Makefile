@@ -39,6 +39,10 @@ BUNDLE_IMG ?= $(IMAGE_TAG_BASE)-bundle:v$(VERSION)
 
 # Image URL to use all building/pushing image targets
 IMG ?= storageos/operator:test
+
+# Image URL for manifest image.
+MANIFESTS_IMG ?= storageos/operator-manifests:test
+
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS ?= "crd:trivialVersions=true,preserveUnknownFields=false"
 
@@ -153,6 +157,10 @@ docker-build: build ## Build docker image with the manager.
 
 docker-push: ## Push docker image with the manager.
 	docker push ${IMG}
+
+# Build the manifests docker image
+docker-build-manifests: manifests ## Build docker image with the manager.
+	docker build -t $(MANIFESTS_IMG) --build-arg OPERATOR_IMAGE=$(IMG) -f manifests.Dockerfile .
 
 ##@ Deployment
 
