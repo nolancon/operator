@@ -159,7 +159,7 @@ docker-push: ## Push docker image with the manager.
 	docker push ${IMG}
 
 # Build the manifests docker image
-docker-build-manifests: manifests ## Build docker image with the manager.
+docker-build-manifests:
 	docker build -t $(MANIFESTS_IMG) --build-arg OPERATOR_IMAGE=$(IMG) -f manifests.Dockerfile .
 
 ##@ Deployment

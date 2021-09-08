@@ -9,7 +9,8 @@ WORKDIR /tmp/src
 
 COPY . .
 
-RUN rm -rf /tmp/src/bin ; IMG="${OPERATOR_IMAGE}" remake install-manifest
+RUN rm -rf /tmp/src/bin ; IMG="${OPERATOR_IMAGE}" remake manifests
+RUN kustomize build config/default > storageos-operator.yaml
 
 # Create the final image.
 
