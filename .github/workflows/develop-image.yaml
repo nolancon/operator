@@ -70,6 +70,6 @@ jobs:
           username: ${{ secrets.DH_USERNAME }}
           password: ${{ secrets.DH_PASSWORD }}
       - name: Run manifests image build
-        run: MANIFESTS_IMG=${{ env.MANIFESTS_IMG }} IMG=${{ env.MANIFEST_LIST }} make docker-build-manifests
+        run: IMG=${{ env.MANIFEST_LIST }} make docker-build-manifests
       - name: Push manifests container image
         run: docker push ${{ env.MANIFESTS_IMG }}

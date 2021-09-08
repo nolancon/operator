@@ -39,7 +39,6 @@ jobs:
       - name: Set image tag env var
         # Refer https://stackoverflow.com/a/58178121 for git tag extraction.
         run: |
-          echo "IMG_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
           echo "MANIFEST_LIST=storageos/operator:${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
           echo "AMD_IMG=storageos/operator:${GITHUB_REF#refs/*/}-amd64" >> $GITHUB_ENV
           echo "ARM64_IMG=storageos/operator:${GITHUB_REF#refs/*/}-arm64" >> $GITHUB_ENV
@@ -73,10 +72,9 @@ jobs:
       - name: Set image tag env var
         # Refer https://stackoverflow.com/a/58178121 for git tag extraction.
         run: |
-          echo "IMG_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-          echo "MANIFEST_LIST=storageos/operator:${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+          echo "IMG=storageos/operator:${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
           echo "MANIFESTS_IMG=storageos/operator-manifests:${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - name: Run manifests image build
-        run: MANIFESTS_IMG=${{ env.MANIFESTS_IMG }} IMG=${{ env.MANIFEST_LIST }} make docker-build-manifests
+        run: make docker-build-manifests
       - name: Push manifests container image
         run: docker push ${{ env.MANIFESTS_IMG }}
