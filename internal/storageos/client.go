@@ -45,6 +45,9 @@ const (
 
 	// LogLevelDebug is the value of debug log level.
 	LogLevelDebug = "debug"
+
+	// LogLevelInfo is the value of debug log level.
+	LogLevelInfo = "info"
 )
 
 var (

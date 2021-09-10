@@ -60,6 +60,27 @@ func TestConfigureControlPlane(t *testing.T) {
 			},
 		},
 		{
+			name: "debug false",
+			initialCluster: &api.Cluster{
+				DisableTelemetry:      false,
+				DisableCrashReporting: false,
+				DisableVersionCheck:   false,
+				LogLevel:              "debug",
+				LogFormat:             "json",
+			},
+			clusterSpec: storageoscomv1.StorageOSClusterSpec{
+				DisableTelemetry: false,
+				Debug:            false,
+			},
+			updatedCluster: &api.UpdateClusterData{
+				DisableTelemetry:      false,
+				DisableCrashReporting: false,
+				DisableVersionCheck:   false,
+				LogLevel:              "info",
+				LogFormat:             "json",
+			},
+		},
+		{
 			name: "telemetry disable",
 			initialCluster: &api.Cluster{
 				DisableTelemetry:      false,
@@ -76,6 +97,27 @@ func TestConfigureControlPlane(t *testing.T) {
 				DisableTelemetry:      true,
 				DisableCrashReporting: true,
 				DisableVersionCheck:   true,
+				LogLevel:              "info",
+				LogFormat:             "json",
+			},
+		},
+		{
+			name: "telemetry enable",
+			initialCluster: &api.Cluster{
+				DisableTelemetry:      true,
+				DisableCrashReporting: true,
+				DisableVersionCheck:   true,
+				LogLevel:              "info",
+				LogFormat:             "json",
+			},
+			clusterSpec: storageoscomv1.StorageOSClusterSpec{
+				DisableTelemetry: false,
+				Debug:            false,
+			},
+			updatedCluster: &api.UpdateClusterData{
+				DisableTelemetry:      false,
+				DisableCrashReporting: false,
+				DisableVersionCheck:   false,
 				LogLevel:              "info",
 				LogFormat:             "json",
 			},

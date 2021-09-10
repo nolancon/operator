@@ -348,6 +348,7 @@ func configureControlPlane(ctx context.Context, stosCl *storageos.Client, cluste
 		LogFormat:             currentConfig.LogFormat,
 		Version:               currentConfig.Version,
 	}
+	desiredConfig.LogLevel = storageos.LogLevelInfo
 	if cluster.Spec.Debug {
 		desiredConfig.LogLevel = storageos.LogLevelDebug
 	}
