@@ -12,7 +12,7 @@ The StorageOS Operator deploys and configures a StorageOS cluster on Kubernetes.
 
 ## Setup/Development
 
-1. Build operator container image with `make docker-build`. Publish or copy
+1. Build operator container image with `make operator-image`. Publish or copy
    the container image to an existing k8s cluster to make it available for use
    within the cluster.
 2. Generate install manifest file with `make install-manifest`. This will

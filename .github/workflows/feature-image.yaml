@@ -10,8 +10,8 @@ on:
         required: false
 
 env:
-  IMG: storageos/operator:feature-${{ github.head_ref }}${{ github.event.inputs.tagPostfix }}
-  MANIFESTS_IMG: storageos/operator-manifests:feature-${{ github.head_ref }}${{ github.event.inputs.tagPostfix }}
+  OPERATOR_IMAGE: storageos/operator:feature-${{ github.head_ref }}${{ github.event.inputs.tagPostfix }}
+  MANIFESTS_IMAGE: storageos/operator-manifests:feature-${{ github.head_ref }}${{ github.event.inputs.tagPostfix }}
 
 jobs:
   publish-feature-image:
@@ -31,9 +31,9 @@ jobs:
           username: ${{ secrets.DH_USERNAME }}
           password: ${{ secrets.DH_PASSWORD }}
       - name: Build container image
-        run: make docker-build
+        run: make operator-image
       - name: Push container image
-        run: make docker-push
+        run: make operator-image-push
   publish-feature-manifests-image:
     runs-on: ubuntu-latest
     name: Publish manifests container image
@@ -51,6 +51,6 @@ jobs:
           username: ${{ secrets.DH_USERNAME }}
           password: ${{ secrets.DH_PASSWORD }}
       - name: Run manifests image build
-        run: make docker-build-manifests
+        run: make manifests-image
       - name: Push manifests container image
-        run: docker push ${{ env.MANIFESTS_IMG }}
+        run: docker push ${{ env.MANIFESTS_IMAGE }}

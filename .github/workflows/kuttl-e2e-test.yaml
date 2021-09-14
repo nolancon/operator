@@ -20,6 +20,6 @@ jobs:
       - name: Build and prepare manifests
         run: make kustomize manifests
       - name: Build container
-        run: make docker-build
+        run: make operator-image
       - name: Run kuttl
         run: kubectl-kuttl test --config tests/e2e/kuttl-test.yaml

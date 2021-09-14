@@ -21,7 +21,7 @@ Before running the scorecard tests, the operator must be installed in the
 cluster using the bundle in `bundle/` dir. To create a bundle image, run:
 
 ```console
-$ make bundle-build BUNDLE_IMG=<namespace>/operator-bundle:test
+$ make bundle-build BUNDLE_IMAGE=<namespace>/operator-bundle:test
 ```
 
 This will copy the files in `bundle/` into a container image in the proper OLM
@@ -31,7 +31,7 @@ pullable from a registry, a limitation of how the underlying
 the bundle is usable. Push the bundle image to a registry with:
 
 ```console
-$ make bundle-push BUNDLE_IMG=<namespace>/operator-bundle:test
+$ make bundle-push BUNDLE_IMAGE=<namespace>/operator-bundle:test
 ```
 
 Run the bundle:

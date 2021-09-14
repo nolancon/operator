@@ -7,10 +7,10 @@ on:
 
 env:
   MANIFEST_LIST: storageos/operator:develop
-  AMD_IMG: storageos/operator:develop-amd64
-  ARM64_IMG: storageos/operator:develop-arm64
-  ARM_IMG: storageos/operator:develop-arm
-  MANIFESTS_IMG: storageos/operator-manifests:develop
+  AMD_IMAGE: storageos/operator:develop-amd64
+  ARM64_IMAGE: storageos/operator:develop-arm64
+  ARM_IMAGE: storageos/operator:develop-arm
+  MANIFESTS_IMAGE: storageos/operator-manifests:develop
 
 jobs:
   publish-image:
@@ -45,13 +45,13 @@ jobs:
           args: --snapshot --rm-dist --config .github/.goreleaser-develop.yaml --skip-validate
       - name: Push container image
         run: |
-          docker push ${{ env.AMD_IMG }}
-          docker push ${{ env.ARM64_IMG }}
-          docker push ${{ env.ARM_IMG }}
+          docker push ${{ env.AMD_IMAGE }}
+          docker push ${{ env.ARM64_IMAGE }}
+          docker push ${{ env.ARM_IMAGE }}
       - name: Create and publish manifest list
         run: |
           docker manifest create ${{ env.MANIFEST_LIST }} \
-            ${{ env.AMD_IMG }} ${{ env.ARM64_IMG }} ${{ env.ARM_IMG }}
+            ${{ env.AMD_IMAGE }} ${{ env.ARM64_IMAGE }} ${{ env.ARM_IMAGE }}
           docker manifest push ${{ env.MANIFEST_LIST }}
   publish-manifests-image:
     runs-on: ubuntu-latest
@@ -70,6 +70,6 @@ jobs:
           username: ${{ secrets.DH_USERNAME }}
           password: ${{ secrets.DH_PASSWORD }}
       - name: Run manifests image build
-        run: IMG=${{ env.MANIFEST_LIST }} make docker-build-manifests
+        run: OPERATOR_IMAGE=${{ env.MANIFEST_LIST }} make manifests-image
       - name: Push manifests container image
-        run: docker push ${{ env.MANIFESTS_IMG }}
+        run: docker push ${{ env.MANIFESTS_IMAGE }}

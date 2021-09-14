@@ -33,15 +33,15 @@ BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL) $(BUNDLE_PA
 # my.domain/newop-bundle:$VERSION and my.domain/newop-catalog:$VERSION.
 IMAGE_TAG_BASE ?= storageos/operator
 
-# BUNDLE_IMG defines the image:tag used for the bundle.
-# You can use it as an arg. (E.g make bundle-build BUNDLE_IMG=<some-registry>/<project-name-bundle>:<tag>)
-BUNDLE_IMG ?= $(IMAGE_TAG_BASE)-bundle:v$(VERSION)
+# BUNDLE_IMAGE defines the image:tag used for the bundle.
+# You can use it as an arg. (E.g make bundle-build BUNDLE_IMAGE=<some-registry>/<project-name-bundle>:<tag>)
+BUNDLE_IMAGE ?= $(IMAGE_TAG_BASE)-bundle:v$(VERSION)
 
 # Image URL to use all building/pushing image targets
-IMG ?= storageos/operator:test
+OPERATOR_IMAGE ?= storageos/operator:test
 
 # Image URL for manifest image.
-MANIFESTS_IMG ?= storageos/operator-manifests:test
+MANIFESTS_IMAGE ?= storageos/operator-manifests:test
 
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS ?= "crd:trivialVersions=true,preserveUnknownFields=false"
@@ -60,29 +60,29 @@ endif
 SHELL = /usr/bin/env bash -o pipefail
 .SHELLFLAGS = -ec
 
-API_MANAGER_IMG ?= storageos/api-manager:v1.1.2
-EXTERNAL_PROVISIONER_IMG ?= storageos/csi-provisioner:v2.1.1-patched
-EXTERNAL_ATTACHER_IMG ?= quay.io/k8scsi/csi-attacher:v3.1.0
-EXTERNAL_RESIZER_IMG ?= quay.io/k8scsi/csi-resizer:v1.1.0
-INIT_IMG ?= storageos/init:v2.1.0
-NODE_IMG ?= storageos/node:v2.4.0
-NODE_DRIVER_REG_IMG ?= quay.io/k8scsi/csi-node-driver-registrar:v2.1.0
-LIVENESS_PROBE_IMG ?= quay.io/k8scsi/livenessprobe:v2.2.0
+API_MANAGER_IMAGE ?= storageos/api-manager:v1.1.2
+EXTERNAL_PROVISIONER_IMAGE ?= storageos/csi-provisioner:v2.1.1-patched
+EXTERNAL_ATTACHER_IMAGE ?= quay.io/k8scsi/csi-attacher:v3.1.0
+EXTERNAL_RESIZER_IMAGE ?= quay.io/k8scsi/csi-resizer:v1.1.0
+INIT_IMAGE ?= storageos/init:v2.1.0
+NODE_IMAGE ?= storageos/node:v2.4.0
+NODE_DRIVER_REG_IMAGE ?= quay.io/k8scsi/csi-node-driver-registrar:v2.1.0
+LIVENESS_PROBE_IMAGE ?= quay.io/k8scsi/livenessprobe:v2.2.0
 
 # The related image environment variables. These are used in the opreator's
 # configuration by converting into a ConfigMap and loading as a container's
 # environment variables. See make target cofig-update.
-define REL_IMG_CONF
-RELATED_IMAGE_API_MANAGER=${API_MANAGER_IMG}
-RELATED_IMAGE_CSIV1_EXTERNAL_PROVISIONER=${EXTERNAL_PROVISIONER_IMG}
-RELATED_IMAGE_CSIV1_EXTERNAL_ATTACHER_V3=${EXTERNAL_ATTACHER_IMG}
-RELATED_IMAGE_CSIV1_EXTERNAL_RESIZER=${EXTERNAL_RESIZER_IMG}
-RELATED_IMAGE_STORAGEOS_INIT=${INIT_IMG}
-RELATED_IMAGE_STORAGEOS_NODE=${NODE_IMG}
-RELATED_IMAGE_CSIV1_NODE_DRIVER_REGISTRAR=${NODE_DRIVER_REG_IMG}
-RELATED_IMAGE_CSIV1_LIVENESS_PROBE=${LIVENESS_PROBE_IMG}
+define REL_IMAGE_CONF
+RELATED_IMAGE_API_MANAGER=${API_MANAGER_IMAGE}
+RELATED_IMAGE_CSIV1_EXTERNAL_PROVISIONER=${EXTERNAL_PROVISIONER_IMAGE}
+RELATED_IMAGE_CSIV1_EXTERNAL_ATTACHER_V3=${EXTERNAL_ATTACHER_IMAGE}
+RELATED_IMAGE_CSIV1_EXTERNAL_RESIZER=${EXTERNAL_RESIZER_IMAGE}
+RELATED_IMAGE_STORAGEOS_INIT=${INIT_IMAGE}
+RELATED_IMAGE_STORAGEOS_NODE=${NODE_IMAGE}
+RELATED_IMAGE_CSIV1_NODE_DRIVER_REGISTRAR=${NODE_DRIVER_REG_IMAGE}
+RELATED_IMAGE_CSIV1_LIVENESS_PROBE=${LIVENESS_PROBE_IMAGE}
 endef
-export REL_IMG_CONF
+export REL_IMAGE_CONF
 
 all: build
 
@@ -132,35 +132,35 @@ build: generate fmt vet ## Build manager binary.
 	CGO_ENABLED=0 go build -o bin/manager main.go
 
 run: generate fmt vet manifests ## Run a controller from your host.
-	RELATED_IMAGE_API_MANAGER=${API_MANAGER_IMG} \
-	RELATED_IMAGE_CSIV1_EXTERNAL_PROVISIONER=${EXTERNAL_PROVISIONER_IMG} \
-	RELATED_IMAGE_CSIV1_EXTERNAL_ATTACHER_V3=${EXTERNAL_ATTACHER_IMG} \
-	RELATED_IMAGE_CSIV1_EXTERNAL_RESIZER=${EXTERNAL_RESIZER_IMG} \
-	RELATED_IMAGE_STORAGEOS_INIT=${INIT_IMG} \
-	RELATED_IMAGE_STORAGEOS_NODE=${NODE_IMG} \
-	RELATED_IMAGE_CSIV1_NODE_DRIVER_REGISTRAR=${NODE_DRIVER_REG_IMG} \
-	RELATED_IMAGE_CSIV1_LIVENESS_PROBE=${LIVENESS_PROBE_IMG} \
+	RELATED_IMAGE_API_MANAGER=${API_MANAGER_IMAGE} \
+	RELATED_IMAGE_CSIV1_EXTERNAL_PROVISIONER=${EXTERNAL_PROVISIONER_IMAGE} \
+	RELATED_IMAGE_CSIV1_EXTERNAL_ATTACHER_V3=${EXTERNAL_ATTACHER_IMAGE} \
+	RELATED_IMAGE_CSIV1_EXTERNAL_RESIZER=${EXTERNAL_RESIZER_IMAGE} \
+	RELATED_IMAGE_STORAGEOS_INIT=${INIT_IMAGE} \
+	RELATED_IMAGE_STORAGEOS_NODE=${NODE_IMAGE} \
+	RELATED_IMAGE_CSIV1_NODE_DRIVER_REGISTRAR=${NODE_DRIVER_REG_IMAGE} \
+	RELATED_IMAGE_CSIV1_LIVENESS_PROBE=${LIVENESS_PROBE_IMAGE} \
 	POD_NAMESPACE=default \
 	go run ./main.go
 
 config-update: ## Update the operator configuration.
-	@echo "$$REL_IMG_CONF" > config/manager/related_image_config.yaml
+	@echo "$$REL_IMAGE_CONF" > config/manager/related_image_config.yaml
 
 # Build the docker image
 # NOTE: The Dockerfile is written for use with goreleaser. For the same
 # Dockerfile to work directly with docker, the binary is copied to the PWD and
 # removed after use.
-docker-build: build ## Build docker image with the manager.
+operator-image: build ## Build docker image with the manager.
 	@cp bin/manager manager
-	docker build -t ${IMG} .
+	docker build -t ${OPERATOR_IMAGE} .
 	@rm -f manager
 
-docker-push: ## Push docker image with the manager.
-	docker push ${IMG}
+operator-image-push: ## Push docker image with the manager.
+	docker push ${OPERATOR_IMAGE}
 
 # Build the manifests docker image
-docker-build-manifests:
-	docker build -t $(MANIFESTS_IMG) --build-arg OPERATOR_IMAGE=$(IMG) -f manifests.Dockerfile .
+manifests-image:
+	docker build -t $(MANIFESTS_IMAGE) --build-arg OPERATOR_IMAGE=$(OPERATOR_IMAGE) -f manifests.Dockerfile .
 
 ##@ Deployment
 
@@ -171,14 +171,14 @@ uninstall: manifests kustomize ## Uninstall CRDs from the K8s cluster specified 
 	$(KUSTOMIZE) build config/crd | kubectl delete -f -
 
 deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in ~/.kube/config.
-	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
+	cd config/manager && $(KUSTOMIZE) edit set image controller=${OPERATOR_IMAGE}
 	$(KUSTOMIZE) build config/default | kubectl apply -f -
 
 undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/config.
 	$(KUSTOMIZE) build config/default | kubectl delete -f -
 
 install-manifest: manifests kustomize ## Generate the operator install manifest.
-	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
+	cd config/manager && $(KUSTOMIZE) edit set image controller=${OPERATOR_IMAGE}
 	$(KUSTOMIZE) build config/default > storageos-operator.yaml
 
 build-snapshot: ## Build development binaries and container images using goreleaser.
@@ -213,18 +213,18 @@ endef
 .PHONY: bundle
 bundle: manifests kustomize ## Generate bundle manifests and metadata, then validate generated files.
 	operator-sdk generate kustomize manifests --package=storageosoperator --apis-dir=apis/v1 -q
-	cd config/manager && $(KUSTOMIZE) edit set image controller=$(IMG)
+	cd config/manager && $(KUSTOMIZE) edit set image controller=$(OPERATOR_IMAGE)
 	$(KUSTOMIZE) build config/manifests | operator-sdk generate bundle --overwrite --version $(VERSION) $(BUNDLE_METADATA_OPTS)
 	operator-sdk bundle validate ./bundle
 
 # Build the bundle image.
 .PHONY: bundle-build
 bundle-build: ## Build the bundle image.
-	docker build -f bundle.Dockerfile -t $(BUNDLE_IMG) .
+	docker build -f bundle.Dockerfile -t $(BUNDLE_IMAGE) .
 
 .PHONY: bundle-push
 bundle-push: ## Push the bundle image.
-	$(MAKE) docker-push IMG=$(BUNDLE_IMG)
+	$(MAKE) operator-image-push OPERATOR_IMAGE=$(BUNDLE_IMAGE)
 
 .PHONY: opm
 OPM = ./bin/opm
@@ -243,16 +243,16 @@ OPM = $(shell which opm)
 endif
 endif
 
-# A comma-separated list of bundle images (e.g. make catalog-build BUNDLE_IMGS=example.com/operator-bundle:v0.1.0,example.com/operator-bundle:v0.2.0).
+# A comma-separated list of bundle images (e.g. make catalog-build BUNDLE_IMAGES=example.com/operator-bundle:v0.1.0,example.com/operator-bundle:v0.2.0).
 # These images MUST exist in a registry and be pull-able.
-BUNDLE_IMGS ?= $(BUNDLE_IMG)
+BUNDLE_IMAGES ?= $(BUNDLE_IMAGE)
 
-# The image tag given to the resulting catalog image (e.g. make catalog-build CATALOG_IMG=example.com/operator-catalog:v0.2.0).
-CATALOG_IMG ?= $(IMAGE_TAG_BASE)-catalog:v$(VERSION)
+# The image tag given to the resulting catalog image (e.g. make catalog-build CATALOG_IMAGE=example.com/operator-catalog:v0.2.0).
+CATALOG_IMAGE ?= $(IMAGE_TAG_BASE)-catalog:v$(VERSION)
 
-# Set CATALOG_BASE_IMG to an existing catalog image tag to add $BUNDLE_IMGS to that image.
-ifneq ($(origin CATALOG_BASE_IMG), undefined)
-FROM_INDEX_OPT := --from-index $(CATALOG_BASE_IMG)
+# Set CATALOG_BASE_IMAGE to an existing catalog image tag to add $BUNDLE_IMAGES to that image.
+ifneq ($(origin CATALOG_BASE_IMAGE), undefined)
+FROM_INDEX_OPT := --from-index $(CATALOG_BASE_IMAGE)
 endif
 
 # Build a catalog image by adding bundle images to an empty catalog using the operator package manager tool, 'opm'.
@@ -260,9 +260,9 @@ endif
 # https://github.com/operator-framework/community-operators/blob/7f1438c/docs/packaging-operator.md#updating-your-existing-operator
 .PHONY: catalog-build
 catalog-build: opm ## Build a catalog image.
-	$(OPM) index add --container-tool docker --mode semver --tag $(CATALOG_IMG) --bundles $(BUNDLE_IMGS) $(FROM_INDEX_OPT)
+	$(OPM) index add --container-tool docker --mode semver --tag $(CATALOG_IMAGE) --bundles $(BUNDLE_IMAGES) $(FROM_INDEX_OPT)
 
 # Push the catalog image.
 .PHONY: catalog-push
 catalog-push: ## Push a catalog image.
-	$(MAKE) docker-push IMG=$(CATALOG_IMG)
+	$(MAKE) operator-image-push OPERATOR_IMAGE=$(CATALOG_IMAGE)
