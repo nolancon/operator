@@ -8,4 +8,4 @@ roleRef:
   name: storageos:csi-provisioner
 subjects:
 - kind: ServiceAccount
-  name: storageos-csi-helper-sa
+  name: storageos-csi-helper

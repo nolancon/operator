@@ -8,4 +8,4 @@ roleRef:
   name: storageos:scheduler-extender
 subjects:
 - kind: ServiceAccount
-  name: storageos-scheduler-sa
+  name: storageos-scheduler

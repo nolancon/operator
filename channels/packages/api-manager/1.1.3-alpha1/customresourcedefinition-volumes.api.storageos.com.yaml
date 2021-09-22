@@ -1,0 +1,243 @@
+
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.4.1
+  creationTimestamp: null
+  labels:
+    app: storageos
+    app.kubernetes.io/component: api-manager
+  name: volumes.api.storageos.com
+spec:
+  group: api.storageos.com
+  names:
+    kind: Volume
+    listKind: VolumeList
+    plural: volumes
+    singular: volume
+  scope: Cluster
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        description: Volume is the Schema for the volumes API.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: VolumeSpec defines the desired state of Volume.
+            properties:
+              configLabels:
+                additionalProperties:
+                  type: string
+                description: 'ConfigLabels are the volume configurations stored as
+                  labels in the control plane. NOTE: Since the k8s labels and annotations
+                  have certain naming rules, this field helps store the key-value
+                  configuration data without any naming restrictions. This can also
+                  be used to introduce new volume configurations which can later be
+                  moved to dedicated fields in the spec.'
+                type: object
+              description:
+                description: Description is an optional and can describe the volume.
+                type: string
+              fsType:
+                description: FSType is the requested filesystem type. Once set it
+                  can't be changed.
+                type: string
+              nfs:
+                description: NFS holds configuration for NFS-based shared volumes.
+                properties:
+                  exports:
+                    description: Exports is the NFS export configuration.
+                    items:
+                      description: NFSExportConfig is the NFS export configuration.
+                      properties:
+                        acls:
+                          description: Acls is the NFS Access Control List.
+                          items:
+                            description: NFSAcl is the NFS Access Control List.
+                            properties:
+                              accessLevel:
+                                description: AccessLevel is the access level this
+                                  ACL grants - read-only, or read-write.
+                                type: string
+                              identity:
+                                description: Identity is the NFS ACL identity.
+                                properties:
+                                  identityType:
+                                    description: The identity type used to identify
+                                      the nfs client.
+                                    type: string
+                                  matcher:
+                                    description: NFS identity matcher. For "cidr",
+                                      this should be a valid CIDR block string such
+                                      as "10.0.0.0/8". For "hostname", this must
+                                      be the hostname sent by the client, with ? and
+                                      * wildcard characters. For netgroup, this must
+                                      be in the form of "@netgroup" with ? and *
+                                      wildcard characters.
+                                    type: string
+                                type: object
+                              squashConfig:
+                                description: SquashConfig is the NFS ACL squash configuration.
+                                properties:
+                                  gid:
+                                    format: int64
+                                    type: integer
+                                  squash:
+                                    description: SquashConfig defines the root squashing
+                                      behaviour. When a client creates a file, it
+                                      sends the user UID from the client. If the client
+                                      is running as root, this sends uid=0. Root squashing
+                                      allows the NFS administrator to prevent the
+                                      client from writing as "root" to the NFS share,
+                                      instead mapping the client to a new UID/GID
+                                      (usually nfsnobody, -2). "none" performs no
+                                      UID/GID alterations, using the values sent by
+                                      the client. "root" mapps UID & GID 0 to the
+                                      values specified. "rootuid" maps UID 0 and
+                                      a GID of any value to the value specified. "all"
+                                      maps changes all UID and GID values to those
+                                      specified.
+                                    type: string
+                                  uid:
+                                    format: int64
+                                    type: integer
+                                type: object
+                            type: object
+                          type: array
+                        exportID:
+                          description: ID for this export
+                          format: int64
+                          type: integer
+                        path:
+                          description: The path relative to the volume root to serve
+                            as the export root
+                          type: string
+                        pseudoPath:
+                          description: The configured pseudo path in the NFS virtual
+                            filesystem. This is the path clients will see when traversing
+                            to this export on the NFS share.
+                          type: string
+                      type: object
+                    type: array
+                  serviceEndpoint:
+                    description: The address to which the NFS server is bound.
+                    type: string
+                type: object
+              replicas:
+                description: Replicas is the number of volume replicas.
+                format: int32
+                type: integer
+              sizeBytes:
+                description: SizeBytes is the volume's size in bytes. The size can
+                  be increased via CSI.
+                format: int64
+                type: integer
+              strategy:
+                description: Strategy is the volume placement strategy.
+                type: integer
+            type: object
+          status:
+            description: VolumeStatus defines the observed state of Volume.
+            properties:
+              attachedOn:
+                type: string
+              attachmentType:
+                description: AttachType is the attachment type of a volume.
+                type: string
+              consumerCount:
+                format: int64
+                type: integer
+              master:
+                description: MasterDeploymentInfo contains the information about a
+                  master deployment.
+                properties:
+                  health:
+                    description: Health is the health of the master.
+                    type: string
+                  id:
+                    description: A unique identifier for a volume deployment. The
+                      format of this type is undefined and may change but the defined
+                      properties will not change.
+                    type: string
+                  nodeID:
+                    description: A unique identifier for a node. The format of this
+                      type is undefined and may change but the defined properties
+                      will not change.
+                    type: string
+                  promotable:
+                    description: Indicates if the volume deployment is eligible for
+                      promotion.
+                    type: boolean
+                type: object
+              replicas:
+                items:
+                  description: ReplicaDeploymentInfo contains the information about
+                    a replica deployment.
+                  properties:
+                    health:
+                      description: Health is the health of the replica.
+                      type: string
+                    id:
+                      description: A unique identifier for a volume deployment. The
+                        format of this type is undefined and may change but the defined
+                        properties will not change.
+                      type: string
+                    nodeID:
+                      description: A unique identifier for a node. The format of this
+                        type is undefined and may change but the defined properties
+                        will not change.
+                      type: string
+                    promotable:
+                      description: Indicates if the volume deployment is eligible
+                        for promotion.
+                      type: boolean
+                    syncProgress:
+                      description: SyncProgress is the sync progress of the replica.
+                      properties:
+                        bytesRemaining:
+                          description: Number of bytes left remaining to complete
+                            the sync.
+                          format: int64
+                          type: integer
+                        estimatedSecondsRemaining:
+                          description: The estimated time left for the sync to complete,
+                            given in seconds. When this field has a value of 0 either
+                            the  sync is complete or no duration estimate could be
+                            made. The values reported for bytesRemaining and throughputBytes
+                            provide the client with the information needed to choose
+                            what to display.
+                          format: int64
+                          type: integer
+                        throughputBytes:
+                          description: The average throughput of the sync given as
+                            bytes per  second.
+                          format: int64
+                          type: integer
+                      type: object
+                  type: object
+                type: array
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

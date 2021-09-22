@@ -22,7 +22,7 @@ spec:
       dnsPolicy: ClusterFirst
       priorityClassName: system-cluster-critical
       restartPolicy: Always
-      serviceAccountName: storageos-scheduler-sa
+      serviceAccountName: storageos-scheduler
       terminationGracePeriodSeconds: 30
       tolerations:
       - key: node.kubernetes.io/disk-pressure
@@ -38,4 +38,4 @@ spec:
       volumes:
       - name: config
         configMap:
-          name: storageos-scheduler-config
+          name: storageos-scheduler

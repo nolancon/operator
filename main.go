@@ -44,6 +44,11 @@ func init() {
 	// +kubebuilder:scaffold:scheme
 }
 
+// +kubebuilder:rbac:groups=admissionregistration.k8s.io,resources=mutatingwebhookconfigurations;validatingwebhookconfigurations,verbs=*
+// +kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups="",resources=configmaps/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups="coordination.k8s.io",resources=leases,verbs=get;list;watch;create;update;patch;delete
+
 func main() {
 	var configFile string
 	flag.StringVar(&configFile, "config", "",
@@ -76,7 +81,10 @@ func main() {
 	// Load controller manager configuration and create manager options from
 	// it.
 	ctrlConfig := configstorageoscomv1.OperatorConfig{}
-	options := ctrl.Options{Scheme: scheme}
+	options := ctrl.Options{
+		Scheme:           scheme,
+		LeaderElectionID: "operator",
+	}
 	if configFile != "" {
 		var err error
 		options, err = options.AndFrom(ctrl.ConfigFile().AtPath(configFile).OfKind(&ctrlConfig))

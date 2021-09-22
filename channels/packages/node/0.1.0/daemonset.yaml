@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: storageos-daemonset
+  name: storageos-node
 spec:
   template:
     metadata:
@@ -34,7 +34,7 @@ spec:
               fieldPath: status.podIP
         envFrom:
         - configMapRef:
-            name: storageos-node-config
+            name: storageos-node
             optional: false
         image: storageos-node
         imagePullPolicy: IfNotPresent
@@ -111,16 +111,16 @@ spec:
       initContainers:
       - env:
         - name: DAEMONSET_NAME
-          value: storageos-daemonset
+          value: storageos-node
         - name: DAEMONSET_NAMESPACE
           value: default
         envFrom:
         - configMapRef:
-            name: storageos-node-config
+            name: storageos-node
             optional: false
         image: storageos-init
         imagePullPolicy: IfNotPresent
-        name: storageos-init
+        name: init
         resources: {}
         securityContext:
           capabilities:
@@ -139,7 +139,7 @@ spec:
           name: state
       priorityClassName: system-node-critical
       restartPolicy: Always
-      serviceAccountName: storageos-daemonset-sa
+      serviceAccountName: storageos-node
       terminationGracePeriodSeconds: 30
       tolerations:
       - key: node.kubernetes.io/disk-pressure
@@ -174,7 +174,7 @@ spec:
           type: ""
         name: state
       - configMap:
-          name: storageos-node-config
+          name: storageos-node
           optional: false
         name: config
       - hostPath:

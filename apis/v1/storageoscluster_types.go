@@ -257,7 +257,7 @@ type MembersStatus struct {
 // +kubebuilder:resource:path=storageosclusters,shortName=stos
 
 // StorageOSCluster is the Schema for the storageosclusters API
-//+operator-sdk:csv:customresourcedefinitions:displayName="StorageOS Cluster",resources={{DaemonSet,apps/v1,storageos-daemonset},{Deployment,apps/v1,storageos-api-manager},{Deployment,apps/v1,storageos-csi-helper},{Deployment,apps/v1,storageos-scheduler}}
+//+operator-sdk:csv:customresourcedefinitions:displayName="StorageOS Cluster",resources={{DaemonSet,apps/v1,storageos-node},{Deployment,apps/v1,storageos-api-manager},{Deployment,apps/v1,storageos-csi-helper},{Deployment,apps/v1,storageos-scheduler}}
 type StorageOSCluster struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

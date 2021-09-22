@@ -4,7 +4,7 @@ metadata:
   name: storageos-mutating-webhook
   labels:
     app: storageos
-    app.kubernetes.io/component: storageos-api-manager
+    app.kubernetes.io/component: api-manager
 webhooks:
 - admissionReviewVersions:
   - v1
@@ -65,12 +65,12 @@ metadata:
   namespace: default
   labels:
     app: storageos
-    app.kubernetes.io/component: storageos-api-manager
+    app.kubernetes.io/component: api-manager
 ---
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: storageos-daemonset
+  name: storageos-node
   namespace: default
   labels:
     app: storageos
@@ -85,7 +85,7 @@ metadata:
   namespace: default
   labels:
     app: storageos
-    app.kubernetes.io/component: storageos-api-manager
+    app.kubernetes.io/component: api-manager
 status:
   readyReplicas: 2
 ---

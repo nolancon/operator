@@ -53,13 +53,13 @@ metadata:
   namespace: storageos
 spec:
   secretRefName: storageos-api
-  storageClassName: storageos-sc
+  storageClassName: storageos
   kvBackend:
     address: "<etcd-address>"
 ```
 
 This will create a StorageOS cluster in `storageos` namespace with a
-StorageClass `storageos-sc` that can be used to provision StorageOS volumes.
+StorageClass `storageos` that can be used to provision StorageOS volumes.
 
 ## Testing
 

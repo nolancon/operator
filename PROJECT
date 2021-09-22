@@ -1,6 +1,5 @@
 componentConfig: true
-layout:
-- go.kubebuilder.io/v3
+layout: go.kubebuilder.io/v3
 multigroup: true
 plugins:
   manifests.sdk.operatorframework.io/v2: {}

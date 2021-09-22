@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storageos-operator
+  namespace: storageos
+spec:
+  template:
+    spec:
+      containers:
+      - name: manager
+        args:
+        - "--config=operator_config.yaml"
+        volumeMounts:
+        - name: storageos-operator
+          mountPath: /operator_config.yaml
+          subPath: operator_config.yaml
+      volumes:
+      - name: storageos-operator
+        configMap:
+          name: storageos-operator

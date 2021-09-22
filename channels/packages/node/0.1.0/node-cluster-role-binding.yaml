@@ -10,4 +10,4 @@ roleRef:
   name: storageos:node
 subjects:
 - kind: ServiceAccount
-  name: storageos-daemonset-sa
+  name: storageos-node

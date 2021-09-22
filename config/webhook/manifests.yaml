@@ -4,14 +4,14 @@ apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingWebhookConfiguration
 metadata:
   creationTimestamp: null
-  name: operator-validating-webhook-configuration
+  name: storageos-operator-validating-webhook
 webhooks:
 - admissionReviewVersions:
   - v1
   clientConfig:
     service:
-      name: operator-webhook-service
-      namespace: system
+      name: storageos-operator-webhook
+      namespace: storageos
       path: /validate-storageoscluster
   failurePolicy: Fail
   name: cluster-validator.storageos.com

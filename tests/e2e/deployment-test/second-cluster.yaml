@@ -6,6 +6,6 @@ metadata:
 spec:
   secretRefName: storageos-api
   disableTelemetry: true
-  storageClassName: "storageos-sc"
+  storageClassName: "storageos"
   kvBackend:
     address: "etcd-client.default.svc.cluster.local:2379"

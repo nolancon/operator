@@ -135,14 +135,14 @@ func getAPIManagerBuilder(fs filesys.FileSystem, obj client.Object, kcl kubectl.
 	// update the subject namespace of the service account. Set the cross
 	// referenced service account namespace.
 	// Refer: https://github.com/kubernetes-sigs/kustomize/issues/1377
-	daemonsetSASubjectNamespaceTF := stransform.SetClusterRoleBindingSubjectNamespaceFunc("storageos-daemonset-sa", cluster.GetNamespace())
+	daemonsetSASubjectNamespaceTF := stransform.SetClusterRoleBindingSubjectNamespaceFunc("storageos-node", cluster.GetNamespace())
 
 	roleBindingTransforms = append(roleBindingTransforms, daemonsetSASubjectNamespaceTF)
 
 	return declarative.NewBuilder(apiManagerPackage, fs,
 		declarative.WithManifestTransform(transform.ManifestTransform{
-			"api-manager/deployment.yaml":                  deploymentTransforms,
-			"api-manager/key-management-role-binding.yaml": roleBindingTransforms,
+			"api-manager/deployment-storageos-api-manager.yaml":            deploymentTransforms,
+			"api-manager/clusterrolebinding-storageos-key-management.yaml": roleBindingTransforms,
 		}),
 		declarative.WithKustomizeMutationFunc([]kustomize.MutateFunc{
 			kustomize.AddNamespace(cluster.GetNamespace()),

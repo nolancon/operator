@@ -34,7 +34,7 @@ const (
 	storageosContainer = "storageos"
 
 	// initContainer is the name of the storageos init container.
-	initContainer = "storageos-init"
+	initContainer = "init"
 
 	// storageosService is the default name of the storageos service.
 	storageosService = "storageos"
@@ -90,7 +90,7 @@ func (c *NodeOperand) ReadyCheck(ctx context.Context, obj client.Object) (bool, 
 	// Other components that depend on control-plane should be able to connect
 	// to it.
 	nodeDS := &appsv1.DaemonSet{}
-	key := client.ObjectKey{Name: "storageos-daemonset", Namespace: obj.GetNamespace()}
+	key := client.ObjectKey{Name: "storageos-node", Namespace: obj.GetNamespace()}
 	if err := c.client.Get(ctx, key, nodeDS); err != nil {
 		return false, err
 	}
@@ -100,7 +100,7 @@ func (c *NodeOperand) ReadyCheck(ctx context.Context, obj client.Object) (bool, 
 		return true, nil
 	}
 
-	log.V(4).Info("storageos-daemonset not ready")
+	log.V(4).Info("node not ready")
 	return false, nil
 }
 

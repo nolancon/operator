@@ -18,7 +18,7 @@ spec:
           value: /csi/csi.sock
         image: csi-provisioner
         imagePullPolicy: IfNotPresent
-        name: csi-external-provisioner
+        name: provisioner
         securityContext:
           privileged: true
         volumeMounts:
@@ -32,7 +32,7 @@ spec:
           value: /csi/csi.sock
         image: csi-attacher
         imagePullPolicy: IfNotPresent
-        name: csi-external-attacher
+        name: attacher
         securityContext:
           privileged: true
         volumeMounts:
@@ -46,7 +46,7 @@ spec:
           value: /csi/csi.sock
         image: csi-resizer
         imagePullPolicy: IfNotPresent
-        name: csi-external-resizer
+        name: resizer
         securityContext:
           privileged: true
         volumeMounts:
@@ -54,7 +54,7 @@ spec:
           name: plugin-dir
       priorityClassName: system-cluster-critical
       restartPolicy: Always
-      serviceAccountName: storageos-csi-helper-sa
+      serviceAccountName: storageos-csi-helper
       terminationGracePeriodSeconds: 30
       tolerations:
       - key: node.kubernetes.io/disk-pressure

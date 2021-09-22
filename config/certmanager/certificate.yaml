@@ -4,16 +4,16 @@
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
-  name: selfsigned-issuer
-  namespace: system
+  name: storageos-selfsigned-issuer
+  namespace: storageos
 spec:
   selfSigned: {}
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: serving-cert  # this name should match the one appeared in kustomizeconfig.yaml
-  namespace: system
+  name: storageos-serving-cert  # this name should match the one appeared in kustomizeconfig.yaml
+  namespace: storageos
 spec:
   # $(SERVICE_NAME) and $(SERVICE_NAMESPACE) will be substituted by kustomize
   dnsNames:
@@ -21,5 +21,5 @@ spec:
   - $(SERVICE_NAME).$(SERVICE_NAMESPACE).svc.cluster.local
   issuerRef:
     kind: Issuer
-    name: selfsigned-issuer
+    name: storageos-selfsigned-issuer
   secretName: webhook-server-cert # this secret will not be prefixed, since it's not managed by kustomize

@@ -52,16 +52,12 @@ func NewStorageOSClusterReconciler(mgr ctrl.Manager) *StorageOSClusterReconciler
 // +kubebuilder:rbac:groups="",resources=nodes,verbs=get;list;watch;create;update;patch
 // +kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups="",resources=events;namespaces;serviceaccounts;secrets;services;services/status;services/finalizers;persistentvolumeclaims;persistentvolumeclaims/status;persistentvolumes;configmaps;configmaps/status;replicationcontrollers;pods/binding;pods/status;endpoints;endpoints/status,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=roles;rolebindings;clusterroles;clusterrolebindings,verbs=get;create;delete;bind
+// +kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=roles;rolebindings;clusterroles;clusterrolebindings,verbs=get;create;patch;delete;bind
 // +kubebuilder:rbac:groups=storage.k8s.io,resources=storageclasses;volumeattachments;volumeattachments/status;csinodeinfos;csinodes;csidrivers,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=apiextensions.k8s.io,resources=customresourcedefinitions,verbs=create;delete
+// +kubebuilder:rbac:groups=apiextensions.k8s.io,resources=customresourcedefinitions,verbs=get;create;patch;delete
 // +kubebuilder:rbac:groups=csi.storage.k8s.io,resources=csidrivers,verbs=create;delete
 // +kubebuilder:rbac:groups=policy,resources=poddisruptionbudgets,verbs=list;watch
 // +kubebuilder:rbac:groups=security.openshift.io,resources=securitycontextconstraints,resourceNames=privileged,verbs=get;create;update;delete;use
-// +kubebuilder:rbac:groups=admissionregistration.k8s.io,resources=mutatingwebhookconfigurations;validatingwebhookconfigurations,verbs=*
-// +kubebuilder:rbac:groups=events.k8s.io,resources=events,verbs=create;patch
-// +kubebuilder:rbac:groups=coordination.k8s.io,resources=leases,verbs=get;create;update
-// +kubebuilder:rbac:groups=scheduling.k8s.io,resources=priorityclasses,verbs=get;list;create;update;patch;delete
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *StorageOSClusterReconciler) SetupWithManager(mgr ctrl.Manager) error {

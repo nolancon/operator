@@ -5,7 +5,7 @@ metadata:
 spec:
   # Add fields here
   secretRefName: storageos-api
-  storageClassName: "storageos-sc"
+  storageClassName: "storageos"
   kvBackend:
     address: "etcd-client:2379"
     # address: "etcd-client.default.svc.cluster.local:2379"

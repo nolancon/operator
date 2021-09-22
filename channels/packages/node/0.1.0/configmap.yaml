@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: storageos-node-config
+  name: storageos-node
 data:
   CSI_ENDPOINT: unix:///var/lib/kubelet/plugins_registry/storageos/csi.sock
   CSI_VERSION: v1

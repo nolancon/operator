@@ -11,7 +11,7 @@ resources:
 configMapGenerator:
 - files:
   - config.yaml
-  name: storageos-scheduler-config
+  name: storageos-scheduler
 
 images:
   - name: kube-scheduler

@@ -178,7 +178,7 @@ func getNodeCondition(ctx context.Context, cl client.Client, namespace string, l
 		Message: "Node Not Ready",
 	}
 	nodeDS := &appsv1.DaemonSet{}
-	nodeKey := client.ObjectKey{Name: "storageos-daemonset", Namespace: namespace}
+	nodeKey := client.ObjectKey{Name: "storageos-node", Namespace: namespace}
 	if err := cl.Get(ctx, nodeKey, nodeDS); err != nil {
 		if !apierrors.IsNotFound(err) {
 			log.Error(err, "failed to get node status")

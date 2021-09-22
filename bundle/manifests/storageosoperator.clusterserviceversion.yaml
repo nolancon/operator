@@ -15,7 +15,7 @@ metadata:
               "address": "etcd-client:2379"
             },
             "secretRefName": "storageos-api",
-            "storageClassName": "storageos-sc"
+            "storageClassName": "storageos"
           }
         }
       ]
@@ -24,7 +24,7 @@ metadata:
     containerImage: storageos/operator:v2.5.0
     createdAt: ""
     description: Cloud-native, persistent storage for containers.
-    operators.operatorframework.io/builder: operator-sdk-v1.8.0+git
+    operators.operatorframework.io/builder: operator-sdk-unknown
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/storageos/operator
     support: StorageOS, Inc
@@ -46,7 +46,7 @@ spec:
         name: storageos-csi-helper
         version: apps/v1
       - kind: DaemonSet
-        name: storageos-daemonset
+        name: storageos-node
         version: apps/v1
       - kind: Deployment
         name: storageos-scheduler
@@ -64,29 +64,22 @@ spec:
       - description: KVBackend defines the key-value store backend used in the cluster.
         displayName: KVBackend
         path: kvBackend
-      - description: NodeSelectorTerms is to set the placement of storageos pods using
-          node affinity requiredDuringSchedulingIgnoredDuringExecution.
+      - description: NodeSelectorTerms is to set the placement of storageos pods using node affinity requiredDuringSchedulingIgnoredDuringExecution.
         displayName: Node Selector Terms
         path: nodeSelectorTerms
-      - description: Resources is to set the resource requirements of the storageos
-          containers.
+      - description: Resources is to set the resource requirements of the storageos containers.
         displayName: Resources
         path: resources
-      - description: SecretRefName is the name of the secret object that contains
-          all the sensitive cluster configurations.
+      - description: SecretRefName is the name of the secret object that contains all the sensitive cluster configurations.
         displayName: Secret Ref Name
         path: secretRefName
-      - description: StorageClassName is the name of default StorageClass created
-          for StorageOS volumes.
+      - description: StorageClassName is the name of default StorageClass created for StorageOS volumes.
         displayName: Storage Class Name
         path: storageClassName
-      - description: TLSEtcdSecretRefName is the name of the secret object that contains
-          the etcd TLS certs. This secret is shared with etcd, therefore it's not
-          part of the main storageos secret.
+      - description: TLSEtcdSecretRefName is the name of the secret object that contains the etcd TLS certs. This secret is shared with etcd, therefore it's not part of the main storageos secret.
         displayName: TLSEtcd Secret Ref Name
         path: tlsEtcdSecretRefName
-      - description: Tolerations is to set the placement of storageos pods using pod
-          toleration.
+      - description: Tolerations is to set the placement of storageos pods using pod toleration.
         displayName: Tolerations
         path: tolerations
       statusDescriptors:
@@ -190,6 +183,18 @@ spec:
           - ""
           resources:
           - configmaps
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - ""
+          resources:
+          - configmaps
           - configmaps/status
           - endpoints
           - endpoints/status
@@ -214,6 +219,14 @@ spec:
           - patch
           - update
           - watch
+        - apiGroups:
+          - ""
+          resources:
+          - configmaps/status
+          verbs:
+          - get
+          - patch
+          - update
         - apiGroups:
           - ""
           resources:
@@ -251,6 +264,8 @@ spec:
           verbs:
           - create
           - delete
+          - get
+          - patch
         - apiGroups:
           - apps
           resources:
@@ -266,8 +281,12 @@ spec:
           - leases
           verbs:
           - create
+          - delete
           - get
+          - list
+          - patch
           - update
+          - watch
         - apiGroups:
           - csi.storage.k8s.io
           resources:
@@ -275,13 +294,6 @@ spec:
           verbs:
           - create
           - delete
-        - apiGroups:
-          - events.k8s.io
-          resources:
-          - events
-          verbs:
-          - create
-          - patch
         - apiGroups:
           - policy
           resources:
@@ -301,17 +313,7 @@ spec:
           - create
           - delete
           - get
-        - apiGroups:
-          - scheduling.k8s.io
-          resources:
-          - priorityclasses
-          verbs:
-          - create
-          - delete
-          - get
-          - list
           - patch
-          - update
         - apiGroups:
           - security.openshift.io
           resourceNames:
@@ -368,6 +370,32 @@ spec:
           - patch
           - update
         - apiGroups:
+          - ""
+          resources:
+          - node
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - events.k8s.io
+          resources:
+          - events
+          verbs:
+          - create
+          - patch
+        - apiGroups:
+          - scheduling.k8s.io
+          resources:
+          - priorityclasses
+          verbs:
+          - get
+          - list
+          - create
+          - update
+          - patch
+          - delete
+        - apiGroups:
           - authentication.k8s.io
           resources:
           - tokenreviews
@@ -379,23 +407,27 @@ spec:
           - subjectaccessreviews
           verbs:
           - create
-        serviceAccountName: default
+        serviceAccountName: storageos-operator
       deployments:
-      - name: storageos-controller-manager
+      - name: storageos-operator
         spec:
           replicas: 1
           selector:
             matchLabels:
-              control-plane: controller-manager
+              app: storageos
+              app.kubernetes.io/component: operator
+              control-plane: storageos-operator
           strategy: {}
           template:
             metadata:
               labels:
-                control-plane: controller-manager
+                app: storageos
+                app.kubernetes.io/component: operator
+                control-plane: storageos-operator
             spec:
               containers:
               - args:
-                - --config=controller_manager_config.yaml
+                - --config=operator_config.yaml
                 command:
                 - /manager
                 env:
@@ -405,7 +437,7 @@ spec:
                       fieldPath: metadata.namespace
                 envFrom:
                 - configMapRef:
-                    name: storageos-related-image-config
+                    name: storageos-related-images
                 image: storageos/operator:test
                 livenessProbe:
                   httpGet:
@@ -424,9 +456,9 @@ spec:
                 securityContext:
                   allowPrivilegeEscalation: false
                 volumeMounts:
-                - mountPath: /controller_manager_config.yaml
-                  name: manager-config
-                  subPath: controller_manager_config.yaml
+                - mountPath: /operator_config.yaml
+                  name: storageos-operator
+                  subPath: operator_config.yaml
               - args:
                 - --secure-listen-address=0.0.0.0:8443
                 - --upstream=http://127.0.0.1:8080/
@@ -440,35 +472,12 @@ spec:
                 resources: {}
               securityContext:
                 runAsUser: 65532
+              serviceAccountName: storageos-operator
               terminationGracePeriodSeconds: 10
               volumes:
               - configMap:
-                  name: storageos-manager-config
-                name: manager-config
-      permissions:
-      - rules:
-        - apiGroups:
-          - ""
-          - coordination.k8s.io
-          resources:
-          - configmaps
-          - leases
-          verbs:
-          - get
-          - list
-          - watch
-          - create
-          - update
-          - patch
-          - delete
-        - apiGroups:
-          - ""
-          resources:
-          - events
-          verbs:
-          - create
-          - patch
-        serviceAccountName: default
+                  name: storageos-operator
+                name: storageos-operator
     strategy: deployment
   installModes:
   - supported: true
@@ -507,7 +516,7 @@ spec:
   - admissionReviewVersions:
     - v1
     containerPort: 443
-    deploymentName: storageos-controller-manager
+    deploymentName: storageos-operator
     failurePolicy: Fail
     generateName: cluster-validator.storageos.com
     rules:

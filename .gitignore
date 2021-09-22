@@ -10,6 +10,7 @@ testbin/*
 kind-logs-*/*
 kubeconfig
 storageos-operator.yaml
+./manager
 
 # Test binary, build with `go test -c`
 *.test

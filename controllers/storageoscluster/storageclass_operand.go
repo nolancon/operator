@@ -59,7 +59,7 @@ func (sc *StorageClassOperand) Ensure(ctx context.Context, obj client.Object, ow
 
 	b, err := getStorageClassBuilder(sc.fs, obj, sc.kubectlClient)
 	if err != nil {
-		if errors.Is(err, noResourceErr) {
+		if errors.Is(err, errNoResource) {
 			log.Info("no storageclass specified")
 			return nil, nil
 		}
@@ -76,7 +76,7 @@ func (sc *StorageClassOperand) Delete(ctx context.Context, obj client.Object) (e
 
 	b, err := getStorageClassBuilder(sc.fs, obj, sc.kubectlClient)
 	if err != nil {
-		if errors.Is(err, noResourceErr) {
+		if errors.Is(err, errNoResource) {
 			return nil, nil
 		}
 		span.RecordError(err)
@@ -94,7 +94,7 @@ func getStorageClassBuilder(fs filesys.FileSystem, obj client.Object, kcl kubect
 
 	// Skip if no StorageClass name is provided.
 	if cluster.Spec.StorageClassName == "" {
-		return nil, noResourceErr
+		return nil, errNoResource
 	}
 
 	// StorageClass transforms.

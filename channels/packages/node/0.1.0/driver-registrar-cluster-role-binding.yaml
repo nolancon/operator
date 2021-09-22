@@ -8,4 +8,4 @@ roleRef:
   name: storageos:driver-registrar
 subjects:
 - kind: ServiceAccount
-  name: storageos-daemonset-sa
+  name: storageos-node

@@ -60,7 +60,9 @@ endif
 SHELL = /usr/bin/env bash -o pipefail
 .SHELLFLAGS = -ec
 
-API_MANAGER_IMAGE ?= storageos/api-manager:v1.1.2
+API_MANAGER_VERSION ?= v1.1.3-alpha1
+API_MANAGER_IMAGE ?= storageos/api-manager:$(API_MANAGER_VERSION)
+API_MANAGER_MANIFESTS_IMAGE ?= storageos/api-manager-manifests:$(API_MANAGER_VERSION)
 EXTERNAL_PROVISIONER_IMAGE ?= storageos/csi-provisioner:v2.1.1-patched
 EXTERNAL_ATTACHER_IMAGE ?= quay.io/k8scsi/csi-attacher:v3.1.0
 EXTERNAL_RESIZER_IMAGE ?= quay.io/k8scsi/csi-resizer:v1.1.0
@@ -105,11 +107,14 @@ help: ## Display this help.
 ##@ Development
 
 manifests: controller-gen config-update ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
-	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=manager-role webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=storageos-operator webhook paths="./..." output:crd:artifacts:config=config/crd/bases output:rbac:artifacts:config=config/rbac/bases
 
 generate: controller-gen mockgen ## Generate code containing DeepCopy, DeepCopyInto, DeepCopyObject method implementations and mocks.
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
 	go generate -v ./...
+
+api-manager:
+	API_MANAGER_VERSION=$(API_MANAGER_VERSION) API_MANAGER_MANIFESTS_IMAGE=$(API_MANAGER_MANIFESTS_IMAGE) hack/prepare-api-manager-manifests.sh
 
 fmt: ## Run go fmt against code.
 	go fmt ./...
@@ -144,7 +149,7 @@ run: generate fmt vet manifests ## Run a controller from your host.
 	go run ./main.go
 
 config-update: ## Update the operator configuration.
-	@echo "$$REL_IMAGE_CONF" > config/manager/related_image_config.yaml
+	@echo "$$REL_IMAGE_CONF" > config/manager/related_images_config.yaml
 
 # Build the docker image
 # NOTE: The Dockerfile is written for use with goreleaser. For the same

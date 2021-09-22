@@ -14,7 +14,7 @@ RUN kustomize build config/default > storageos-operator.yaml
 
 # Create the final image.
 
-FROM nixery.dev/shell
+FROM busybox:1.33.1
 
 COPY --from=build /tmp/src/storageos-operator.yaml /operator.yaml
 
