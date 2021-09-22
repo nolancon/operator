@@ -60,7 +60,7 @@ endif
 SHELL = /usr/bin/env bash -o pipefail
 .SHELLFLAGS = -ec
 
-API_MANAGER_VERSION ?= v1.1.3-alpha1
+API_MANAGER_VERSION ?= v1.1.3-alpha2
 API_MANAGER_IMAGE ?= storageos/api-manager:$(API_MANAGER_VERSION)
 API_MANAGER_MANIFESTS_IMAGE ?= storageos/api-manager-manifests:$(API_MANAGER_VERSION)
 EXTERNAL_PROVISIONER_IMAGE ?= storageos/csi-provisioner:v2.1.1-patched

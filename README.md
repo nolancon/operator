@@ -67,3 +67,11 @@ Run the unit tests with `make test`.
 
 Run e2e tests with `make e2e`. e2e tests use [kuttl](https://kuttl.dev/).
 Install kuttl kubectl plugin before running the e2e tests.
+
+## Update api-manager manifests
+
+Api-manager manifests are stored in the repo but updated manually. To update the manifests please follow the instructions below.
+
+ * Edit `API_MANAGER_VERSION` in `Makefile` or pass it to make target.
+ * Execute `make api-manager` command.
+ * Enjoy new version.
