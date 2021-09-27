@@ -11,3 +11,4 @@ data:
   DISABLE_TELEMETRY: "false"
   DISABLE_CRASH_REPORTING: "false"
   DISABLE_VERSION_CHECK: "false"
+  ENV_TO_TEST: must exists in storageos-node configmap

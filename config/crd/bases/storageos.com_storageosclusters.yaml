@@ -122,6 +122,12 @@ spec:
               disableTelemetry:
                 description: Disable Telemetry.
                 type: boolean
+              environment:
+                additionalProperties:
+                  type: string
+                description: Environment contains environment variables that are passed
+                  to StorageOS.
+                type: object
               forceTCMU:
                 description: "Force TCMU can be set to true to ensure that TCMU is
                   enabled or cause StorageOS to abort startup. \n At startup, StorageOS

@@ -144,6 +144,9 @@ type StorageOSClusterSpec struct {
 
 	// Disable StorageOS scheduler extender.
 	DisableScheduler bool `json:"disableScheduler,omitempty"`
+
+	// Environment contains environment variables that are passed to StorageOS.
+	Environment map[string]string `json:"environment,omitempty"`
 }
 
 // ContainerImages contains image names of all the containers used by the operator.

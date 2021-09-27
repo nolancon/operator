@@ -202,6 +202,11 @@ func getNodeBuilder(fs filesys.FileSystem, obj client.Object, kcl kubectl.Kubect
 		stransform.SetConfigMapData("LOG_LEVEL", cluster.GetLogLevel()),
 	}
 
+	// Set extra environment variables for node.
+	for k, v := range cluster.Spec.Environment {
+		configmapTransforms = append(configmapTransforms, stransform.SetConfigMapData(k, v))
+	}
+
 	// If etcd TLS related values are set, mount the secret volume and set the
 	// etcd related configurations.
 	if cluster.Spec.TLSEtcdSecretRefName != "" {
