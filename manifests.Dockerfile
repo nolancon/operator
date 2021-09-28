@@ -10,6 +10,7 @@ WORKDIR /tmp/src
 COPY . .
 
 RUN rm -rf /tmp/src/bin ; remake manifests
+RUN cd config/manager && kustomize edit set image controller=${OPERATOR_IMAGE}
 RUN kustomize build config/default > storageos-operator.yaml
 
 # Create the final image.
