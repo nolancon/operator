@@ -62,22 +62,29 @@ spec:
       - description: KVBackend defines the key-value store backend used in the cluster.
         displayName: KVBackend
         path: kvBackend
-      - description: NodeSelectorTerms is to set the placement of storageos pods using node affinity requiredDuringSchedulingIgnoredDuringExecution.
+      - description: NodeSelectorTerms is to set the placement of storageos pods using
+          node affinity requiredDuringSchedulingIgnoredDuringExecution.
         displayName: Node Selector Terms
         path: nodeSelectorTerms
-      - description: Resources is to set the resource requirements of the storageos containers.
+      - description: Resources is to set the resource requirements of the storageos
+          containers.
         displayName: Resources
         path: resources
-      - description: SecretRefName is the name of the secret object that contains all the sensitive cluster configurations.
+      - description: SecretRefName is the name of the secret object that contains
+          all the sensitive cluster configurations.
         displayName: Secret Ref Name
         path: secretRefName
-      - description: StorageClassName is the name of default StorageClass created for StorageOS volumes.
+      - description: StorageClassName is the name of default StorageClass created
+          for StorageOS volumes.
         displayName: Storage Class Name
         path: storageClassName
-      - description: TLSEtcdSecretRefName is the name of the secret object that contains the etcd TLS certs. This secret is shared with etcd, therefore it's not part of the main storageos secret.
+      - description: TLSEtcdSecretRefName is the name of the secret object that contains
+          the etcd TLS certs. This secret is shared with etcd, therefore it's not
+          part of the main storageos secret.
         displayName: TLSEtcd Secret Ref Name
         path: tlsEtcdSecretRefName
-      - description: Tolerations is to set the placement of storageos pods using pod toleration.
+      - description: Tolerations is to set the placement of storageos pods using pod
+          toleration.
         displayName: Tolerations
         path: tolerations
       statusDescriptors:
