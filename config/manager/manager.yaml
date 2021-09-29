@@ -12,6 +12,8 @@ metadata:
   namespace: storageos
   labels:
     control-plane: storageos-operator
+  annotations:
+    kubectl.kubernetes.io/default-logs-container: manager
 spec:
   selector:
     matchLabels:
