@@ -7,7 +7,7 @@ data:
   RELATED_IMAGE_CSIV1_LIVENESS_PROBE: quay.io/k8scsi/livenessprobe:v2.2.0
   RELATED_IMAGE_CSIV1_NODE_DRIVER_REGISTRAR: quay.io/k8scsi/csi-node-driver-registrar:v2.1.0
   RELATED_IMAGE_STORAGEOS_INIT: storageos/init:v2.1.0
-  RELATED_IMAGE_STORAGEOS_NODE: storageos/node:v2.5.0-alpha1
+  RELATED_IMAGE_STORAGEOS_NODE: storageos/node:v2.5.0-beta.1
 kind: ConfigMap
 metadata:
   labels:
