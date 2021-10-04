@@ -87,6 +87,7 @@ rules:
 - apiGroups:
   - api.storageos.com
   resources:
+  - nodes
   - volumes
   verbs:
   - create
@@ -98,6 +99,7 @@ rules:
 - apiGroups:
   - api.storageos.com
   resources:
+  - nodes/status
   - volumes/status
   verbs:
   - get

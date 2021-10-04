@@ -138,6 +138,25 @@ rules:
 - apiGroups:
   - api.storageos.com
   resources:
+  - nodes
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - api.storageos.com
+  resources:
+  - nodes/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - api.storageos.com
+  resources:
   - volumes
   verbs:
   - create

@@ -43,6 +43,16 @@ spec:
                   This value is set on startup by the corresponding environment variable
                   (INTERNAL_API_ADVERTISE_ADDRESS).
                 type: string
+              configLabels:
+                additionalProperties:
+                  type: string
+                description: 'ConfigLabels are the node configurations stored as labels
+                  in the control plane. NOTE: Since the k8s labels and annotations
+                  have certain naming rules, this field helps store the key-value
+                  configuration data without any naming restrictions. This can also
+                  be used to introduce new node configurations which can later be
+                  moved to dedicated fields in the spec.'
+                type: object
               gossipEndpoint:
                 description: Endpoint at which we operate our health checking service.
                   This value is set on startup by the corresponding environment variable
@@ -80,6 +90,8 @@ spec:
                 type: object
               health:
                 description: Health of the node.
+                type: string
+              nodeId:
                 type: string
             type: object
         type: object
