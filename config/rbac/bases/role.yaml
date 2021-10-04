@@ -85,6 +85,25 @@ rules:
   verbs:
   - '*'
 - apiGroups:
+  - api.storageos.com
+  resources:
+  - volumes
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - api.storageos.com
+  resources:
+  - volumes/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
   - apiextensions.k8s.io
   resources:
   - customresourcedefinitions

@@ -58,6 +58,8 @@ func NewStorageOSClusterReconciler(mgr ctrl.Manager) *StorageOSClusterReconciler
 // +kubebuilder:rbac:groups=csi.storage.k8s.io,resources=csidrivers,verbs=create;delete
 // +kubebuilder:rbac:groups=policy,resources=poddisruptionbudgets,verbs=list;watch
 // +kubebuilder:rbac:groups=security.openshift.io,resources=securitycontextconstraints,resourceNames=privileged,verbs=get;create;update;delete;use
+// +kubebuilder:rbac:groups=api.storageos.com,resources=volumes,verbs=create;patch;get;watch;delete;list
+// +kubebuilder:rbac:groups=api.storageos.com,resources=volumes/status,verbs=get;update;patch
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *StorageOSClusterReconciler) SetupWithManager(mgr ctrl.Manager) error {
