@@ -4,7 +4,7 @@ manifests:
 - name: csi
   version: 0.1.0
 - name: node
-  version: 0.1.0
+  version: 2.5.0
 - name: scheduler
   version: 0.1.0
 - name: storageclass
