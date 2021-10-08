@@ -16,4 +16,4 @@ configMapGenerator:
 images:
   - name: kube-scheduler
     newName: k8s.gcr.io/kube-scheduler
-    newTag: v1.20.5
+    newTag: v1.18.0

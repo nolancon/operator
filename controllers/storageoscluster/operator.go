@@ -36,7 +36,7 @@ func init() {
 	instrumentation = telemetry.NewInstrumentation(instrumentationName)
 }
 
-func NewOperator(mgr ctrl.Manager, fs filesys.FileSystem, execStrategy executor.ExecutionStrategy) (*operatorv1.CompositeOperator, error) {
+func NewOperator(mgr ctrl.Manager, kubeVersion string, fs filesys.FileSystem, execStrategy executor.ExecutionStrategy) (*operatorv1.CompositeOperator, error) {
 	_, span, _, log := instrumentation.Start(context.Background(), "storageoscluster.NewOperator")
 	defer span.End()
 
@@ -75,7 +75,7 @@ func NewOperator(mgr ctrl.Manager, fs filesys.FileSystem, execStrategy executor.
 	// Scheduler operands are independent.
 	apiManagerOp := NewAPIManagerOperand(apiManagerOpName, mgr.GetClient(), []string{nodeOpName}, operand.RequeueOnError, fs, kcl)
 	csiOp := NewCSIOperand(csiOpName, mgr.GetClient(), []string{nodeOpName}, operand.RequeueOnError, fs, kcl)
-	schedulerOp := NewSchedulerOperand(schedulerOpName, mgr.GetClient(), []string{}, operand.RequeueOnError, fs, kcl)
+	schedulerOp := NewSchedulerOperand(schedulerOpName, mgr.GetClient(), kubeVersion, []string{}, operand.RequeueOnError, fs, kcl)
 	nodeOp := NewNodeOperand(nodeOpName, mgr.GetClient(), []string{beforeInstallOpName}, operand.RequeueOnError, fs, kcl)
 	storageClassOp := NewStorageClassOperand(storageclassOpName, mgr.GetClient(), []string{}, operand.RequeueOnError, fs, kcl)
 	beforeInstallOp := NewBeforeInstallOperand(beforeInstallOpName, mgr.GetClient(), []string{}, operand.RequeueOnError, fs, kcl)
@@ -91,8 +91,8 @@ func NewOperator(mgr ctrl.Manager, fs filesys.FileSystem, execStrategy executor.
 	)
 }
 
-func NewStorageOSClusterController(mgr ctrl.Manager, fs filesys.FileSystem, execStrategy executor.ExecutionStrategy) (*StorageOSClusterController, error) {
-	operator, err := NewOperator(mgr, fs, execStrategy)
+func NewStorageOSClusterController(mgr ctrl.Manager, kubeVersion string, fs filesys.FileSystem, execStrategy executor.ExecutionStrategy) (*StorageOSClusterController, error) {
+	operator, err := NewOperator(mgr, kubeVersion, fs, execStrategy)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create a new operator: %w", err)
 	}

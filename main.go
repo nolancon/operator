@@ -6,6 +6,7 @@ import (
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
+	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
 	"github.com/darkowlzz/operator-toolkit/telemetry/export"
@@ -94,7 +95,16 @@ func main() {
 		}
 	}
 
-	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), options)
+	restConfig := ctrl.GetConfigOrDie()
+
+	// Get Kubernetes version.
+	kubeVersion, err := kubernetes.NewForConfigOrDie(restConfig).Discovery().ServerVersion()
+	if err != nil {
+		setupLog.Error(err, "unable to get Kubernetes version")
+		os.Exit(1)
+	}
+
+	mgr, err := ctrl.NewManager(restConfig, options)
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
 		os.Exit(1)
@@ -142,7 +152,7 @@ func main() {
 	}
 
 	if err = controllers.NewStorageOSClusterReconciler(mgr).
-		SetupWithManager(mgr); err != nil {
+		SetupWithManager(mgr, kubeVersion.String()); err != nil {
 		setupLog.Error(err, "unable to create controller",
 			"controller", "StorageOSCluster")
 		os.Exit(1)

@@ -31,11 +31,15 @@ const (
 
 	// Related image environment variable.
 	kubeSchedulerEnvVar = "RELATED_IMAGE_KUBE_SCHEDULER"
+
+	// Official scheduler image.
+	officialSchedulerImage = "k8s.gcr.io/kube-scheduler"
 )
 
 type SchedulerOperand struct {
 	name            string
 	client          client.Client
+	kubeVersion     string
 	requires        []string
 	requeueStrategy operand.RequeueStrategy
 	fs              filesys.FileSystem
@@ -74,7 +78,7 @@ func (c *SchedulerOperand) Ensure(ctx context.Context, obj client.Object, ownerR
 	ctx, span, _, _ := instrumentation.Start(ctx, "SchedulerOperand.Ensure")
 	defer span.End()
 
-	b, err := getSchedulerBuilder(c.fs, obj, c.kubectlClient)
+	b, err := getSchedulerBuilder(c.fs, obj, c.kubectlClient, c.kubeVersion)
 	if err != nil {
 		span.RecordError(err)
 		return nil, err
@@ -87,7 +91,7 @@ func (c *SchedulerOperand) Delete(ctx context.Context, obj client.Object) (event
 	ctx, span, _, _ := instrumentation.Start(ctx, "SchedulerOperand.Delete")
 	defer span.End()
 
-	b, err := getSchedulerBuilder(c.fs, obj, c.kubectlClient)
+	b, err := getSchedulerBuilder(c.fs, obj, c.kubectlClient, c.kubeVersion)
 	if err != nil {
 		span.RecordError(err)
 		return nil, err
@@ -96,7 +100,7 @@ func (c *SchedulerOperand) Delete(ctx context.Context, obj client.Object) (event
 	return nil, b.Delete(ctx)
 }
 
-func getSchedulerBuilder(fs filesys.FileSystem, obj client.Object, kcl kubectl.KubectlClient) (*declarative.Builder, error) {
+func getSchedulerBuilder(fs filesys.FileSystem, obj client.Object, kcl kubectl.KubectlClient, kubeVersion string) (*declarative.Builder, error) {
 	cluster, ok := obj.(*storageoscomv1.StorageOSCluster)
 	if !ok {
 		return nil, fmt.Errorf("failed to convert %v to StorageOSCluster", obj)
@@ -117,6 +121,14 @@ func getSchedulerBuilder(fs filesys.FileSystem, obj client.Object, kcl kubectl.K
 		kImageKubeScheduler: cluster.Spec.Images.KubeSchedulerContainer,
 	}
 	images = append(images, image.GetKustomizeImageList(namedImages)...)
+
+	// Set scheduler image to match with Kubernetes version.
+	if len(images) == 0 {
+		officialImages := image.NamedImages{
+			kImageKubeScheduler: fmt.Sprintf("%s:%s", officialSchedulerImage, kubeVersion),
+		}
+		images = append(images, image.GetKustomizeImageList(officialImages)...)
+	}
 
 	// Create kubescheduler config transforms.
 	configTransforms := []transform.TransformFunc{}
@@ -141,6 +153,7 @@ func getSchedulerBuilder(fs filesys.FileSystem, obj client.Object, kcl kubectl.K
 func NewSchedulerOperand(
 	name string,
 	client client.Client,
+	kubeVersion string,
 	requires []string,
 	requeueStrategy operand.RequeueStrategy,
 	fs filesys.FileSystem,
@@ -149,6 +162,7 @@ func NewSchedulerOperand(
 	return &SchedulerOperand{
 		name:            name,
 		client:          client,
+		kubeVersion:     kubeVersion,
 		requires:        requires,
 		requeueStrategy: requeueStrategy,
 		fs:              fs,

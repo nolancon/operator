@@ -60,7 +60,7 @@ func NewStorageOSClusterReconciler(mgr ctrl.Manager) *StorageOSClusterReconciler
 // +kubebuilder:rbac:groups=security.openshift.io,resources=securitycontextconstraints,resourceNames=privileged,verbs=get;create;update;delete;use
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *StorageOSClusterReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *StorageOSClusterReconciler) SetupWithManager(mgr ctrl.Manager, kubeVersion string) error {
 	_, span, _, log := instrumentation.Start(context.Background(), "StorageosCluster.SetupWithManager")
 	defer span.End()
 
@@ -71,7 +71,7 @@ func (r *StorageOSClusterReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	}
 
 	// TODO: Expose the executor strategy option via SetupWithManager.
-	cc, err := storageoscluster.NewStorageOSClusterController(mgr, fs, executor.Parallel)
+	cc, err := storageoscluster.NewStorageOSClusterController(mgr, kubeVersion, fs, executor.Parallel)
 	if err != nil {
 		return err
 	}
