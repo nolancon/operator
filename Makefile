@@ -157,7 +157,7 @@ config-update: ## Update the operator configuration.
 # removed after use.
 operator-image: build ## Build docker image with the manager.
 	@cp bin/manager manager
-	docker build -t ${OPERATOR_IMAGE} .
+	docker build -t ${OPERATOR_IMAGE} --build-arg VERSION=$(VERSION)  .
 	@rm -f manager
 
 operator-image-push: ## Push docker image with the manager.
