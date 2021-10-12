@@ -1,3 +1,12 @@
+# Build the manager binary
+FROM golang:1.16.2 as builder
+
+WORKDIR /workspace
+COPY . /workspace
+
+# Build
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -o manager main.go
+
 # Use ubi8-minimal as the base image to package the manager binary. Refer to
 # https://catalog.redhat.com/software/containers/ubi8/ubi-minimal/5c359a62bed8bd75a2c3fba8
 # for more details
@@ -20,7 +29,7 @@ LABEL name="StorageOS Operator" \
 RUN mkdir -p /licenses
 COPY LICENSE /licenses/LICENSE
 COPY channels channels
-COPY manager manager
+COPY --from=builder /workspace/manager .
 USER 65532:65532
 
 ENTRYPOINT ["/manager"]

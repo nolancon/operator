@@ -22,9 +22,6 @@ storageos-operator.yaml
 
 !vendor/**/zz_generated.*
 
-# goreleaser build directory
-dist/
-
 # editor and IDE paraphernalia
 .idea
 *.swp

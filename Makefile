@@ -152,13 +152,8 @@ config-update: ## Update the operator configuration.
 	@echo "$$REL_IMAGE_CONF" > config/manager/related_images_config.yaml
 
 # Build the docker image
-# NOTE: The Dockerfile is written for use with goreleaser. For the same
-# Dockerfile to work directly with docker, the binary is copied to the PWD and
-# removed after use.
-operator-image: build ## Build docker image with the manager.
-	@cp bin/manager manager
+operator-image: ## Build docker image with the manager.
 	docker build -t ${OPERATOR_IMAGE} --build-arg VERSION=$(VERSION)  .
-	@rm -f manager
 
 operator-image-push: ## Push docker image with the manager.
 	docker push ${OPERATOR_IMAGE}
@@ -185,9 +180,6 @@ undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/confi
 install-manifest: manifests kustomize ## Generate the operator install manifest.
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${OPERATOR_IMAGE}
 	$(KUSTOMIZE) build config/default > storageos-operator.yaml
-
-build-snapshot: ## Build development binaries and container images using goreleaser.
-	goreleaser --snapshot --rm-dist --config .github/.goreleaser-develop.yaml --skip-validate
 
 CONTROLLER_GEN = $(shell pwd)/bin/controller-gen
 controller-gen: ## Download controller-gen locally if necessary.

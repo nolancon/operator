@@ -6,10 +6,7 @@ on:
       - main
 
 env:
-  MANIFEST_LIST: storageos/operator:develop
-  AMD_IMAGE: storageos/operator:develop-amd64
-  ARM64_IMAGE: storageos/operator:develop-arm64
-  ARM_IMAGE: storageos/operator:develop-arm
+  OPERATOR_IMAGE: storageos/operator:develop
   MANIFESTS_IMAGE: storageos/operator-manifests:develop
 
 jobs:
@@ -23,36 +20,16 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: 1.16.x
-      - name: Setup QEMU
-        uses: docker/setup-qemu-action@v1
-        with:
-          platforms: all
-      - name: Setup Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v1
-        with:
-          buildkitd-flags: "--debug"
       - name: Login to container registry
         uses: docker/login-action@v1
         with:
           registry: docker.io
           username: ${{ secrets.DH_USERNAME }}
           password: ${{ secrets.DH_PASSWORD }}
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v1
-        with:
-          version: latest
-          args: --snapshot --rm-dist --config .github/.goreleaser-develop.yaml --skip-validate
+      - name: Build container image
+        run: make operator-image
       - name: Push container image
-        run: |
-          docker push ${{ env.AMD_IMAGE }}
-          docker push ${{ env.ARM64_IMAGE }}
-          docker push ${{ env.ARM_IMAGE }}
-      - name: Create and publish manifest list
-        run: |
-          docker manifest create ${{ env.MANIFEST_LIST }} \
-            ${{ env.AMD_IMAGE }} ${{ env.ARM64_IMAGE }} ${{ env.ARM_IMAGE }}
-          docker manifest push ${{ env.MANIFEST_LIST }}
+        run: make operator-image-push
   publish-manifests-image:
     runs-on: ubuntu-latest
     name: Publish manifests container image
@@ -66,6 +43,6 @@ jobs:
           username: ${{ secrets.DH_USERNAME }}
           password: ${{ secrets.DH_PASSWORD }}
       - name: Run manifests image build
-        run: OPERATOR_IMAGE=${{ env.MANIFEST_LIST }} make manifests-image
+        run: make manifests-image
       - name: Push manifests container image
         run: docker push ${{ env.MANIFESTS_IMAGE }}
