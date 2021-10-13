@@ -212,6 +212,8 @@ bundle: manifests kustomize ## Generate bundle manifests and metadata, then vali
 	operator-sdk generate kustomize manifests --package=storageosoperator --apis-dir=apis/v1 -q
 	cd config/manager && $(KUSTOMIZE) edit set image controller=$(OPERATOR_IMAGE)
 	$(KUSTOMIZE) build config/manifests | operator-sdk generate bundle --overwrite --version $(VERSION) $(BUNDLE_METADATA_OPTS)
+	# Rename manifest files containing colons.
+	for file in bundle/manifests/* ; do if [[ $$file == *:* ]]; then mv "$$file" "$${file//:/_}"; fi; done
 	operator-sdk bundle validate ./bundle
 
 # Build the bundle image.
