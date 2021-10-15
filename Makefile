@@ -107,6 +107,9 @@ help: ## Display this help.
 ##@ Development
 
 manifests: controller-gen config-update ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
+	make _manifests
+
+_manifests:
 	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=storageos-operator webhook paths="./..." output:crd:artifacts:config=config/crd/bases output:rbac:artifacts:config=config/rbac/bases
 
 generate: controller-gen mockgen ## Generate code containing DeepCopy, DeepCopyInto, DeepCopyObject method implementations and mocks.
@@ -159,7 +162,7 @@ operator-image-push: ## Push docker image with the manager.
 	docker push ${OPERATOR_IMAGE}
 
 # Build the manifests docker image
-manifests-image:
+manifests-image: manifests
 	docker build -t $(MANIFESTS_IMAGE) --build-arg OPERATOR_IMAGE=$(OPERATOR_IMAGE) -f manifests.Dockerfile .
 
 ##@ Deployment
