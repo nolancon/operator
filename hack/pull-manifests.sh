@@ -1,18 +1,19 @@
 #! /bin/bash -e
 
-# This script fetches api-manager's manifests by version.
+# This script fetches given project's manifests by version.
 # Splits the multi-doc manifests into single-doc files.
-# Updates api-manager version in channels/stable file.
-# Replaces the api-manager manifests in operator repo with the new version.
+# Updates given project version in channels/stable file.
+# Replaces the given project manifests in operator repo with the new version.
 
-: ${API_MANAGER_VERSION?= required}
-: ${API_MANAGER_MANIFESTS_IMAGE?= required}
+: ${NAME?= required}
+: ${VERSION?= required}
+: ${MANIFESTS_IMAGE?= required}
 
-if [[ $API_MANAGER_VERSION =~ ^v[0-9] ]]; then
-    API_MANAGER_VERSION=${API_MANAGER_VERSION#"v"}
+if [[ $VERSION =~ ^v[0-9] ]]; then
+    VERSION=${VERSION#"v"}
 fi
 
-WORKDIR=channels/packages/api-manager/${API_MANAGER_VERSION}
+WORKDIR=channels/packages/${NAME}/${VERSION}
 
 saveManifest() {
     : ${1?= manifest required}
@@ -29,7 +30,7 @@ mkdir -p ${WORKDIR}
 
 echo "resources:" > ${WORKDIR}/kustomization.yaml
 
-MANIFESTS=$(docker run --rm ${API_MANAGER_MANIFESTS_IMAGE})
+MANIFESTS=$(docker run --rm ${MANIFESTS_IMAGE})
 
 while IFS= read -r line; do
     if [[ $line == "---" ]]; then
@@ -42,4 +43,4 @@ done <<< "$MANIFESTS"
 
 saveManifest "$MANIFEST"
 
-sed -i "/- name: api-manager/!b;n;c\  version: ${API_MANAGER_VERSION}" channels/stable
+sed -i "/- name: ${NAME}/!b;n;c\  version: ${VERSION}" channels/stable

@@ -4,13 +4,13 @@ kind: ClusterRoleBinding
 metadata:
   labels:
     app: storageos
-    app.kubernetes.io/component: api-manager
-  name: storageos:api-manager
+    app.kubernetes.io/component: portal-manager
+  name: storageos:proxy:portal-manager
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: storageos:api-manager
+  name: storageos:proxy:portal-manager
 subjects:
 - kind: ServiceAccount
-  name: storageos-api-manager
-  namespace: storageos
+  name: storageos-portal-manager
+  namespace: portal-manager-system

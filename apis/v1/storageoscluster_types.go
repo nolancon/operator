@@ -145,6 +145,9 @@ type StorageOSClusterSpec struct {
 	// Disable StorageOS scheduler extender.
 	DisableScheduler bool `json:"disableScheduler,omitempty"`
 
+	// EnablePortalManager enables Portal Manager.
+	EnablePortalManager bool `json:"enablePortalManager,omitempty"`
+
 	// Environment contains environment variables that are passed to StorageOS.
 	Environment map[string]string `json:"environment,omitempty"`
 }
@@ -163,6 +166,7 @@ type ContainerImages struct {
 	KubeSchedulerContainer             string `json:"kubeSchedulerContainer,omitempty"`
 	NFSContainer                       string `json:"nfsContainer,omitempty"`
 	APIManagerContainer                string `json:"apiManagerContainer,omitempty"`
+	PortalManagerContainer             string `json:"portalManagerContainer,omitempty"`
 }
 
 // StorageOSClusterCSI contains CSI configurations.

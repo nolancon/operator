@@ -5,8 +5,8 @@ metadata:
   creationTimestamp: null
   labels:
     app: storageos
-    app.kubernetes.io/component: api-manager
-  name: storageos:api-manager
+    app.kubernetes.io/component: portal-manager
+  name: storageos:portal-manager
 rules:
 - apiGroups:
   - ""
@@ -31,26 +31,6 @@ rules:
 - apiGroups:
   - ""
   resources:
-  - endpoints
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - endpoints/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - ""
-  resources:
   - namespaces
   verbs:
   - get
@@ -59,75 +39,31 @@ rules:
 - apiGroups:
   - ""
   resources:
-  - node
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
   - nodes
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
   - persistentvolumeclaims
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
+  - persistentvolumes
   - pods
   verbs:
-  - delete
-  - get
   - list
   - watch
 - apiGroups:
-  - ""
+  - api.storageos.com
   resources:
-  - secrets
+  - nodes
+  - volumes
   verbs:
-  - create
-  - delete
-  - get
   - list
-  - patch
-  - update
   - watch
 - apiGroups:
-  - ""
+  - apps
   resources:
-  - services
+  - daemonsets
+  - deployments
+  - replicasets
+  - statefulsets
   verbs:
-  - create
-  - delete
-  - get
   - list
-  - patch
-  - update
   - watch
-- apiGroups:
-  - ""
-  resources:
-  - services/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - admissionregistration.k8s.io
-  resources:
-  - mutatingwebhookconfigurations
-  - validatingwebhookconfigurations
-  verbs:
-  - '*'
 - apiGroups:
   - coordination.k8s.io
   resources:
@@ -144,16 +80,33 @@ rules:
   - storage.k8s.io
   resources:
   - storageclasses
+  - volumeattachments
   verbs:
-  - get
   - list
   - watch
 - apiGroups:
-  - storage.k8s.io
+  - storageos.com
   resources:
-  - volumeattachments
+  - storageosportals
   verbs:
+  - create
   - delete
   - get
   - list
+  - patch
+  - update
   - watch
+- apiGroups:
+  - storageos.com
+  resources:
+  - storageosportals/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - storageos.com
+  resources:
+  - storageosportals/status
+  verbs:
+  - get
+  - patch
+  - update

@@ -122,6 +122,9 @@ spec:
               disableTelemetry:
                 description: Disable Telemetry.
                 type: boolean
+              enablePortalManager:
+                description: EnablePortalManager enables Portal Manager.
+                type: boolean
               environment:
                 additionalProperties:
                   type: string
@@ -162,6 +165,8 @@ spec:
                   nfsContainer:
                     type: string
                   nodeContainer:
+                    type: string
+                  portalManagerContainer:
                     type: string
                 type: object
               ingress:

@@ -79,12 +79,19 @@ func main() {
 	}
 	defer telemetryShutdown()
 
+	currentNS := os.Getenv(podNamespace)
+	if len(currentNS) == 0 {
+		setupLog.Error(err, "failed to get current namespace")
+		os.Exit(1)
+	}
+
 	// Load controller manager configuration and create manager options from
 	// it.
 	ctrlConfig := configstorageoscomv1.OperatorConfig{}
 	options := ctrl.Options{
-		Scheme:           scheme,
-		LeaderElectionID: "operator",
+		Scheme:                  scheme,
+		LeaderElectionID:        "operator",
+		LeaderElectionNamespace: currentNS,
 	}
 	if configFile != "" {
 		var err error
@@ -116,12 +123,6 @@ func main() {
 	cli, err := client.New(mgr.GetConfig(), client.Options{Scheme: mgr.GetScheme()})
 	if err != nil {
 		setupLog.Error(err, "failed to create raw client")
-		os.Exit(1)
-	}
-
-	currentNS := os.Getenv(podNamespace)
-	if len(currentNS) == 0 {
-		setupLog.Error(err, "failed to get current namespace")
 		os.Exit(1)
 	}
 

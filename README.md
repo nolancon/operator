@@ -75,3 +75,11 @@ Api-manager manifests are stored in the repo but updated manually. To update the
  * Edit `API_MANAGER_VERSION` in `Makefile` or pass it to make target.
  * Execute `make api-manager` command.
  * Enjoy new version.
+
+## Update portal-manager manifests
+
+portal-manager manifests are stored in the repo but updated manually. To update the manifests please follow the instructions below.
+
+ * Edit `PORTAL_MANAGER_VERSION` in `Makefile` or pass it to make target.
+ * Execute `make portal-manager` command.
+ * Enjoy new version.

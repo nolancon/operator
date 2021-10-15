@@ -1,16 +1,12 @@
-
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  labels:
-    app: storageos
-    app.kubernetes.io/component: api-manager
-  name: storageos:api-manager
+  name: storageos:operator:portal-manager
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: storageos:api-manager
+  name: storageos:operator:portal-manager
 subjects:
 - kind: ServiceAccount
-  name: storageos-api-manager
+  name: storageos-operator
   namespace: storageos

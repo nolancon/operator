@@ -64,29 +64,22 @@ spec:
       - description: KVBackend defines the key-value store backend used in the cluster.
         displayName: KVBackend
         path: kvBackend
-      - description: NodeSelectorTerms is to set the placement of storageos pods using
-          node affinity requiredDuringSchedulingIgnoredDuringExecution.
+      - description: NodeSelectorTerms is to set the placement of storageos pods using node affinity requiredDuringSchedulingIgnoredDuringExecution.
         displayName: Node Selector Terms
         path: nodeSelectorTerms
-      - description: Resources is to set the resource requirements of the storageos
-          containers.
+      - description: Resources is to set the resource requirements of the storageos containers.
         displayName: Resources
         path: resources
-      - description: SecretRefName is the name of the secret object that contains
-          all the sensitive cluster configurations.
+      - description: SecretRefName is the name of the secret object that contains all the sensitive cluster configurations.
         displayName: Secret Ref Name
         path: secretRefName
-      - description: StorageClassName is the name of default StorageClass created
-          for StorageOS volumes.
+      - description: StorageClassName is the name of default StorageClass created for StorageOS volumes.
         displayName: Storage Class Name
         path: storageClassName
-      - description: TLSEtcdSecretRefName is the name of the secret object that contains
-          the etcd TLS certs. This secret is shared with etcd, therefore it's not
-          part of the main storageos secret.
+      - description: TLSEtcdSecretRefName is the name of the secret object that contains the etcd TLS certs. This secret is shared with etcd, therefore it's not part of the main storageos secret.
         displayName: TLSEtcd Secret Ref Name
         path: tlsEtcdSecretRefName
-      - description: Tolerations is to set the placement of storageos pods using pod
-          toleration.
+      - description: Tolerations is to set the placement of storageos pods using pod toleration.
         displayName: Tolerations
         path: tolerations
       statusDescriptors:
@@ -379,11 +372,203 @@ spec:
         - apiGroups:
           - ""
           resources:
+          - configmaps
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - ""
+          resources:
+          - configmaps/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - ""
+          resources:
+          - endpoints
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - ""
+          resources:
+          - endpoints/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - ""
+          resources:
+          - events
+          verbs:
+          - create
+          - patch
+        - apiGroups:
+          - ""
+          resources:
+          - namespaces
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - ""
+          resources:
           - node
           verbs:
           - get
           - list
           - watch
+        - apiGroups:
+          - ""
+          resources:
+          - nodes
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - ""
+          resources:
+          - persistentvolumeclaims
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          verbs:
+          - delete
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - ""
+          resources:
+          - secrets
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - ""
+          resources:
+          - services
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - ""
+          resources:
+          - services/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - admissionregistration.k8s.io
+          resources:
+          - mutatingwebhookconfigurations
+          - validatingwebhookconfigurations
+          verbs:
+          - '*'
+        - apiGroups:
+          - coordination.k8s.io
+          resources:
+          - leases
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - storage.k8s.io
+          resources:
+          - storageclasses
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - storage.k8s.io
+          resources:
+          - volumeattachments
+          verbs:
+          - delete
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - coordination.k8s.io
+          resources:
+          - leases
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - storageos.com
+          resources:
+          - storageosportals
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - storageos.com
+          resources:
+          - storageosportals/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - storageos.com
+          resources:
+          - storageosportals/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - v1
+          resources:
+          - namespaces
+          verbs:
+          - get
         - apiGroups:
           - events.k8s.io
           resources:

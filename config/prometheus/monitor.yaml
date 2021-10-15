@@ -5,7 +5,7 @@ kind: ServiceMonitor
 metadata:
   labels:
     control-plane: storageos-operator
-  name: operator-metrics-monitor
+  name: storageos-operator-metrics
   namespace: storageos
 spec:
   endpoints:

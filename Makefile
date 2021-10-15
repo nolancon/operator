@@ -63,6 +63,9 @@ SHELL = /usr/bin/env bash -o pipefail
 API_MANAGER_VERSION ?= v1.2.0
 API_MANAGER_IMAGE ?= storageos/api-manager:$(API_MANAGER_VERSION)
 API_MANAGER_MANIFESTS_IMAGE ?= storageos/api-manager-manifests:$(API_MANAGER_VERSION)
+PORTAL_MANAGER_VERSION ?= develop
+PORTAL_MANAGER_IMAGE ?= storageos/portal-manager:$(PORTAL_MANAGER_VERSION)
+PORTAL_MANAGER_MANIFESTS_IMAGE ?= storageos/portal-manager-manifests:$(PORTAL_MANAGER_VERSION)
 EXTERNAL_PROVISIONER_IMAGE ?= storageos/csi-provisioner:v2.1.1-patched
 EXTERNAL_ATTACHER_IMAGE ?= quay.io/k8scsi/csi-attacher:v3.1.0
 EXTERNAL_RESIZER_IMAGE ?= quay.io/k8scsi/csi-resizer:v1.1.0
@@ -76,6 +79,7 @@ LIVENESS_PROBE_IMAGE ?= quay.io/k8scsi/livenessprobe:v2.2.0
 # environment variables. See make target cofig-update.
 define REL_IMAGE_CONF
 RELATED_IMAGE_API_MANAGER=${API_MANAGER_IMAGE}
+RELATED_IMAGE_PORTAL_MANAGER=${PORTAL_MANAGER_IMAGE}
 RELATED_IMAGE_CSIV1_EXTERNAL_PROVISIONER=${EXTERNAL_PROVISIONER_IMAGE}
 RELATED_IMAGE_CSIV1_EXTERNAL_ATTACHER_V3=${EXTERNAL_ATTACHER_IMAGE}
 RELATED_IMAGE_CSIV1_EXTERNAL_RESIZER=${EXTERNAL_RESIZER_IMAGE}
@@ -117,7 +121,12 @@ generate: controller-gen mockgen ## Generate code containing DeepCopy, DeepCopyI
 	go generate -v ./...
 
 api-manager:
-	API_MANAGER_VERSION=$(API_MANAGER_VERSION) API_MANAGER_MANIFESTS_IMAGE=$(API_MANAGER_MANIFESTS_IMAGE) hack/prepare-api-manager-manifests.sh
+	NAME=api-manager VERSION=$(API_MANAGER_VERSION) MANIFESTS_IMAGE=$(API_MANAGER_MANIFESTS_IMAGE) hack/pull-manifests.sh
+	NAME=api-manager VERSION=$(API_MANAGER_VERSION) FROM=clusterrole-storageos-api-manager.yaml TO=api_manager_role.yaml hack/update-rbac.sh
+
+portal-manager:
+	NAME=portal-manager VERSION=$(PORTAL_MANAGER_VERSION) MANIFESTS_IMAGE=$(PORTAL_MANAGER_MANIFESTS_IMAGE) hack/pull-manifests.sh
+	NAME=portal-manager VERSION=$(PORTAL_MANAGER_VERSION) FROM=clusterrole-storageos-portal-manager.yaml TO=portal_manager_role.yaml hack/update-rbac.sh
 
 fmt: ## Run go fmt against code.
 	go fmt ./...
@@ -141,6 +150,7 @@ build: manifests generate fmt vet ## Build manager binary.
 
 run: generate fmt vet manifests ## Run a controller from your host.
 	RELATED_IMAGE_API_MANAGER=${API_MANAGER_IMAGE} \
+	RELATED_IMAGE_PORTAL_MANAGER=${PORTAL_MANAGER_IMAGE} \
 	RELATED_IMAGE_CSIV1_EXTERNAL_PROVISIONER=${EXTERNAL_PROVISIONER_IMAGE} \
 	RELATED_IMAGE_CSIV1_EXTERNAL_ATTACHER_V3=${EXTERNAL_ATTACHER_IMAGE} \
 	RELATED_IMAGE_CSIV1_EXTERNAL_RESIZER=${EXTERNAL_RESIZER_IMAGE} \
@@ -161,7 +171,7 @@ operator-image: ## Build docker image with the manager.
 operator-image-push: ## Push docker image with the manager.
 	docker push ${OPERATOR_IMAGE}
 
-# Build the manifests docker image
+# Build the manifests docker image.
 manifests-image: manifests
 	docker build -t $(MANIFESTS_IMAGE) --build-arg OPERATOR_IMAGE=$(OPERATOR_IMAGE) -f manifests.Dockerfile .
 
