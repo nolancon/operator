@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"os"
 
@@ -26,6 +27,7 @@ import (
 	storageoscomv1 "github.com/storageos/operator/apis/v1"
 	"github.com/storageos/operator/controllers"
 	whctrlr "github.com/storageos/operator/controllers/webhook"
+	"github.com/storageos/operator/watchers"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -103,9 +105,10 @@ func main() {
 	}
 
 	restConfig := ctrl.GetConfigOrDie()
+	kubeClient := kubernetes.NewForConfigOrDie(restConfig)
 
 	// Get Kubernetes version.
-	kubeVersion, err := kubernetes.NewForConfigOrDie(restConfig).Discovery().ServerVersion()
+	kubeVersion, err := kubeClient.Discovery().ServerVersion()
 	if err != nil {
 		setupLog.Error(err, "unable to get Kubernetes version")
 		os.Exit(1)
@@ -117,7 +120,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Create an uncached client to be used in the certificate manager.
+	// Create an uncached client to be used in the certificate manager
+	// and ConfigMap watcher.
 	// NOTE: Cached client from manager can't be used here because the cache is
 	// uninitialized at this point.
 	cli, err := client.New(mgr.GetConfig(), client.Options{Scheme: mgr.GetScheme()})
@@ -183,8 +187,22 @@ func main() {
 		os.Exit(1)
 	}
 
+	ctx, cancel := context.WithCancel(ctrl.SetupSignalHandler())
+
+	// Watch config maps and restart on change.
+	setupLog.Info("starting config map watcher")
+	watcher := watchers.NewConfigMapWatcher(kubeClient.CoreV1().ConfigMaps(currentNS))
+	if err := watcher.Setup(ctx); err != nil {
+		setupLog.Error(err, "unable to set config map watcher")
+		os.Exit(1)
+	}
+	go func() {
+		watcher.Start(ctx)
+		cancel()
+	}()
+
 	setupLog.Info("starting manager")
-	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
+	if err := mgr.Start(ctx); err != nil {
 		setupLog.Error(err, "problem running manager")
 		os.Exit(1)
 	}
