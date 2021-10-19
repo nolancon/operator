@@ -109,25 +109,13 @@ func getSchedulerBuilder(fs filesys.FileSystem, obj client.Object, kcl kubectl.K
 	// Get image name.
 	images := []kustomizetypes.Image{}
 
-	// Check environment variables for related images.
-	relatedImages := image.NamedImages{
-		kImageKubeScheduler: os.Getenv(kubeSchedulerEnvVar),
-	}
-	images = append(images, image.GetKustomizeImageList(relatedImages)...)
-
-	// Get the images from the cluster spec. This overwrites the default image
+	// Get the images from the cluster spec. These overwrite the default images
 	// set by the operator related images environment variables.
-	namedImages := image.NamedImages{
-		kImageKubeScheduler: cluster.Spec.Images.KubeSchedulerContainer,
-	}
-	images = append(images, image.GetKustomizeImageList(namedImages)...)
-
-	// Set scheduler image to match with Kubernetes version.
-	if len(images) == 0 {
-		officialImages := image.NamedImages{
-			kImageKubeScheduler: fmt.Sprintf("%s:%s", officialSchedulerImage, kubeVersion),
-		}
-		images = append(images, image.GetKustomizeImageList(officialImages)...)
+	if img := image.GetKustomizeImage(kImageKubeScheduler, cluster.Spec.Images.KubeSchedulerContainer, os.Getenv(kubeSchedulerEnvVar)); img != nil {
+		images = append(images, *img)
+	} else {
+		versionImage := image.GetKustomizeImage(kImageKubeScheduler, fmt.Sprintf("%s:%s", officialSchedulerImage, kubeVersion), "")
+		images = append(images, *versionImage)
 	}
 
 	// Create kubescheduler config transforms.

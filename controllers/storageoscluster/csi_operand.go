@@ -109,22 +109,17 @@ func getCSIBuilder(fs filesys.FileSystem, obj client.Object, kcl kubectl.Kubectl
 	// Get image names.
 	images := []kustomizetypes.Image{}
 
-	// Check environment variables for related images.
-	relatedImages := image.NamedImages{
-		kImageCSIProvisioner: os.Getenv(csiProvisionerEnvVar),
-		kImageCSIAttacher:    os.Getenv(csiAttacherEnvVar),
-		kImageCSIResizer:     os.Getenv(csiResizerEnvVar),
-	}
-	images = append(images, image.GetKustomizeImageList(relatedImages)...)
-
 	// Get the images from the cluster spec. These overwrite the default images
 	// set by the operator related images environment variables.
-	namedImages := image.NamedImages{
-		kImageCSIProvisioner: cluster.Spec.Images.CSIExternalProvisionerContainer,
-		kImageCSIAttacher:    cluster.Spec.Images.CSIExternalAttacherContainer,
-		kImageCSIResizer:     cluster.Spec.Images.CSIExternalResizerContainer,
+	if img := image.GetKustomizeImage(kImageCSIProvisioner, cluster.Spec.Images.CSIExternalProvisionerContainer, os.Getenv(csiProvisionerEnvVar)); img != nil {
+		images = append(images, *img)
 	}
-	images = append(images, image.GetKustomizeImageList(namedImages)...)
+	if img := image.GetKustomizeImage(kImageCSIAttacher, cluster.Spec.Images.CSIExternalAttacherContainer, os.Getenv(csiAttacherEnvVar)); img != nil {
+		images = append(images, *img)
+	}
+	if img := image.GetKustomizeImage(kImageCSIResizer, cluster.Spec.Images.CSIExternalResizerContainer, os.Getenv(csiResizerEnvVar)); img != nil {
+		images = append(images, *img)
+	}
 
 	return declarative.NewBuilder(csiPackage, fs,
 		declarative.WithKustomizeMutationFunc([]kustomize.MutateFunc{

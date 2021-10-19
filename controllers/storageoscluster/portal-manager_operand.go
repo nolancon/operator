@@ -157,18 +157,11 @@ func getPortalManagerBuilder(fs filesys.FileSystem, obj client.Object, kcl kubec
 	// Get image name.
 	images := []kustomizetypes.Image{}
 
-	// Check environment variables for related images.
-	relatedImages := image.NamedImages{
-		kImageKubePortalManager: os.Getenv(kubePortalManagerEnvVar),
-	}
-	images = append(images, image.GetKustomizeImageList(relatedImages)...)
-
-	// Get the images from the cluster spec. This overwrites the default image
+	// Get the images from the cluster spec. These overwrite the default images
 	// set by the operator related images environment variables.
-	namedImages := image.NamedImages{
-		kImageKubePortalManager: cluster.Spec.Images.PortalManagerContainer,
+	if img := image.GetKustomizeImage(kImageKubePortalManager, cluster.Spec.Images.PortalManagerContainer, os.Getenv(kubePortalManagerEnvVar)); img != nil {
+		images = append(images, *img)
 	}
-	images = append(images, image.GetKustomizeImageList(namedImages)...)
 
 	return declarative.NewBuilder(portalManagerPackage, fs,
 		declarative.WithKustomizeMutationFunc([]kustomize.MutateFunc{

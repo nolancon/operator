@@ -34,24 +34,21 @@ func Split(image string) (name, tag, digest string) {
 	return nameStr, "", ""
 }
 
-// GetKustomizeImageList takes a NamedImages and returns a list of kustomize
-// Images. Empty images are ignored.
-func GetKustomizeImageList(images NamedImages) []kustomizetypes.Image {
-	kImages := []kustomizetypes.Image{}
-
-	for iname, image := range images {
-		if image == "" {
-			continue
-		}
-		name, tag, digest := Split(image)
-		ki := kustomizetypes.Image{
-			Name:    iname,
-			NewName: name,
-			NewTag:  tag,
-			Digest:  digest,
-		}
-		kImages = append(kImages, ki)
+// GetKustomizeImage takes a name, image and default image and returns a kustomize Image.
+func GetKustomizeImage(imageName, image, defaultImage string) *kustomizetypes.Image {
+	if image == "" {
+		image = defaultImage
+	}
+	if image == "" {
+		return nil
 	}
 
-	return kImages
+	name, tag, digest := Split(image)
+
+	return &kustomizetypes.Image{
+		Name:    imageName,
+		NewName: name,
+		NewTag:  tag,
+		Digest:  digest,
+	}
 }
