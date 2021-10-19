@@ -159,24 +159,20 @@ func getNodeBuilder(fs filesys.FileSystem, obj client.Object, kcl kubectl.Kubect
 	// Get image names.
 	images := []kustomizetypes.Image{}
 
-	// Check environment variables for related images.
-	relatedImages := image.NamedImages{
-		kImageInit:             os.Getenv(initImageEnvVar),
-		kImageNode:             os.Getenv(nodeImageEnvVar),
-		kImageCSINodeDriverReg: os.Getenv(csiNodeDriverRegImageEnvVar),
-		kImageCSILivenessProbe: os.Getenv(csiLivenessProbeImageEnvVar),
-	}
-	images = append(images, image.GetKustomizeImageList(relatedImages)...)
-
 	// Get the images from the cluster spec. These overwrite the default images
 	// set by the operator related images environment variables.
-	namedImages := image.NamedImages{
-		kImageInit:             cluster.Spec.Images.InitContainer,
-		kImageNode:             cluster.Spec.Images.NodeContainer,
-		kImageCSINodeDriverReg: cluster.Spec.Images.CSINodeDriverRegistrarContainer,
-		kImageCSILivenessProbe: cluster.Spec.Images.CSILivenessProbeContainer,
+	if img := image.GetKustomizeImage(kImageInit, cluster.Spec.Images.InitContainer, os.Getenv(initImageEnvVar)); img != nil {
+		images = append(images, *img)
 	}
-	images = append(images, image.GetKustomizeImageList(namedImages)...)
+	if img := image.GetKustomizeImage(kImageNode, cluster.Spec.Images.NodeContainer, os.Getenv(nodeImageEnvVar)); img != nil {
+		images = append(images, *img)
+	}
+	if img := image.GetKustomizeImage(kImageCSINodeDriverReg, cluster.Spec.Images.CSINodeDriverRegistrarContainer, os.Getenv(csiNodeDriverRegImageEnvVar)); img != nil {
+		images = append(images, *img)
+	}
+	if img := image.GetKustomizeImage(kImageCSILivenessProbe, cluster.Spec.Images.CSILivenessProbeContainer, os.Getenv(csiLivenessProbeImageEnvVar)); img != nil {
+		images = append(images, *img)
+	}
 
 	// Create daemonset transforms.
 	daemonsetTransforms := []transform.TransformFunc{}

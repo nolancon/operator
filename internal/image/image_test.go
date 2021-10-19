@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	kustomizetypes "sigs.k8s.io/kustomize/api/types"
 )
 
 func TestSplit(t *testing.T) {
@@ -56,40 +57,50 @@ func TestSplit(t *testing.T) {
 
 func TestGetKustomizeImageList(t *testing.T) {
 	cases := []struct {
-		name        string
-		namedImages NamedImages
-		wantImages  int
+		name         string
+		imageName    string
+		image        string
+		defaultImage string
+		wantImage    *kustomizetypes.Image
 	}{
 		{
-			name: "mix of image types",
-			namedImages: NamedImages{
-				"foo": "example.com/foo:v1.0",
-				"bar": "xyz.io/bar:v4.9.0",
-				"baz": "baz@sha256:25a0d4",
+			name:         "image found",
+			imageName:    "foo",
+			image:        "example.com/foo:v1.0",
+			defaultImage: "example.com/foo:v0.0",
+			wantImage: &kustomizetypes.Image{
+				Name:    "foo",
+				NewName: "example.com/foo",
+				NewTag:  "v1.0",
+				Digest:  "",
 			},
-			wantImages: 3,
 		},
 		{
-			name: "empty image value",
-			namedImages: NamedImages{
-				"foo": "example.com/foo:v1.0",
-				"bar": "",
-				"baz": "baz@sha256:25a0d4",
+			name:         "default image found",
+			imageName:    "foo",
+			image:        "",
+			defaultImage: "example.com/foo:v0.0",
+			wantImage: &kustomizetypes.Image{
+				Name:    "foo",
+				NewName: "example.com/foo",
+				NewTag:  "v0.0",
+				Digest:  "",
 			},
-			wantImages: 2,
 		},
 		{
-			name:        "empty",
-			namedImages: NamedImages{},
-			wantImages:  0,
+			name:         "not found",
+			imageName:    "foo",
+			image:        "",
+			defaultImage: "",
+			wantImage:    nil,
 		},
 	}
 
 	for _, tc := range cases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			il := GetKustomizeImageList(tc.namedImages)
-			assert.Equal(t, tc.wantImages, len(il))
+			img := GetKustomizeImage(tc.imageName, tc.image, tc.defaultImage)
+			assert.Equal(t, tc.wantImage, img)
 		})
 	}
 }

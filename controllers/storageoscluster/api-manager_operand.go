@@ -106,18 +106,11 @@ func getAPIManagerBuilder(fs filesys.FileSystem, obj client.Object, kcl kubectl.
 	// Get image name.
 	images := []kustomizetypes.Image{}
 
-	// Check environment variables for related images.
-	relatedImages := image.NamedImages{
-		kImageAPIManager: os.Getenv(apiManagerImageEnvVar),
-	}
-	images = append(images, image.GetKustomizeImageList(relatedImages)...)
-
 	// Get the images from the cluster spec. This overwrites the default image
 	// set by the operator related images environment variables.
-	namedImages := image.NamedImages{
-		kImageAPIManager: cluster.Spec.Images.APIManagerContainer,
+	if img := image.GetKustomizeImage(kImageAPIManager, cluster.Spec.Images.APIManagerContainer, os.Getenv(apiManagerImageEnvVar)); img != nil {
+		images = append(images, *img)
 	}
-	images = append(images, image.GetKustomizeImageList(namedImages)...)
 
 	// Create deployment transforms.
 	deploymentTransforms := []transform.TransformFunc{}
