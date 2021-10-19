@@ -107,17 +107,20 @@ spec:
                   is disabled, StorageOS will not perform any interaction with Kubernetes
                   when it detects that a node has gone offline. Additionally, the
                   Kubernetes permissions required for Fencing will not be added to
-                  the StorageOS role."
+                  the StorageOS role. Deprecated: Not used any more, fencing is enabled/disabled
+                  by storageos.com/fenced label on pod."
                 type: boolean
               disableScheduler:
-                description: Disable StorageOS scheduler extender.
+                description: 'Disable StorageOS scheduler extender. Deprecated: Not
+                  used any more, scheduler is always enabled on Kubernetes.'
                 type: boolean
               disableTCMU:
                 description: "Disable TCMU can be set to true to disable the TCMU
                   storage driver.  This is required when there are multiple storage
                   systems running on the same node and you wish to avoid conflicts.
                   \ Only one TCMU-based storage system can run on a node at a time.
-                  \n Disabling TCMU will degrade performance."
+                  \n Disabling TCMU will degrade performance. Deprecated: Not used
+                  any more."
                 type: boolean
               disableTelemetry:
                 description: Disable Telemetry.
@@ -133,7 +136,8 @@ spec:
                   enabled or cause StorageOS to abort startup. \n At startup, StorageOS
                   will automatically fallback to non-TCMU mode if another TCMU-based
                   storage system is running on the node.  Since non-TCMU will degrade
-                  performance, this may not always be desired."
+                  performance, this may not always be desired. Deprecated: Not used
+                  any more."
                 type: boolean
               images:
                 description: Images defines the various container images used in the
@@ -165,8 +169,9 @@ spec:
                     type: string
                 type: object
               ingress:
-                description: Ingress defines the ingress configurations used in the
-                  cluster.
+                description: 'Ingress defines the ingress configurations used in the
+                  cluster. Deprecated: Not used any more, please create your ingress
+                  for dashboard on your own.'
                 properties:
                   annotations:
                     additionalProperties:
@@ -180,7 +185,8 @@ spec:
                     type: boolean
                 type: object
               join:
-                description: Join is the join token used for service discovery.
+                description: 'Join is the join token used for service discovery. Deprecated:
+                  Not used any more.'
                 type: string
               k8sDistro:
                 description: "K8sDistro is the name of the Kubernetes distribution
@@ -206,8 +212,9 @@ spec:
                 - address
                 type: object
               namespace:
-                description: Namespace is the kubernetes Namespace where storageos
-                  resources are provisioned.
+                description: 'Namespace is the kubernetes Namespace where storageos
+                  resources are provisioned. Deprecated: StorageOS uses namespace
+                  of storageosclusters.storageos.com resource.'
                 type: string
               nodeSelectorTerms:
                 description: NodeSelectorTerms is to set the placement of storageos
@@ -284,7 +291,8 @@ spec:
                   type: object
                 type: array
               pause:
-                description: Pause is to pause the operator for the cluster.
+                description: 'Pause is to pause the operator for the cluster. Deprecated:
+                  Not used any more, operator is always running.'
                 type: boolean
               resources:
                 description: Resources is to set the resource requirements of the
@@ -318,7 +326,9 @@ spec:
                   all the sensitive cluster configurations.
                 type: string
               secretRefNamespace:
-                description: SecretRefNamespace is the namespace of the secret reference.
+                description: 'SecretRefNamespace is the namespace of the secret reference.
+                  Deprecated: StorageOS uses namespace of storageosclusters.storageos.com
+                  resource.'
                 type: string
               service:
                 description: Service is the Service configuration for the cluster
@@ -355,8 +365,9 @@ spec:
                   therefore it's not part of the main storageos secret.
                 type: string
               tlsEtcdSecretRefNamespace:
-                description: TLSEtcdSecretRefNamespace is the namespace of the etcd
-                  TLS secret object.
+                description: 'TLSEtcdSecretRefNamespace is the namespace of the etcd
+                  TLS secret object. Deprecated: StorageOS uses namespace of storageosclusters.storageos.com
+                  resource.'
                 type: string
               tolerations:
                 description: Tolerations is to set the placement of storageos pods

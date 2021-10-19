@@ -14,6 +14,7 @@ type StorageOSClusterSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Join is the join token used for service discovery.
+	// Deprecated: Not used any more.
 	Join string `json:"join,omitempty"`
 
 	// CSI defines the configurations for CSI.
@@ -21,6 +22,7 @@ type StorageOSClusterSpec struct {
 
 	// Namespace is the kubernetes Namespace where storageos resources are
 	// provisioned.
+	// Deprecated: StorageOS uses namespace of storageosclusters.storageos.com resource.
 	Namespace string `json:"namespace,omitempty"`
 
 	// StorageClassName is the name of default StorageClass created for
@@ -37,6 +39,7 @@ type StorageOSClusterSpec struct {
 	SecretRefName string `json:"secretRefName"`
 
 	// SecretRefNamespace is the namespace of the secret reference.
+	// Deprecated: StorageOS uses namespace of storageosclusters.storageos.com resource.
 	SecretRefNamespace string `json:"secretRefNamespace,omitempty"`
 
 	// SharedDir is the shared directory to be used when the kubelet is running
@@ -46,6 +49,7 @@ type StorageOSClusterSpec struct {
 	SharedDir string `json:"sharedDir,omitempty"`
 
 	// Ingress defines the ingress configurations used in the cluster.
+	// Deprecated: Not used any more, please create your ingress for dashboard on your own.
 	Ingress StorageOSClusterIngress `json:"ingress,omitempty"`
 
 	// Images defines the various container images used in the cluster.
@@ -57,6 +61,7 @@ type StorageOSClusterSpec struct {
 	KVBackend StorageOSClusterKVBackend `json:"kvBackend"`
 
 	// Pause is to pause the operator for the cluster.
+	// Deprecated: Not used any more, operator is always running.
 	Pause bool `json:"pause,omitempty"`
 
 	// Debug is to set debug mode of the cluster.
@@ -99,6 +104,7 @@ type StorageOSClusterSpec struct {
 	// with Kubernetes when it detects that a node has gone offline.
 	// Additionally, the Kubernetes permissions required for Fencing will not be
 	// added to the StorageOS role.
+	// Deprecated: Not used any more, fencing is enabled/disabled by storageos.com/fenced label on pod.
 	DisableFencing bool `json:"disableFencing,omitempty"`
 
 	// Disable Telemetry.
@@ -111,6 +117,7 @@ type StorageOSClusterSpec struct {
 	// can run on a node at a time.
 	//
 	// Disabling TCMU will degrade performance.
+	// Deprecated: Not used any more.
 	DisableTCMU bool `json:"disableTCMU,omitempty"`
 
 	// Force TCMU can be set to true to ensure that TCMU is enabled or
@@ -119,6 +126,7 @@ type StorageOSClusterSpec struct {
 	// At startup, StorageOS will automatically fallback to non-TCMU mode if
 	// another TCMU-based storage system is running on the node.  Since non-TCMU
 	// will degrade performance, this may not always be desired.
+	// Deprecated: Not used any more.
 	ForceTCMU bool `json:"forceTCMU,omitempty"`
 
 	// TLSEtcdSecretRefName is the name of the secret object that contains the
@@ -128,6 +136,7 @@ type StorageOSClusterSpec struct {
 	TLSEtcdSecretRefName string `json:"tlsEtcdSecretRefName,omitempty"`
 
 	// TLSEtcdSecretRefNamespace is the namespace of the etcd TLS secret object.
+	// Deprecated: StorageOS uses namespace of storageosclusters.storageos.com resource.
 	TLSEtcdSecretRefNamespace string `json:"tlsEtcdSecretRefNamespace,omitempty"`
 
 	// K8sDistro is the name of the Kubernetes distribution where the operator
@@ -143,6 +152,7 @@ type StorageOSClusterSpec struct {
 	K8sDistro string `json:"k8sDistro,omitempty"`
 
 	// Disable StorageOS scheduler extender.
+	// Deprecated: Not used any more, scheduler is always enabled on Kubernetes.
 	DisableScheduler bool `json:"disableScheduler,omitempty"`
 
 	// Environment contains environment variables that are passed to StorageOS.
