@@ -99,7 +99,7 @@ spec:
                 description: Disable Telemetry.
                 type: boolean
               enablePortalManager:
-                description: EnablePortalManager Enables Portal Manager.
+                description: EnablePortalManager enables Portal Manager.
                 type: boolean
               environment:
                 additionalProperties:

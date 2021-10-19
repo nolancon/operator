@@ -526,6 +526,62 @@ spec:
           - list
           - watch
         - apiGroups:
+          - ""
+          resources:
+          - configmaps
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - ""
+          resources:
+          - configmaps/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - ""
+          resources:
+          - namespaces
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - ""
+          resources:
+          - nodes
+          - persistentvolumeclaims
+          - persistentvolumes
+          - pods
+          verbs:
+          - list
+          - watch
+        - apiGroups:
+          - api.storageos.com
+          resources:
+          - nodes
+          - volumes
+          verbs:
+          - list
+          - watch
+        - apiGroups:
+          - apps
+          resources:
+          - daemonsets
+          - deployments
+          - replicasets
+          - statefulsets
+          verbs:
+          - list
+          - watch
+        - apiGroups:
           - coordination.k8s.io
           resources:
           - leases
@@ -536,6 +592,14 @@ spec:
           - list
           - patch
           - update
+          - watch
+        - apiGroups:
+          - storage.k8s.io
+          resources:
+          - storageclasses
+          - volumeattachments
+          verbs:
+          - list
           - watch
         - apiGroups:
           - storageos.com
@@ -563,12 +627,6 @@ spec:
           - get
           - patch
           - update
-        - apiGroups:
-          - v1
-          resources:
-          - namespaces
-          verbs:
-          - get
         - apiGroups:
           - events.k8s.io
           resources:
@@ -644,7 +702,13 @@ spec:
                     port: 8081
                   initialDelaySeconds: 5
                   periodSeconds: 10
-                resources: {}
+                resources:
+                  limits:
+                    cpu: "3"
+                    memory: 512Mi
+                  requests:
+                    cpu: 500m
+                    memory: 128Mi
                 securityContext:
                   allowPrivilegeEscalation: false
                 volumeMounts:
