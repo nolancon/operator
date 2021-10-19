@@ -5,6 +5,9 @@
 # - use environment variables to overwrite this value (e.g export VERSION=0.0.2)
 VERSION ?= 2.5.0-beta.1
 
+# MIN_KUBE_VERSION is the build flag of minimum Kubernetes version.
+MIN_KUBE_VERSION ?= 1.18.0
+
 # CHANNELS define the bundle channels used in the bundle.
 # Add a new line here if you would like to change its default config. (E.g CHANNELS = "candidate,fast,stable")
 # To re-generate a bundle for other specific channels without changing the standard setup, you can:
@@ -52,6 +55,9 @@ GOBIN=$(shell go env GOPATH)/bin
 else
 GOBIN=$(shell go env GOBIN)
 endif
+
+
+LD_FLAGS = -X main.SupportedMinKubeVersion=$(MIN_KUBE_VERSION)
 
 # Setting SHELL to bash allows bash commands to be executed by recipes.
 # This is a requirement for 'setup-envtest.sh' in the test target.
@@ -146,7 +152,7 @@ e2e: ## Run e2e tests.
 ##@ Build
 
 build: manifests generate fmt vet ## Build manager binary.
-	CGO_ENABLED=0 go build -o bin/manager main.go
+	CGO_ENABLED=0 go build -ldflags "$(LD_FLAGS)" -o bin/manager main.go
 
 run: generate fmt vet manifests ## Run a controller from your host.
 	RELATED_IMAGE_API_MANAGER=${API_MANAGER_IMAGE} \

@@ -3,6 +3,7 @@ module github.com/storageos/operator
 go 1.16
 
 require (
+	github.com/blang/semver v3.5.1+incompatible
 	github.com/darkowlzz/operator-toolkit v0.0.0-20210721205719-05b03cd74f02
 	github.com/go-logr/logr v0.3.0
 	github.com/golang/mock v1.5.0

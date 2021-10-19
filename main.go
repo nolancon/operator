@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"os"
 
@@ -27,6 +28,7 @@ import (
 	storageoscomv1 "github.com/storageos/operator/apis/v1"
 	"github.com/storageos/operator/controllers"
 	whctrlr "github.com/storageos/operator/controllers/webhook"
+	"github.com/storageos/operator/internal/version"
 	"github.com/storageos/operator/watchers"
 	// +kubebuilder:scaffold:imports
 )
@@ -38,6 +40,8 @@ var (
 	scheme   = runtime.NewScheme()
 	setupLog = ctrl.Log.WithName("setup")
 )
+
+var SupportedMinKubeVersion string
 
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
@@ -111,6 +115,12 @@ func main() {
 	kubeVersion, err := kubeClient.Discovery().ServerVersion()
 	if err != nil {
 		setupLog.Error(err, "unable to get Kubernetes version")
+		os.Exit(1)
+	}
+
+	// Validate Kubernetes version
+	if SupportedMinKubeVersion != "" && !version.IsSupported(kubeVersion.String(), SupportedMinKubeVersion) {
+		setupLog.Error(errors.New("unsupported Kubernetes version"), "current version of Kubernetes is lower than required minimum version", "supported", SupportedMinKubeVersion, "current", kubeVersion.String())
 		os.Exit(1)
 	}
 
