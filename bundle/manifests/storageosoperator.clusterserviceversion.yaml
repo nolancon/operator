@@ -459,7 +459,13 @@ spec:
                     port: 8081
                   initialDelaySeconds: 5
                   periodSeconds: 10
-                resources: {}
+                resources:
+                  limits:
+                    cpu: "3"
+                    memory: 512Mi
+                  requests:
+                    cpu: 500m
+                    memory: 128Mi
                 securityContext:
                   allowPrivilegeEscalation: false
                 volumeMounts:
