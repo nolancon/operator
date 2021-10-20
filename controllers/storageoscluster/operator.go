@@ -75,7 +75,7 @@ func NewOperator(mgr ctrl.Manager, kubeVersion string, fs filesys.FileSystem, ex
 	// depends on CSI and api-manager. Before-install, StorageClass and
 	// Scheduler operands are independent.
 	apiManagerOp := NewAPIManagerOperand(apiManagerOpName, mgr.GetClient(), []string{nodeOpName}, operand.RequeueOnError, fs, kcl)
-	portalManagerOp := NewPortalManagerOperand(portalManagerOpName, mgr.GetClient(), []string{}, operand.RequeueOnError, fs, kcl)
+	portalManagerOp := NewPortalManagerOperand(portalManagerOpName, mgr.GetClient(), []string{apiManagerOpName}, operand.RequeueOnError, fs, kcl)
 	csiOp := NewCSIOperand(csiOpName, mgr.GetClient(), []string{nodeOpName}, operand.RequeueOnError, fs, kcl)
 	schedulerOp := NewSchedulerOperand(schedulerOpName, mgr.GetClient(), kubeVersion, []string{}, operand.RequeueOnError, fs, kcl)
 	nodeOp := NewNodeOperand(nodeOpName, mgr.GetClient(), []string{beforeInstallOpName}, operand.RequeueOnError, fs, kcl)
