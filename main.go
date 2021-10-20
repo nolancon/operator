@@ -166,7 +166,7 @@ func main() {
 	}
 
 	if err = controllers.NewStorageOSClusterReconciler(mgr).
-		SetupWithManager(mgr, kubeVersion.String()); err != nil {
+		SetupWithManager(mgr, version.CleanupVersion(kubeVersion.String())); err != nil {
 		setupLog.Error(err, "unable to create controller",
 			"controller", "StorageOSCluster")
 		os.Exit(1)
