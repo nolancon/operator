@@ -7,6 +7,5 @@ resources:
 - clusterrolebinding-storageos-portal-manager.yaml
 - clusterrolebinding-storageos-proxy-portal-manager.yaml
 - configmap-storageos-portal-manager.yaml
-- secret-iot-core-ssl.yaml
 - service-storageos-portal-manager.yaml
 - deployment-storageos-portal-manager.yaml
