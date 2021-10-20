@@ -56,9 +56,9 @@ spec:
           periodSeconds: 10
         resources:
           limits:
-            cpu: "3"
+            cpu: 1000m
             memory: 512Mi
           requests:
-            cpu: 500m
+            cpu: 50m
             memory: 128Mi
       terminationGracePeriodSeconds: 10
