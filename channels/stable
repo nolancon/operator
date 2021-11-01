@@ -1,6 +1,6 @@
 manifests:
 - name: api-manager
-  version: develop
+  version: 1.2.1
 - name: csi
   version: 0.1.0
 - name: node

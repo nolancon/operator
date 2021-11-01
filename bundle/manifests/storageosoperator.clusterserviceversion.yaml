@@ -64,22 +64,29 @@ spec:
       - description: KVBackend defines the key-value store backend used in the cluster.
         displayName: KVBackend
         path: kvBackend
-      - description: NodeSelectorTerms is to set the placement of storageos pods using node affinity requiredDuringSchedulingIgnoredDuringExecution.
+      - description: NodeSelectorTerms is to set the placement of storageos pods using
+          node affinity requiredDuringSchedulingIgnoredDuringExecution.
         displayName: Node Selector Terms
         path: nodeSelectorTerms
-      - description: Resources is to set the resource requirements of the storageos containers.
+      - description: Resources is to set the resource requirements of the storageos
+          containers.
         displayName: Resources
         path: resources
-      - description: SecretRefName is the name of the secret object that contains all the sensitive cluster configurations.
+      - description: SecretRefName is the name of the secret object that contains
+          all the sensitive cluster configurations.
         displayName: Secret Ref Name
         path: secretRefName
-      - description: StorageClassName is the name of default StorageClass created for StorageOS volumes.
+      - description: StorageClassName is the name of default StorageClass created
+          for StorageOS volumes.
         displayName: Storage Class Name
         path: storageClassName
-      - description: TLSEtcdSecretRefName is the name of the secret object that contains the etcd TLS certs. This secret is shared with etcd, therefore it's not part of the main storageos secret.
+      - description: TLSEtcdSecretRefName is the name of the secret object that contains
+          the etcd TLS certs. This secret is shared with etcd, therefore it's not
+          part of the main storageos secret.
         displayName: TLSEtcd Secret Ref Name
         path: tlsEtcdSecretRefName
-      - description: Tolerations is to set the placement of storageos pods using pod toleration.
+      - description: Tolerations is to set the placement of storageos pods using pod
+          toleration.
         displayName: Tolerations
         path: tolerations
       statusDescriptors:
@@ -257,6 +264,27 @@ spec:
           - validatingwebhookconfigurations
           verbs:
           - '*'
+        - apiGroups:
+          - api.storageos.com
+          resources:
+          - nodes
+          - volumes
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - watch
+        - apiGroups:
+          - api.storageos.com
+          resources:
+          - nodes/status
+          - volumes/status
+          verbs:
+          - get
+          - patch
+          - update
         - apiGroups:
           - apiextensions.k8s.io
           resources:
@@ -497,6 +525,44 @@ spec:
           verbs:
           - '*'
         - apiGroups:
+          - api.storageos.com
+          resources:
+          - nodes
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - watch
+        - apiGroups:
+          - api.storageos.com
+          resources:
+          - nodes/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - api.storageos.com
+          resources:
+          - volumes
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - watch
+        - apiGroups:
+          - api.storageos.com
+          resources:
+          - volumes/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
           - coordination.k8s.io
           resources:
           - leases
@@ -704,10 +770,10 @@ spec:
                   periodSeconds: 10
                 resources:
                   limits:
-                    cpu: "3"
+                    cpu: "1"
                     memory: 512Mi
                   requests:
-                    cpu: 500m
+                    cpu: 50m
                     memory: 128Mi
                 securityContext:
                   allowPrivilegeEscalation: false
