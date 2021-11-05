@@ -87,7 +87,7 @@ func main() {
 
 	currentNS := os.Getenv(podNamespace)
 	if len(currentNS) == 0 {
-		setupLog.Error(err, "failed to get current namespace")
+		setupLog.Error(errors.New("current namespace not found"), "failed to get current namespace")
 		os.Exit(1)
 	}
 
