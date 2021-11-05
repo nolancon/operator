@@ -96,7 +96,7 @@ func main() {
 	ctrlConfig := configstorageoscomv1.OperatorConfig{}
 	options := ctrl.Options{
 		Scheme:                  scheme,
-		LeaderElectionID:        "operator",
+		LeaderElectionID:        "storageos-operator-leader",
 		LeaderElectionNamespace: currentNS,
 	}
 	if configFile != "" {

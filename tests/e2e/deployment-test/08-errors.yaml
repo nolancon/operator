@@ -52,7 +52,7 @@ webhooks:
 apiVersion: v1
 kind: Service
 metadata:
-  name: storageos
+  name: storageos-node
   namespace: default
   labels:
     app: storageos
