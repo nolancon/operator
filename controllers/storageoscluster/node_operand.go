@@ -37,7 +37,7 @@ const (
 	initContainer = "init"
 
 	// storageosService is the default name of the storageos service.
-	storageosService = "storageos-node"
+	storageosService = "storageos"
 
 	// Etcd TLS cert file names.
 	tlsEtcdCA         = "etcd-client-ca.crt"
