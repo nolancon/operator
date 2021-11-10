@@ -10,6 +10,7 @@ import (
 	// to ensure that exec-entrypoint and run can make use of them.
 	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
+	"k8s.io/klog/v2"
 
 	"github.com/darkowlzz/operator-toolkit/telemetry/export"
 	"github.com/darkowlzz/operator-toolkit/webhook/cert"
@@ -75,7 +76,10 @@ func main() {
 	encoderOpts := func(o *zap.Options) {
 		o.EncoderConfigOptions = append(o.EncoderConfigOptions, f)
 	}
-	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts), zap.StacktraceLevel(zapcore.PanicLevel), encoderOpts))
+
+	zapLogger := zap.New(zap.UseFlagOptions(&opts), zap.StacktraceLevel(zapcore.PanicLevel), encoderOpts)
+	ctrl.SetLogger(zapLogger)
+	klog.SetLogger(zapLogger)
 
 	// Setup telemetry.
 	telemetryShutdown, err := export.InstallJaegerExporter("storageos-operator")
