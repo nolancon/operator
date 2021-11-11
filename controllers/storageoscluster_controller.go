@@ -16,6 +16,7 @@ import (
 
 	storageoscomv1 "github.com/storageos/operator/apis/v1"
 	"github.com/storageos/operator/controllers/storageoscluster"
+	"github.com/storageos/operator/internal/version"
 )
 
 const instrumentationName = "github.com/storageos/operator/controllers"
@@ -66,8 +67,14 @@ func (r *StorageOSClusterReconciler) SetupWithManager(mgr ctrl.Manager, kubeVers
 	_, span, _, log := instrumentation.Start(context.Background(), "StorageosCluster.SetupWithManager")
 	defer span.End()
 
+	// Set channel 1.18 if k8s version is not greater or equal to v1.19.0
+	channel := "stable"
+	if stable := version.IsSupported(kubeVersion, "v1.19.0"); !stable {
+		channel = "1.18"
+	}
+
 	// Load manifests in an in-memory filesystem.
-	fs, err := loader.NewLoadedManifestFileSystem("channels", "stable")
+	fs, err := loader.NewLoadedManifestFileSystem("channels", channel)
 	if err != nil {
 		return fmt.Errorf("failed to create loaded ManifestFileSystem: %w", err)
 	}
