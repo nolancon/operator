@@ -6,7 +6,7 @@ manifests:
 - name: node
   version: 2.5.0
 - name: scheduler
-  version: 1.19.0
+  version: 1.18.0
 - name: storageclass
   version: 0.1.0
 - name: before-install
