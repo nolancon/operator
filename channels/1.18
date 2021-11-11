@@ -1,14 +1,12 @@
 manifests:
 - name: api-manager
-  version: develop
+  version: 1.2.0
 - name: csi
   version: 0.1.0
 - name: node
   version: 2.5.0
-- name: portal-manager
-  version: develop
 - name: scheduler
-  version: 1.19.0
+  version: 1.18.0
 - name: storageclass
   version: 0.1.0
 - name: before-install
