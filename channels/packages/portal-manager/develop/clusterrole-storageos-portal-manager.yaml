@@ -47,6 +47,13 @@ rules:
   - list
   - watch
 - apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - list
+  - watch
+- apiGroups:
   - api.storageos.com
   resources:
   - nodes
@@ -96,17 +103,3 @@ rules:
   - patch
   - update
   - watch
-- apiGroups:
-  - storageos.com
-  resources:
-  - storageosportals/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - storageos.com
-  resources:
-  - storageosportals/status
-  verbs:
-  - get
-  - patch
-  - update
