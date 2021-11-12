@@ -63,6 +63,7 @@ func (w *ConfigMapWatcher) watchChange(ctx context.Context) error {
 	}
 	defer watcher.Stop()
 
+	time.Sleep(time.Minute)
 	for {
 		event, ok := <-watcher.ResultChan()
 		if !ok {
