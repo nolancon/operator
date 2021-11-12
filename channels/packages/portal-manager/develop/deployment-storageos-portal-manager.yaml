@@ -36,22 +36,22 @@ spec:
           valueFrom:
             secretKeyRef:
               key: TENANT_ID
-              name: portal-client
+              name: storageos-portal-client
         - name: CLIENT_ID
           valueFrom:
             secretKeyRef:
               key: CLIENT_ID
-              name: portal-client
+              name: storageos-portal-client
         - name: PASSWORD
           valueFrom:
             secretKeyRef:
               key: PASSWORD
-              name: portal-client
+              name: storageos-portal-client
         - name: URL
           valueFrom:
             secretKeyRef:
               key: URL
-              name: portal-client
+              name: storageos-portal-client
         image: controller:latest
         livenessProbe:
           httpGet:
@@ -103,6 +103,3 @@ spec:
       - name: api-secret
         secret:
           secretName: storageos-api
-      - name: portal-client
-        secret:
-          secretName: storageos-portal-client
