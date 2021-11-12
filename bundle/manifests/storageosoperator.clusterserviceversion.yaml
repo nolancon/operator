@@ -319,9 +319,12 @@ spec:
           - csi.storage.k8s.io
           resources:
           - csidrivers
+          - csistoragecapacities
           verbs:
           - create
           - delete
+          - list
+          - watch
         - apiGroups:
           - policy
           resources:
@@ -360,6 +363,7 @@ spec:
           - csidrivers
           - csinodeinfos
           - csinodes
+          - csistoragecapacities
           - storageclasses
           - volumeattachments
           - volumeattachments/status
