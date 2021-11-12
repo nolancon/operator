@@ -100,6 +100,9 @@ spec:
               registry:
                 description: Registry is the ID of the IOT Core Registry.
                 type: string
+              serverUrl:
+                description: SeverURL is the url of the iot server
+                type: string
             type: object
           kind:
             description: 'Kind is a string value representing the REST resource this
