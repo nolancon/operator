@@ -5,6 +5,7 @@ import (
 	"errors"
 	"flag"
 	"os"
+	"time"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
@@ -113,6 +114,8 @@ func main() {
 	}
 
 	restConfig := ctrl.GetConfigOrDie()
+	restConfig.Timeout = time.Minute
+
 	kubeClient := kubernetes.NewForConfigOrDie(restConfig)
 
 	// Get Kubernetes version.
