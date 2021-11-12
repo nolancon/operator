@@ -1,0 +1,60 @@
+
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  labels:
+    app: storageos
+    app.kubernetes.io/component: api-manager
+  name: storageos-mutating-webhook
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: storageos-webhook
+      namespace: storageos
+      path: /mutate-pods
+      port: 443
+  failurePolicy: Ignore
+  matchPolicy: Equivalent
+  name: pod-mutator.storageos.com
+  namespaceSelector: {}
+  objectSelector: {}
+  reinvocationPolicy: Never
+  rules:
+  - apiGroups:
+    - ""
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    resources:
+    - pods
+    scope: '*'
+  sideEffects: NoneOnDryRun
+  timeoutSeconds: 10
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: storageos-webhook
+      namespace: storageos
+      path: /mutate-pvcs
+      port: 443
+  failurePolicy: Ignore
+  matchPolicy: Equivalent
+  name: pvc-mutator.storageos.com
+  namespaceSelector: {}
+  objectSelector: {}
+  reinvocationPolicy: Never
+  rules:
+  - apiGroups:
+    - ""
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    resources:
+    - persistentvolumeclaims
+    scope: '*'
+  sideEffects: NoneOnDryRun

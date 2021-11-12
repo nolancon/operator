@@ -1,7 +1,12 @@
+
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: storageos:operator:api-manager
+  creationTimestamp: null
+  labels:
+    app: storageos
+    app.kubernetes.io/component: api-manager
+  name: storageos:api-manager
 rules:
 - apiGroups:
   - ""
