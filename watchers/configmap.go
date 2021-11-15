@@ -2,6 +2,7 @@ package watchers
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -38,12 +39,13 @@ func (w *ConfigMapWatcher) Setup(ctx context.Context) error {
 // Start wathing config maps until first change.
 func (w *ConfigMapWatcher) Start(ctx context.Context) {
 	for waitPeriod := 0; ; waitPeriod = (waitPeriod + 1) * 2 {
+		waitDuration := time.Second * time.Duration(waitPeriod)
 		if waitPeriod != 0 {
 			watcherLog.Info("wait before start watching", "period", waitPeriod)
-			time.Sleep(time.Second * time.Duration(waitPeriod))
+			time.Sleep(waitDuration)
 		}
 
-		err := w.watchChange(ctx)
+		err := w.watchChange(ctx, waitDuration)
 		if err != nil {
 			watcherLog.Error(err, "unable to start config map watcher")
 			// Increase wait period of reconnect.
@@ -56,19 +58,23 @@ func (w *ConfigMapWatcher) Start(ctx context.Context) {
 }
 
 // watchChange consumes watch events and returns on change.
-func (w *ConfigMapWatcher) watchChange(ctx context.Context) error {
+func (w *ConfigMapWatcher) watchChange(ctx context.Context, waitDuration time.Duration) error {
 	watcher, err := w.client.Watch(ctx, w.listOpt)
 	if err != nil {
 		return err
 	}
 	defer watcher.Stop()
 
-	time.Sleep(time.Minute)
+	if waitDuration != 0 {
+		watcherLog.Info("wait before reading channel", "period", waitDuration)
+		time.Sleep(waitDuration)
+	}
+
 	for {
 		event, ok := <-watcher.ResultChan()
 		if !ok {
 			watcherLog.Info("watcher has closed")
-			break
+			return errors.New("watcher has closed")
 		}
 
 		if event.Type == watch.Modified {
