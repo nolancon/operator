@@ -2,6 +2,7 @@ package version
 
 import (
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/blang/semver"
@@ -44,4 +45,18 @@ func IsSupported(haveVersion, wantVersion string) bool {
 	}
 
 	return currentVersion.Compare(supportedVersion) >= 0
+}
+
+// MajorMinor takes a version (haveversion) and converts it to a string of just version
+// major and minor. Eg v1.5.8-alpha.3 = "1.5"
+func MajorMinor(haveVersion string) string {
+	haveVersion = strings.Trim(versionRegexp.FindString(haveVersion), "v")
+
+	parsedVersion, err := semver.Parse(haveVersion)
+	if err != nil {
+		log.Info("Failed to parse version", "error", err)
+		return ""
+	}
+
+	return strconv.FormatUint(parsedVersion.Major, 10) + "." + strconv.FormatUint(parsedVersion.Minor, 10)
 }
