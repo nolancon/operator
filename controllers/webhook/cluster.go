@@ -3,12 +3,12 @@ package webhook
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/darkowlzz/operator-toolkit/singleton"
 	"github.com/darkowlzz/operator-toolkit/telemetry"
 	tkadmission "github.com/darkowlzz/operator-toolkit/webhook/admission"
 	"github.com/darkowlzz/operator-toolkit/webhook/builder"
-	"github.com/darkowlzz/operator-toolkit/webhook/function"
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -40,9 +40,10 @@ func init() {
 // StorageOSClusterWebhook is the webhook controller for StorageOSCluster.
 type StorageOSClusterWebhook struct {
 	CtrlName string
-	Scheme   *runtime.Scheme
-	Log      logr.Logger
-	Client   client.Client
+
+	scheme *runtime.Scheme
+	log    logr.Logger
+	client client.Client
 
 	singletonGetInstance singleton.GetInstanceFunc
 }
@@ -61,9 +62,9 @@ func NewStorageOSClusterWebhook(cl client.Client, scheme *runtime.Scheme) (*Stor
 	}
 	return &StorageOSClusterWebhook{
 		CtrlName:             storageosclusterWebhookName,
-		Scheme:               scheme,
-		Log:                  log,
-		Client:               cl,
+		scheme:               scheme,
+		log:                  log,
+		client:               cl,
 		singletonGetInstance: getInstance,
 	}, nil
 }
@@ -106,7 +107,21 @@ func (wh *StorageOSClusterWebhook) Default() []tkadmission.DefaultFunc {
 // returns a list of validate on create functions.
 func (wh *StorageOSClusterWebhook) ValidateCreate() []tkadmission.ValidateCreateFunc {
 	return []tkadmission.ValidateCreateFunc{
-		function.ValidateSingletonCreate(wh.singletonGetInstance, wh.Client),
+		func(ctx context.Context, obj client.Object) error {
+			ctx, cancel := context.WithTimeout(ctx, time.Minute)
+			defer cancel()
+
+			// Get singleton.
+			o, err := wh.singletonGetInstance(ctx, wh.client)
+			if err != nil {
+				return err
+			}
+			// If the returned object isn't nil, an instance already exists.
+			if o != nil {
+				return fmt.Errorf("an instance of %q - %s already exists", o.GetObjectKind().GroupVersionKind().Kind, client.ObjectKeyFromObject(o))
+			}
+			return nil
+		},
 	}
 }
 

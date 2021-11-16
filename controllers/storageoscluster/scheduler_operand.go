@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/darkowlzz/operator-toolkit/declarative"
 	"github.com/darkowlzz/operator-toolkit/declarative/kubectl"
@@ -55,6 +56,9 @@ func (c *SchedulerOperand) RequeueStrategy() operand.RequeueStrategy { return c.
 func (c *SchedulerOperand) ReadyCheck(ctx context.Context, obj client.Object) (bool, error) {
 	ctx, span, _, log := instrumentation.Start(ctx, "SchedulerOperand.ReadyCheck")
 	defer span.End()
+
+	ctx, cancel := context.WithTimeout(ctx, time.Minute)
+	defer cancel()
 
 	// Get the deployment object and check status of the replicas.
 	schedulerDep := &appsv1.Deployment{}

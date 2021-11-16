@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/darkowlzz/operator-toolkit/declarative"
 	"github.com/darkowlzz/operator-toolkit/declarative/kubectl"
@@ -68,6 +69,9 @@ func (c *PortalManagerOperand) ReadyCheck(ctx context.Context, obj client.Object
 	ctx, span, _, log := instrumentation.Start(ctx, "PortalManagerOperand.ReadyCheck")
 	defer span.End()
 
+	ctx, cancel := context.WithTimeout(ctx, time.Minute)
+	defer cancel()
+
 	// Get the deployment object and check status of the replicas.
 	portalManagerDep := &appsv1.Deployment{}
 	key := client.ObjectKey{Name: deploymentName, Namespace: obj.GetNamespace()}
@@ -92,6 +96,9 @@ func (c *PortalManagerOperand) Ensure(ctx context.Context, obj client.Object, ow
 
 	var err error
 	c.getCurrentState.Do(func() {
+		ctx, cancel := context.WithTimeout(ctx, time.Minute)
+		defer cancel()
+
 		// Get current state of the deployment object.
 		portalManagerDep := &appsv1.Deployment{}
 		key := client.ObjectKey{Name: deploymentName, Namespace: obj.GetNamespace()}

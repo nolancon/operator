@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/darkowlzz/operator-toolkit/declarative"
 	"github.com/darkowlzz/operator-toolkit/declarative/kubectl"
@@ -52,6 +53,9 @@ func (c *APIManagerOperand) RequeueStrategy() operand.RequeueStrategy { return c
 func (c *APIManagerOperand) ReadyCheck(ctx context.Context, obj client.Object) (bool, error) {
 	ctx, span, _, log := instrumentation.Start(ctx, "APIManagerOperand.ReadyCheck")
 	defer span.End()
+
+	ctx, cancel := context.WithTimeout(ctx, time.Minute)
+	defer cancel()
 
 	// Get the deployment object and check status of the replicas. One ready
 	// replica should be enough for the installation to continue.

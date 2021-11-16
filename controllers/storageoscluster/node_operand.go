@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"time"
 
 	"github.com/darkowlzz/operator-toolkit/declarative"
 	"github.com/darkowlzz/operator-toolkit/declarative/kubectl"
@@ -84,6 +85,9 @@ func (c *NodeOperand) RequeueStrategy() operand.RequeueStrategy { return c.reque
 func (c *NodeOperand) ReadyCheck(ctx context.Context, obj client.Object) (bool, error) {
 	ctx, span, _, log := instrumentation.Start(ctx, "NodeOperand.ReadyCheck")
 	defer span.End()
+
+	ctx, cancel := context.WithTimeout(ctx, time.Minute)
+	defer cancel()
 
 	// Get the DaemonSet object and check the status of the ready instances.
 	// One ready instance should be enough for the installation to continue.
@@ -303,6 +307,9 @@ func getNodeBuilder(fs filesys.FileSystem, obj client.Object, kcl kubectl.Kubect
 func getControlPlaneClient(ctx context.Context, kcl client.Client, cluster *storageoscomv1.StorageOSCluster) (*storageos.Client, error) {
 	ctx, span, _, _ := instrumentation.Start(ctx, "getControlPlaneClient")
 	defer span.End()
+
+	ctx, cancel := context.WithTimeout(ctx, time.Minute)
+	defer cancel()
 
 	// Get storageos creds and configure a client.
 	secret := &corev1.Secret{}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/darkowlzz/operator-toolkit/declarative"
 	"github.com/darkowlzz/operator-toolkit/declarative/kubectl"
@@ -55,6 +56,9 @@ func (c *CSIOperand) RequeueStrategy() operand.RequeueStrategy { return c.requeu
 func (c *CSIOperand) ReadyCheck(ctx context.Context, obj client.Object) (bool, error) {
 	ctx, span, _, log := instrumentation.Start(ctx, "CSIOperand.ReadyCheck")
 	defer span.End()
+
+	ctx, cancel := context.WithTimeout(ctx, time.Minute)
+	defer cancel()
 
 	// Get the deployment object and check status of the replicas.
 	csiDep := &appsv1.Deployment{}

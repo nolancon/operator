@@ -25,7 +25,10 @@ func (w *ConfigMapWatcher) Setup(ctx context.Context) error {
 		LabelSelector: "app.kubernetes.io/component=operator",
 	}
 
-	configMaps, err := w.client.List(context.Background(), w.listOpt)
+	ctx, cancel := context.WithTimeout(ctx, time.Minute)
+	defer cancel()
+
+	configMaps, err := w.client.List(ctx, w.listOpt)
 	if err != nil {
 		return err
 	}
