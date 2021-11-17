@@ -66,7 +66,7 @@ LD_FLAGS = -X main.SupportedMinKubeVersion=$(MIN_KUBE_VERSION)
 SHELL = /usr/bin/env bash -o pipefail
 .SHELLFLAGS = -ec
 
-API_MANAGER_VERSION ?= v1.2.1
+API_MANAGER_VERSION ?= v1.2.2
 API_MANAGER_IMAGE ?= storageos/api-manager:$(API_MANAGER_VERSION)
 API_MANAGER_MANIFESTS_IMAGE ?= storageos/api-manager-manifests:$(API_MANAGER_VERSION)
 PORTAL_MANAGER_VERSION ?= develop

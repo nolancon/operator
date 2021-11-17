@@ -634,6 +634,17 @@ spec:
           - list
           - watch
         - apiGroups:
+          - ""
+          resources:
+          - secrets
+          verbs:
+          - create
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
           - api.storageos.com
           resources:
           - nodes
@@ -683,20 +694,6 @@ spec:
           - patch
           - update
           - watch
-        - apiGroups:
-          - storageos.com
-          resources:
-          - storageosportals/finalizers
-          verbs:
-          - update
-        - apiGroups:
-          - storageos.com
-          resources:
-          - storageosportals/status
-          verbs:
-          - get
-          - patch
-          - update
         - apiGroups:
           - events.k8s.io
           resources:
