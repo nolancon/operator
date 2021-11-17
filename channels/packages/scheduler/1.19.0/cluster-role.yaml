@@ -37,6 +37,8 @@ rules:
   resources:
   - storageclasses
   - csinodes
+  - csistoragecapacities
+  - csidrivers
   verbs:
   - list
   - watch
