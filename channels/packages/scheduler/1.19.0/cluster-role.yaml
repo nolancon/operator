@@ -10,6 +10,7 @@ rules:
   - persistentvolumes
   - persistentvolumeclaims
   - nodes
+  - namespaces  
   - replicationcontrollers
   - pods
   - pods/binding
