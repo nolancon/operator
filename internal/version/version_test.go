@@ -77,3 +77,41 @@ func TestIsSupported(t *testing.T) {
 		})
 	}
 }
+
+func TestMajorMinor(t *testing.T) {
+	tests := map[string]struct {
+		haveVersion string
+		expected    string
+	}{
+		"less than": {
+			haveVersion: "1.18.3",
+			expected:    "1.18",
+		},
+		"greater than": {
+			haveVersion: "v1.19.3",
+			expected:    "1.19",
+		},
+		"greater than prefixed": {
+			haveVersion: "v1.20.3-alpha-preview.3",
+			expected:    "1.20",
+		},
+		"greater than postfixed": {
+			haveVersion: "1",
+			expected:    "",
+		},
+	}
+
+	for name, test := range tests {
+		tt := test
+
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			actual := MajorMinor(tt.haveVersion)
+
+			if tt.expected != actual {
+				t.Errorf("supported value doesn't match: %s != %s", tt.expected, actual)
+			}
+		})
+	}
+}
