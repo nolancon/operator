@@ -1,4 +1,4 @@
-name: kuttl e2e test latest
+name: kuttl e2e test 1.20
 
 on: [push, pull_request]
 
@@ -23,5 +23,5 @@ jobs:
         run: make kustomize manifests
       - name: Build container
         run: make operator-image
-      - name: Run kuttl
-        run: kubectl-kuttl test --config tests/e2e/kuttl-test.yaml
+      - name: Run kuttl 1.20
+        run: kubectl-kuttl test --kind-config tests/e2e/versions/kind-config-1.20.yaml --config tests/e2e/kuttl-test.yaml

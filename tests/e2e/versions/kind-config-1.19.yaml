@@ -3,4 +3,4 @@ apiVersion: kind.x-k8s.io/v1alpha3
 name: kuttl-test-cluster
 nodes:
 - role: control-plane
-  image: storageos/kind-node:v1.22.3
+  image: storageos/kind-node:v1.19.0 
