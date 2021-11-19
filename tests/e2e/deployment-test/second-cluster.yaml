@@ -8,4 +8,4 @@ spec:
   disableTelemetry: true
   storageClassName: "storageos"
   kvBackend:
-    address: "etcd-client.default.svc.cluster.local:2379"
+    address: "storageos-etcd.storageos-etcd:2379"
