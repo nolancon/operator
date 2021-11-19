@@ -3,7 +3,7 @@
 # To re-generate a bundle for another specific version without changing the standard setup, you can:
 # - use the VERSION as arg of the bundle target (e.g make bundle VERSION=0.0.2)
 # - use environment variables to overwrite this value (e.g export VERSION=0.0.2)
-VERSION ?= 2.5.0-beta.1
+VERSION ?= 2.5.0-beta.6
 
 # MIN_KUBE_VERSION is the build flag of minimum Kubernetes version.
 MIN_KUBE_VERSION ?= 1.18.0
@@ -76,7 +76,7 @@ EXTERNAL_PROVISIONER_IMAGE ?= storageos/csi-provisioner:v2.1.1-patched
 EXTERNAL_ATTACHER_IMAGE ?= quay.io/k8scsi/csi-attacher:v3.1.0
 EXTERNAL_RESIZER_IMAGE ?= quay.io/k8scsi/csi-resizer:v1.1.0
 INIT_IMAGE ?= storageos/init:v2.1.0
-NODE_IMAGE ?= storageos/node:v2.5.0-beta.1
+NODE_IMAGE ?= storageos/node:v2.5.0
 NODE_DRIVER_REG_IMAGE ?= quay.io/k8scsi/csi-node-driver-registrar:v2.1.0
 LIVENESS_PROBE_IMAGE ?= quay.io/k8scsi/livenessprobe:v2.2.0
 
