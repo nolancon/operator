@@ -31,6 +31,12 @@ rules:
 - apiGroups:
   - ""
   resources:
+  - events
+  verbs:
+  - create
+- apiGroups:
+  - ""
+  resources:
   - namespaces
   verbs:
   - get
@@ -94,6 +100,12 @@ rules:
   - volumeattachments
   verbs:
   - list
+  - watch
+- apiGroups:
+  - storageos.com
+  resources:
+  - storageosclusters
+  verbs:
   - watch
 - apiGroups:
   - storageos.com
