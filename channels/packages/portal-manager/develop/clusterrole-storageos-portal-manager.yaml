@@ -106,6 +106,7 @@ rules:
   resources:
   - storageosclusters
   verbs:
+  - list
   - watch
 - apiGroups:
   - storageos.com
