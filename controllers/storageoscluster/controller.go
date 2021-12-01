@@ -20,10 +20,11 @@ import (
 )
 
 const (
-	schedulerReadyType  = "SchedulerReady"
-	nodeReadyType       = "NodeReady"
-	apiManagerReadyType = "APIManagerReady"
-	csiReadyType        = "CSIReady"
+	schedulerReadyType     = "SchedulerReady"
+	nodeReadyType          = "NodeReady"
+	apiManagerReadyType    = "APIManagerReady"
+	portalManagerReadyType = "PortalManagerReady"
+	csiReadyType           = "CSIReady"
 
 	readyReason    = "Ready"
 	notReadyReason = "NotReady"
@@ -98,6 +99,13 @@ func (c *StorageOSClusterController) UpdateStatus(ctx context.Context, obj clien
 	apiManagerCondition := getAPIManagerCondition(ctx, c.Client, obj.GetNamespace(), log)
 	meta.SetStatusCondition(&cluster.Status.Conditions, apiManagerCondition)
 
+	if cluster.Spec.EnablePortalManager {
+		portalManagerCondition := getPortalManagerCondition(ctx, c.Client, obj.GetNamespace(), log)
+		meta.SetStatusCondition(&cluster.Status.Conditions, portalManagerCondition)
+	} else {
+		meta.RemoveStatusCondition(&cluster.Status.Conditions, portalManagerReadyType)
+	}
+
 	csiCondition := getCSICondition(ctx, c.Client, obj.GetNamespace(), log)
 	meta.SetStatusCondition(&cluster.Status.Conditions, csiCondition)
 
@@ -108,6 +116,7 @@ func (c *StorageOSClusterController) UpdateStatus(ctx context.Context, obj clien
 	if meta.IsStatusConditionTrue(conditions, schedulerReadyType) ||
 		meta.IsStatusConditionTrue(conditions, nodeReadyType) ||
 		meta.IsStatusConditionTrue(conditions, apiManagerReadyType) ||
+		(!cluster.Spec.EnablePortalManager || meta.IsStatusConditionTrue(conditions, portalManagerReadyType)) ||
 		meta.IsStatusConditionTrue(conditions, csiReadyType) {
 		// Some components are ready, Creating phase.
 		phase = "Creating"
@@ -117,6 +126,7 @@ func (c *StorageOSClusterController) UpdateStatus(ctx context.Context, obj clien
 	if meta.IsStatusConditionTrue(conditions, schedulerReadyType) &&
 		meta.IsStatusConditionTrue(conditions, nodeReadyType) &&
 		meta.IsStatusConditionTrue(conditions, apiManagerReadyType) &&
+		(!cluster.Spec.EnablePortalManager || meta.IsStatusConditionTrue(conditions, portalManagerReadyType)) &&
 		meta.IsStatusConditionTrue(conditions, csiReadyType) {
 		// Remove progressing condition and set cluster Ready status.
 		meta.RemoveStatusCondition(&cluster.Status.Conditions, "Progressing")
@@ -212,6 +222,28 @@ func getAPIManagerCondition(ctx context.Context, cl client.Client, namespace str
 		apiManagerCondition.Message = "APIManager Ready"
 	}
 	return apiManagerCondition
+}
+
+func getPortalManagerCondition(ctx context.Context, cl client.Client, namespace string, log logr.Logger) metav1.Condition {
+	portalManagerCondition := metav1.Condition{
+		Type:    portalManagerReadyType,
+		Status:  metav1.ConditionFalse,
+		Reason:  notReadyReason,
+		Message: "PortalManager Not Ready",
+	}
+	amDep := &appsv1.Deployment{}
+	amKey := client.ObjectKey{Name: "storageos-portal-manager", Namespace: namespace}
+	if err := cl.Get(ctx, amKey, amDep); err != nil {
+		if !apierrors.IsNotFound(err) {
+			log.Error(err, "failed to get portal-manager status")
+		}
+	}
+	if amDep.Status.AvailableReplicas > 0 {
+		portalManagerCondition.Status = metav1.ConditionTrue
+		portalManagerCondition.Reason = readyReason
+		portalManagerCondition.Message = "PortalManager Ready"
+	}
+	return portalManagerCondition
 }
 
 func getCSICondition(ctx context.Context, cl client.Client, namespace string, log logr.Logger) metav1.Condition {
