@@ -618,6 +618,12 @@ spec:
         - apiGroups:
           - ""
           resources:
+          - events
+          verbs:
+          - create
+        - apiGroups:
+          - ""
+          resources:
           - namespaces
           verbs:
           - get
@@ -679,6 +685,13 @@ spec:
           resources:
           - storageclasses
           - volumeattachments
+          verbs:
+          - list
+          - watch
+        - apiGroups:
+          - storageos.com
+          resources:
+          - storageosclusters
           verbs:
           - list
           - watch
@@ -769,13 +782,7 @@ spec:
                     port: 8081
                   initialDelaySeconds: 5
                   periodSeconds: 10
-                resources:
-                  limits:
-                    cpu: "1"
-                    memory: 512Mi
-                  requests:
-                    cpu: 50m
-                    memory: 128Mi
+                resources: {}
                 securityContext:
                   allowPrivilegeEscalation: false
                 volumeMounts:
