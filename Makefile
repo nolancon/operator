@@ -212,6 +212,15 @@ MOCKGEN = $(shell pwd)/bin/mockgen
 mockgen:
 	$(call go-get-tool,$(MOCKGEN),github.com/golang/mock/mockgen@latest)
 
+OPERATOR_SDK_DOWNLOAD_URL = "https://github.com/operator-framework/operator-sdk/releases/download/v1.7.1/operator-sdk_linux_amd64"
+ifeq ($(shell uname | tr '[:upper:]' '[:lower:]'), darwin)
+OPERATOR_SDK_DOWNLOAD_URL = "https://github.com/operator-framework/operator-sdk/releases/download/v1.7.1/operator-sdk_darwin_amd64"
+endif
+
+OPERATOR_SDK = $(shell pwd)/bin/operator-sdk
+operator-sdk:
+	$(call curl-get-tool,$(OPERATOR_SDK), $(OPERATOR_SDK_DOWNLOAD_URL))
+
 # go-get-tool will 'go get' any package $2 and install it to $1.
 PROJECT_DIR := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
 define go-get-tool
@@ -226,14 +235,27 @@ rm -rf $$TMP_DIR ;\
 }
 endef
 
+# curl-get-tool will download any content of $2 and install it to $1.
+define curl-get-tool
+@[ -f $(1) ] || { \
+set -e ;\
+TMP_DIR=$$(mktemp -d) ;\
+cd $$TMP_DIR ;\
+echo "Downloading $(2)" ;\
+curl -Lo $(1) $(2) ;\
+chmod +x $(1) ;\
+rm -rf $$TMP_DIR ;\
+}
+endef
+
 .PHONY: bundle
-bundle: manifests kustomize ## Generate bundle manifests and metadata, then validate generated files.
-	operator-sdk generate kustomize manifests --package=storageosoperator --apis-dir=apis/v1 -q
+bundle: operator-sdk manifests kustomize ## Generate bundle manifests and metadata, then validate generated files.
+	$(OPERATOR_SDK) generate kustomize manifests --package=storageosoperator --apis-dir=apis/v1 -q
 	cd config/manager && $(KUSTOMIZE) edit set image controller=$(OPERATOR_IMAGE)
-	$(KUSTOMIZE) build config/manifests | operator-sdk generate bundle --overwrite --version $(VERSION) $(BUNDLE_METADATA_OPTS)
+	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle --overwrite --version $(VERSION) $(BUNDLE_METADATA_OPTS)
 	# Rename manifest files containing colons.
 	for file in bundle/manifests/* ; do if [[ $$file == *:* ]]; then mv "$$file" "$${file//:/_}"; fi; done
-	operator-sdk bundle validate ./bundle
+	$(OPERATOR_SDK) bundle validate ./bundle
 
 # Build the bundle image.
 .PHONY: bundle-build
