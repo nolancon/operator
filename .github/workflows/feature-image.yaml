@@ -7,7 +7,7 @@ on:
       tagPostfix:
         description: Image tag postfix.
         default: ""
-        required: false
+        required: true
 
 env:
   OPERATOR_IMAGE: storageos/operator:feature-${{ github.head_ref }}${{ github.event.inputs.tagPostfix }}
