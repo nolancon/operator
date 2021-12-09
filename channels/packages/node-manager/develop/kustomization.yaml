@@ -1,0 +1,8 @@
+commonLabels:
+  app: storageos
+
+resources:
+- clusterrole.yaml
+- clusterrolebinding.yaml
+- deployment.yaml
+- serviceaccount.yaml

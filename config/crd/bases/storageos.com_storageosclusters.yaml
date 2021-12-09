@@ -170,6 +170,8 @@ spec:
                     type: string
                   nodeContainer:
                     type: string
+                  nodeManagerContainer:
+                    type: string
                   portalManagerContainer:
                     type: string
                 type: object
@@ -221,6 +223,11 @@ spec:
                   resources are provisioned. Deprecated: StorageOS uses namespace
                   of storageosclusters.storageos.com resource.'
                 type: string
+              nodeManagerFeatures:
+                additionalProperties:
+                  type: string
+                description: Node manager feature list with optional configurations.
+                type: object
               nodeSelectorTerms:
                 description: NodeSelectorTerms is to set the placement of storageos
                   pods using node affinity requiredDuringSchedulingIgnoredDuringExecution.

@@ -34,7 +34,7 @@ const (
 	kubePortalManagerEnvVar = "RELATED_IMAGE_PORTAL_MANAGER"
 
 	// Name of the Portal Manager deployment.
-	deploymentName = "storageos-portal-manager"
+	pmDeploymentName = "storageos-portal-manager"
 )
 
 type PortalManagerOperand struct {
@@ -45,9 +45,9 @@ type PortalManagerOperand struct {
 	fs              filesys.FileSystem
 	kubectlClient   kubectl.KubectlClient
 
-	currentStateLock chan bool
-	currentState     bool
-	getCurrentState  sync.Once
+	currentStateLock  chan bool
+	currentState      bool
+	fetchCurrentState sync.Once
 }
 
 var _ operand.Operand = &PortalManagerOperand{}
@@ -57,12 +57,8 @@ func (c *PortalManagerOperand) Requires() []string                       { retur
 func (c *PortalManagerOperand) RequeueStrategy() operand.RequeueStrategy { return c.requeueStrategy }
 
 func (c *PortalManagerOperand) ReadyCheck(ctx context.Context, obj client.Object) (bool, error) {
-	c.currentStateLock <- true
-	currState := c.currentState
-	<-c.currentStateLock
-
 	// Skip check if not deployed.
-	if !currState {
+	if !c.getCurrentState() {
 		return true, nil
 	}
 
@@ -74,7 +70,7 @@ func (c *PortalManagerOperand) ReadyCheck(ctx context.Context, obj client.Object
 
 	// Get the deployment object and check status of the replicas.
 	portalManagerDep := &appsv1.Deployment{}
-	key := client.ObjectKey{Name: deploymentName, Namespace: obj.GetNamespace()}
+	key := client.ObjectKey{Name: pmDeploymentName, Namespace: obj.GetNamespace()}
 	if err := c.client.Get(ctx, key, portalManagerDep); err != nil {
 		return false, err
 	}
@@ -95,15 +91,15 @@ func (c *PortalManagerOperand) Ensure(ctx context.Context, obj client.Object, ow
 	defer span.End()
 
 	var err error
-	c.getCurrentState.Do(func() {
+	c.fetchCurrentState.Do(func() {
 		ctx, cancel := context.WithTimeout(ctx, time.Minute)
 		defer cancel()
 
 		// Get current state of the deployment object.
 		portalManagerDep := &appsv1.Deployment{}
-		key := client.ObjectKey{Name: deploymentName, Namespace: obj.GetNamespace()}
+		key := client.ObjectKey{Name: pmDeploymentName, Namespace: obj.GetNamespace()}
 		err = c.client.Get(ctx, key, portalManagerDep)
-		c.currentState = err == nil
+		c.setCurrentState(err == nil)
 
 		log.V(4).Info("portal-manager state", "deployed", c.currentState)
 	})
@@ -126,15 +122,11 @@ func (c *PortalManagerOperand) Ensure(ctx context.Context, obj client.Object, ow
 	if cluster.Spec.EnablePortalManager && !c.currentState {
 		err := b.Apply(ctx)
 
-		c.currentStateLock <- true
-		c.currentState = err == nil
-		<-c.currentStateLock
+		c.setCurrentState(err == nil)
 
 		return nil, err
 	} else if !cluster.Spec.EnablePortalManager && c.currentState {
-		c.currentStateLock <- true
-		c.currentState = false
-		<-c.currentStateLock
+		c.setCurrentState(false)
 
 		return nil, b.Delete(ctx)
 	}
@@ -143,6 +135,11 @@ func (c *PortalManagerOperand) Ensure(ctx context.Context, obj client.Object, ow
 }
 
 func (c *PortalManagerOperand) Delete(ctx context.Context, obj client.Object) (eventv1.ReconcilerEvent, error) {
+	// Skip if not deployed.
+	if !c.getCurrentState() {
+		return nil, nil
+	}
+
 	ctx, span, _, _ := instrumentation.Start(ctx, "PortalManagerOperand.Delete")
 	defer span.End()
 
@@ -177,6 +174,24 @@ func getPortalManagerBuilder(fs filesys.FileSystem, obj client.Object, kcl kubec
 		}),
 		declarative.WithKubectlClient(kcl),
 	)
+}
+
+func (c *PortalManagerOperand) getCurrentState() bool {
+	c.currentStateLock <- true
+	defer func() {
+		<-c.currentStateLock
+	}()
+
+	return c.currentState
+}
+
+func (c *PortalManagerOperand) setCurrentState(currentState bool) {
+	c.currentStateLock <- true
+	defer func() {
+		<-c.currentStateLock
+	}()
+
+	c.currentState = currentState
 }
 
 func NewPortalManagerOperand(

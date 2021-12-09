@@ -5,6 +5,8 @@ manifests:
   version: 0.1.0
 - name: node
   version: 2.5.0
+- name: node-manager
+  version: develop
 - name: portal-manager
   version: develop
 - name: scheduler

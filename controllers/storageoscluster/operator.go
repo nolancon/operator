@@ -11,6 +11,7 @@ import (
 	"github.com/darkowlzz/operator-toolkit/operator/v1/operand"
 	"github.com/darkowlzz/operator-toolkit/telemetry"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
+	tappv1 "k8s.io/client-go/kubernetes/typed/apps/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/kustomize/api/filesys"
 
@@ -21,6 +22,7 @@ const instrumentationName = "github.com/storageos/operator/controllers/storageos
 
 const (
 	apiManagerOpName    = "api-manager-operand"
+	nodeManagerOpName   = "node-manager-operand"
 	portalManagerOpName = "portal-manager-operand"
 	csiOpName           = "csi-operand"
 	schedulerOpName     = "scheduler-operand"
@@ -37,7 +39,7 @@ func init() {
 	instrumentation = telemetry.NewInstrumentation(instrumentationName)
 }
 
-func NewOperator(mgr ctrl.Manager, kubeVersion string, fs filesys.FileSystem, execStrategy executor.ExecutionStrategy) (*operatorv1.CompositeOperator, error) {
+func NewOperator(mgr ctrl.Manager, appsGetter tappv1.AppsV1Interface, kubeVersion string, fs filesys.FileSystem, execStrategy executor.ExecutionStrategy) (*operatorv1.CompositeOperator, error) {
 	_, span, _, log := instrumentation.Start(context.Background(), "storageoscluster.NewOperator")
 	defer span.End()
 
@@ -58,14 +60,14 @@ func NewOperator(mgr ctrl.Manager, kubeVersion string, fs filesys.FileSystem, ex
 	//              │                └──────────────┘
 	//              ▼
 	//          ┌────────┐
-	//    ┌─────┤  node  ├──┐──────────────────┐
-	//    │     └────────┘  │                  │
-	//    │                 │                  │
-	//    │                 │                  │
-	//    ▼                 ▼                  ▼
-	// ┌─────┐       ┌─────────────┐   ┌────────────────┐
-	// │ csi │       │ api-manager │   │ portal-manager │
-	// └──┬──┘       └─────────┬───┘   └────────────────┘
+	//    ┌─────┤  node  ├──┐──────────────────┐──────────────────┐
+	//    │     └────────┘  │                  │                  │
+	//    │                 │                  │                  │
+	//    │                 │                  │                  │
+	//    ▼                 ▼                  ▼                  ▼
+	// ┌─────┐       ┌─────────────┐   ┌────────────────┐   ┌──────────────┐
+	// │ csi │       │ api-manager │   │ portal-manager │   │ node-manager │
+	// └──┬──┘       └─────────┬───┘   └────────────────┘   └──────────────┘
 	//    │                    │
 	//    │                    │
 	//    │                    │
@@ -78,6 +80,7 @@ func NewOperator(mgr ctrl.Manager, kubeVersion string, fs filesys.FileSystem, ex
 	// depends on CSI and api-manager. Before-install, StorageClass and Scheduler operands
 	// are independent.
 	apiManagerOp := NewAPIManagerOperand(apiManagerOpName, mgr.GetClient(), []string{nodeOpName}, operand.RequeueOnError, fs, kcl)
+	nodeManagerOp := NewNodeManagerOperand(nodeManagerOpName, mgr.GetClient(), appsGetter, []string{nodeOpName}, operand.RequeueOnError, fs, kcl)
 	portalManagerOp := NewPortalManagerOperand(portalManagerOpName, mgr.GetClient(), []string{nodeOpName}, operand.RequeueOnError, fs, kcl)
 	csiOp := NewCSIOperand(csiOpName, mgr.GetClient(), []string{nodeOpName}, operand.RequeueOnError, fs, kcl)
 	schedulerOp := NewSchedulerOperand(schedulerOpName, mgr.GetClient(), kubeVersion, []string{}, operand.RequeueOnError, fs, kcl)
@@ -90,14 +93,14 @@ func NewOperator(mgr ctrl.Manager, kubeVersion string, fs filesys.FileSystem, ex
 	return operatorv1.NewCompositeOperator(
 		operatorv1.WithEventRecorder(mgr.GetEventRecorderFor("storageoscluster-controller")),
 		operatorv1.WithExecutionStrategy(execStrategy),
-		operatorv1.WithOperands(apiManagerOp, portalManagerOp, csiOp, schedulerOp, nodeOp, storageClassOp, beforeInstallOp, afterInstallOp),
+		operatorv1.WithOperands(apiManagerOp, nodeManagerOp, portalManagerOp, csiOp, schedulerOp, nodeOp, storageClassOp, beforeInstallOp, afterInstallOp),
 		operatorv1.WithInstrumentation(nil, nil, log),
 		operatorv1.WithRetryPeriod(5*time.Second), // TODO: Maybe make this configurable?
 	)
 }
 
-func NewStorageOSClusterController(mgr ctrl.Manager, kubeVersion string, fs filesys.FileSystem, execStrategy executor.ExecutionStrategy) (*StorageOSClusterController, error) {
-	operator, err := NewOperator(mgr, kubeVersion, fs, execStrategy)
+func NewStorageOSClusterController(mgr ctrl.Manager, appsGetter tappv1.AppsV1Interface, kubeVersion string, fs filesys.FileSystem, execStrategy executor.ExecutionStrategy) (*StorageOSClusterController, error) {
+	operator, err := NewOperator(mgr, appsGetter, kubeVersion, fs, execStrategy)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create a new operator: %w", err)
 	}

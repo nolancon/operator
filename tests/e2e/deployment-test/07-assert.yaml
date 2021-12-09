@@ -1,0 +1,26 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+timeout: 120
+---
+apiVersion: storageos.com/v1
+kind: StorageOSCluster
+metadata:
+  name: storageoscluster-sample
+  namespace: default
+spec:
+  nodeManagerFeatures:
+    foo: bar
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storageos-node-manager
+  namespace: default
+  labels:
+    app.kubernetes.io/component: node-manager
+spec:
+  replicas: 1
+status:
+  availableReplicas: 1
+  readyReplicas: 1
+  replicas: 1

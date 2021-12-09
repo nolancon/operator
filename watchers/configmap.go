@@ -2,96 +2,60 @@ package watchers
 
 import (
 	"context"
-	"errors"
 	"time"
 
+	"github.com/go-logr/logr"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/watch"
 	tcorev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 )
 
-var watcherLog = ctrl.Log.WithName("config map watcher")
-
 // ConfigMapWatcher watches StorageOS related config maps.
 type ConfigMapWatcher struct {
+	name    string
 	client  tcorev1.ConfigMapInterface
 	listOpt metav1.ListOptions
+	log     logr.Logger
 }
 
 // setup configures config map watcher with init values.
-func (w *ConfigMapWatcher) Setup(ctx context.Context) error {
-	w.listOpt = metav1.ListOptions{
-		LabelSelector: "app.kubernetes.io/component=operator",
+func (w *ConfigMapWatcher) Setup(ctx context.Context, fromNow bool, labelSelector string) error {
+	w.listOpt = metav1.ListOptions{}
+
+	if labelSelector != "" {
+		w.listOpt.LabelSelector = labelSelector
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, time.Minute)
-	defer cancel()
+	var configMaps *corev1.ConfigMapList
+	if fromNow {
+		ctx, cancel := context.WithTimeout(ctx, time.Minute)
+		defer cancel()
 
-	configMaps, err := w.client.List(ctx, w.listOpt)
-	if err != nil {
-		return err
+		var err error
+		if configMaps, err = w.client.List(ctx, w.listOpt); err != nil {
+			return err
+		}
 	}
 
 	w.listOpt.Watch = true
-	w.listOpt.ResourceVersion = configMaps.ResourceVersion
+	if configMaps != nil {
+		w.listOpt.ResourceVersion = configMaps.ResourceVersion
+	}
 
 	return nil
 }
 
-// Start wathing config maps until first change.
-func (w *ConfigMapWatcher) Start(ctx context.Context) {
-	for waitPeriod := 0; ; waitPeriod = (waitPeriod + 1) * 2 {
-		waitDuration := time.Second * time.Duration(waitPeriod)
-		if waitPeriod != 0 {
-			watcherLog.Info("wait before start watching", "period", waitPeriod)
-			time.Sleep(waitDuration)
-		}
-
-		err := w.watchChange(ctx, waitDuration)
-		if err != nil {
-			watcherLog.Error(err, "unable to start config map watcher")
-			// Increase wait period of reconnect.
-			continue
-		}
-
-		// Something has changed.
-		break
-	}
-}
-
-// watchChange consumes watch events and returns on change.
-func (w *ConfigMapWatcher) watchChange(ctx context.Context, waitDuration time.Duration) error {
-	watcher, err := w.client.Watch(ctx, w.listOpt)
-	if err != nil {
-		return err
-	}
-	defer watcher.Stop()
-
-	if waitDuration != 0 {
-		watcherLog.Info("wait before reading channel", "period", waitDuration)
-		time.Sleep(waitDuration)
-	}
-
-	for {
-		event, ok := <-watcher.ResultChan()
-		if !ok {
-			watcherLog.Info("watcher has closed")
-			return errors.New("watcher has closed")
-		}
-
-		if event.Type == watch.Modified {
-			watcherLog.Info("config map has updated")
-			break
-		}
-	}
-
-	return nil
+// Start wathing config maps.
+func (w *ConfigMapWatcher) Start(ctx context.Context, watchConsumer WatchConsumer) {
+	start(ctx, w.name, watchChange(ctx, w.client, w.listOpt, watchConsumer))
 }
 
 // NewConfigMapWatcher consructs a new config map watcher.
-func NewConfigMapWatcher(client tcorev1.ConfigMapInterface) *ConfigMapWatcher {
+func NewConfigMapWatcher(client tcorev1.ConfigMapInterface, name string) *ConfigMapWatcher {
 	return &ConfigMapWatcher{
+		name:   name,
 		client: client,
+		log:    ctrl.Log.WithName(name + " config map watcher"),
 	}
 }

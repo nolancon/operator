@@ -9,6 +9,7 @@ data:
   RELATED_IMAGE_PORTAL_MANAGER: storageos/portal-manager:develop
   RELATED_IMAGE_STORAGEOS_INIT: storageos/init:v2.1.1
   RELATED_IMAGE_STORAGEOS_NODE: storageos/node:v2.5.0
+  RELATED_IMAGE_NODE_MANAGER: storageos/node-manager:develop
 kind: ConfigMap
 metadata:
   labels:

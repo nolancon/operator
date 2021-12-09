@@ -10,6 +10,7 @@ import (
 	tkpredicate "github.com/darkowlzz/operator-toolkit/predicate"
 	"github.com/darkowlzz/operator-toolkit/telemetry"
 	"k8s.io/apimachinery/pkg/runtime"
+	tappv1 "k8s.io/client-go/kubernetes/typed/apps/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
@@ -62,7 +63,7 @@ func NewStorageOSClusterReconciler(mgr ctrl.Manager) *StorageOSClusterReconciler
 // +kubebuilder:rbac:groups=api.storageos.com,resources=volumes/status;nodes/status,verbs=get;update;patch
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *StorageOSClusterReconciler) SetupWithManager(mgr ctrl.Manager, kubeVersion, channel string) error {
+func (r *StorageOSClusterReconciler) SetupWithManager(mgr ctrl.Manager, appsGetter tappv1.AppsV1Interface, kubeVersion, channel string) error {
 	_, span, _, log := instrumentation.Start(context.Background(), "StorageosCluster.SetupWithManager")
 	defer span.End()
 
@@ -73,7 +74,7 @@ func (r *StorageOSClusterReconciler) SetupWithManager(mgr ctrl.Manager, kubeVers
 	}
 
 	// TODO: Expose the executor strategy option via SetupWithManager.
-	cc, err := storageoscluster.NewStorageOSClusterController(mgr, kubeVersion, fs, executor.Parallel)
+	cc, err := storageoscluster.NewStorageOSClusterController(mgr, appsGetter, kubeVersion, fs, executor.Parallel)
 	if err != nil {
 		return err
 	}

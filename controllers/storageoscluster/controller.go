@@ -24,6 +24,7 @@ const (
 	nodeReadyType          = "NodeReady"
 	apiManagerReadyType    = "APIManagerReady"
 	portalManagerReadyType = "PortalManagerReady"
+	nodeManagerReadyType   = "NodeManagerReady"
 	csiReadyType           = "CSIReady"
 
 	readyReason    = "Ready"
@@ -106,6 +107,13 @@ func (c *StorageOSClusterController) UpdateStatus(ctx context.Context, obj clien
 		meta.RemoveStatusCondition(&cluster.Status.Conditions, portalManagerReadyType)
 	}
 
+	if len(cluster.Spec.NodeManagerFeatures) > 0 {
+		nodeManagerCondition := getNodeManagerCondition(ctx, c.Client, obj.GetNamespace(), log)
+		meta.SetStatusCondition(&cluster.Status.Conditions, nodeManagerCondition)
+	} else {
+		meta.RemoveStatusCondition(&cluster.Status.Conditions, nodeManagerReadyType)
+	}
+
 	csiCondition := getCSICondition(ctx, c.Client, obj.GetNamespace(), log)
 	meta.SetStatusCondition(&cluster.Status.Conditions, csiCondition)
 
@@ -117,6 +125,7 @@ func (c *StorageOSClusterController) UpdateStatus(ctx context.Context, obj clien
 		meta.IsStatusConditionTrue(conditions, nodeReadyType) ||
 		meta.IsStatusConditionTrue(conditions, apiManagerReadyType) ||
 		(!cluster.Spec.EnablePortalManager || meta.IsStatusConditionTrue(conditions, portalManagerReadyType)) ||
+		(len(cluster.Spec.NodeManagerFeatures) == 0 || meta.IsStatusConditionTrue(conditions, nodeManagerReadyType)) ||
 		meta.IsStatusConditionTrue(conditions, csiReadyType) {
 		// Some components are ready, Creating phase.
 		phase = "Creating"
@@ -127,6 +136,7 @@ func (c *StorageOSClusterController) UpdateStatus(ctx context.Context, obj clien
 		meta.IsStatusConditionTrue(conditions, nodeReadyType) &&
 		meta.IsStatusConditionTrue(conditions, apiManagerReadyType) &&
 		(!cluster.Spec.EnablePortalManager || meta.IsStatusConditionTrue(conditions, portalManagerReadyType)) &&
+		(len(cluster.Spec.NodeManagerFeatures) == 0 || meta.IsStatusConditionTrue(conditions, nodeManagerReadyType)) &&
 		meta.IsStatusConditionTrue(conditions, csiReadyType) {
 		// Remove progressing condition and set cluster Ready status.
 		meta.RemoveStatusCondition(&cluster.Status.Conditions, "Progressing")
@@ -244,6 +254,28 @@ func getPortalManagerCondition(ctx context.Context, cl client.Client, namespace 
 		portalManagerCondition.Message = "PortalManager Ready"
 	}
 	return portalManagerCondition
+}
+
+func getNodeManagerCondition(ctx context.Context, cl client.Client, namespace string, log logr.Logger) metav1.Condition {
+	nodeManagerCondition := metav1.Condition{
+		Type:    nodeManagerReadyType,
+		Status:  metav1.ConditionFalse,
+		Reason:  notReadyReason,
+		Message: "NodeManager Not Ready",
+	}
+	amDep := &appsv1.Deployment{}
+	amKey := client.ObjectKey{Name: "storageos-node-manager", Namespace: namespace}
+	if err := cl.Get(ctx, amKey, amDep); err != nil {
+		if !apierrors.IsNotFound(err) {
+			log.Error(err, "failed to get node-manager status")
+		}
+	}
+	if amDep.Status.AvailableReplicas > 0 {
+		nodeManagerCondition.Status = metav1.ConditionTrue
+		nodeManagerCondition.Reason = readyReason
+		nodeManagerCondition.Message = "NodeManager Ready"
+	}
+	return nodeManagerCondition
 }
 
 func getCSICondition(ctx context.Context, cl client.Client, namespace string, log logr.Logger) metav1.Condition {

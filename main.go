@@ -22,6 +22,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
+	"k8s.io/apimachinery/pkg/watch"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -185,7 +186,7 @@ func main() {
 	}
 
 	if err = controllers.NewStorageOSClusterReconciler(mgr).
-		SetupWithManager(mgr, cleanKubeVersion, channel); err != nil {
+		SetupWithManager(mgr, defaultKubeClient.AppsV1(), cleanKubeVersion, channel); err != nil {
 		setupLog.Error(err, "unable to create controller",
 			"controller", "StorageOSCluster")
 		os.Exit(1)
@@ -219,15 +220,29 @@ func main() {
 
 	// Watch config maps and restart on change.
 	setupLog.Info("starting config map watcher")
-	watcher := watchers.NewConfigMapWatcher(defaultKubeClient.CoreV1().ConfigMaps(currentNS))
-	if err := watcher.Setup(ctx); err != nil {
+	watcher := watchers.NewConfigMapWatcher(defaultKubeClient.CoreV1().ConfigMaps(currentNS), "config change")
+	if err := watcher.Setup(ctx, true, "app.kubernetes.io/component=operator"); err != nil {
 		setupLog.Error(err, "unable to set config map watcher")
 		os.Exit(1)
 	}
-	go func() {
-		watcher.Start(ctx)
-		cancel()
-	}()
+	watcher.Start(ctx, func(watchChan <-chan watch.Event) error {
+		defer cancel()
+
+		for {
+			event, ok := <-watchChan
+			if !ok {
+				setupLog.Info("watcher has closed")
+				return errors.New("watcher has closed")
+			}
+
+			if event.Type == watch.Modified {
+				setupLog.Info("config map has updated")
+				break
+			}
+		}
+
+		return nil
+	})
 
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctx); err != nil {

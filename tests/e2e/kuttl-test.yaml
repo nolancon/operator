@@ -8,4 +8,4 @@ startKIND: true
 kindNodeCache: true
 kindContainers:
   - storageos/operator:test
-timeout: 90
+timeout: 800

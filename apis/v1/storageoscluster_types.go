@@ -160,6 +160,9 @@ type StorageOSClusterSpec struct {
 
 	// Environment contains environment variables that are passed to StorageOS.
 	Environment map[string]string `json:"environment,omitempty"`
+
+	// Node manager feature list with optional configurations.
+	NodeManagerFeatures map[string]string `json:"nodeManagerFeatures,omitempty"`
 }
 
 // ContainerImages contains image names of all the containers used by the operator.
@@ -176,6 +179,7 @@ type ContainerImages struct {
 	KubeSchedulerContainer             string `json:"kubeSchedulerContainer,omitempty"`
 	NFSContainer                       string `json:"nfsContainer,omitempty"`
 	APIManagerContainer                string `json:"apiManagerContainer,omitempty"`
+	NodeManagerContainer               string `json:"nodeManagerContainer,omitempty"`
 	PortalManagerContainer             string `json:"portalManagerContainer,omitempty"`
 }
 
