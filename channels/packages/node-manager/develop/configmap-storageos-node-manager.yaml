@@ -20,4 +20,4 @@ metadata:
     app: storageos
     app.kubernetes.io/component: node-manager
   name: storageos-node-manager
-  namespace: node-manager-system
+  namespace: storageos
