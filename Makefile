@@ -77,7 +77,9 @@ EXTERNAL_ATTACHER_IMAGE ?= quay.io/k8scsi/csi-attacher:v3.1.0
 EXTERNAL_RESIZER_IMAGE ?= quay.io/k8scsi/csi-resizer:v1.1.0
 INIT_IMAGE ?= storageos/init:v2.1.1
 NODE_IMAGE ?= storageos/node:v2.5.0
-NODE_MANAGER_IMAGE ?= storageos/node-manager:develop
+NODE_MANAGER_VERSION ?= develop
+NODE_MANAGER_IMAGE ?= storageos/node-manager:$(NODE_MANAGER_VERSION)
+NODE_MANAGER_MANIFESTS_IMAGE ?= storageos/node-manager-manifests:$(NODE_MANAGER_VERSION)
 NODE_DRIVER_REG_IMAGE ?= quay.io/k8scsi/csi-node-driver-registrar:v2.1.0
 LIVENESS_PROBE_IMAGE ?= quay.io/k8scsi/livenessprobe:v2.2.0
 
@@ -135,6 +137,10 @@ api-manager:
 portal-manager:
 	NAME=portal-manager VERSION=$(PORTAL_MANAGER_VERSION) MANIFESTS_IMAGE=$(PORTAL_MANAGER_MANIFESTS_IMAGE) hack/pull-manifests.sh
 	NAME=portal-manager VERSION=$(PORTAL_MANAGER_VERSION) FROM=clusterrole-storageos-portal-manager.yaml TO=portal_manager_role.yaml hack/update-rbac.sh
+
+node-manager:
+	NAME=node-manager VERSION=$(NODE_MANAGER_VERSION) MANIFESTS_IMAGE=$(NODE_MANAGER_MANIFESTS_IMAGE) hack/pull-manifests.sh
+	NAME=node-manager VERSION=$(NODE_MANAGER_VERSION) FROM=clusterrole-node-manager.yaml TO=node_manager_role.yaml hack/update-rbac.sh
 
 fmt: ## Run go fmt against code.
 	go fmt ./...
