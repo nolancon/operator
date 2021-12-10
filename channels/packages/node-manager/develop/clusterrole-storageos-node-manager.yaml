@@ -1,0 +1,50 @@
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  labels:
+    app: storageos
+    app.kubernetes.io/component: node-manager
+  name: storageos:node-manager
+rules:
+- apiGroups:
+  - api.storageos.com
+  resources:
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - api.storageos.com
+  resources:
+  - volumes
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - storageos.com
+  resources:
+  - storageosclusters
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - storageos.com
+  resources:
+  - storageosclusters/finalizers
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - storageos.com
+  resources:
+  - storageosclusters/status
+  verbs:
+  - get
+  - list
+  - watch

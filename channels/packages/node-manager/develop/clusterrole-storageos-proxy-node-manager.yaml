@@ -2,23 +2,20 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: storageos:node-manager
   labels:
+    app: storageos
     app.kubernetes.io/component: node-manager
+  name: storageos:proxy:node-manager
 rules:
 - apiGroups:
-  - api.storageos.com
+  - authentication.k8s.io
   resources:
-  - nodes
+  - tokenreviews
   verbs:
-  - get
-  - list
-  - watch
+  - create
 - apiGroups:
-  - api.storageos.com
+  - authorization.k8s.io
   resources:
-  - volumes
+  - subjectaccessreviews
   verbs:
-  - get
-  - list
-  - watch
+  - create

@@ -1,0 +1,88 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: storageos
+    app.kubernetes.io/component: node-manager
+    control-plane: storageos-node-manager
+  name: storageos-node-manager
+  namespace: node-manager-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: storageos
+      app.kubernetes.io/component: node-manager
+      control-plane: storageos-node-manager
+  template:
+    metadata:
+      labels:
+        app: storageos
+        app.kubernetes.io/component: node-manager
+        control-plane: storageos-node-manager
+    spec:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app: storageos
+                app.kubernetes.io/component: node-manager
+            topologyKey: kubernetes.io/hostname
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app: storageos
+                app.kubernetes.io/component: node-manager
+            topologyKey: kubernetes.io/hostname
+      containers:
+      - args:
+        - --config=controller_manager_config.yaml
+        command:
+        - /node-manager
+        image: controller:latest
+        imagePullPolicy: IfNotPresent
+        name: manager
+        securityContext:
+          allowPrivilegeEscalation: false
+        volumeMounts:
+        - mountPath: /node_manager_config.yaml
+          name: storageos-node-manager
+          subPath: node_manager_config.yaml
+      - args:
+        - --secure-listen-address=0.0.0.0:8443
+        - --upstream=http://127.0.0.1:8080/
+        - --logtostderr=true
+        - --v=10
+        image: gcr.io/kubebuilder/kube-rbac-proxy:v0.8.0
+        name: kube-rbac-proxy
+        ports:
+        - containerPort: 8443
+          name: https
+      priorityClassName: system-cluster-critical
+      restartPolicy: Always
+      securityContext:
+        runAsUser: 1000
+      serviceAccountName: storageos-node-manager
+      terminationGracePeriodSeconds: 30
+      tolerations:
+      - key: node.kubernetes.io/disk-pressure
+        operator: Exists
+      - key: node.kubernetes.io/memory-pressure
+        operator: Exists
+      - key: node.kubernetes.io/network-unavailable
+        operator: Exists
+      - key: node.kubernetes.io/not-ready
+        operator: Exists
+      - key: node.kubernetes.io/pid-pressure
+        operator: Exists
+      - key: node.kubernetes.io/unreachable
+        operator: Exists
+      - key: node.kubernetes.io/unschedulable
+        operator: Exists
+      volumes:
+      - configMap:
+          name: storageos-node-manager
+        name: storageos-node-manager

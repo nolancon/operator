@@ -140,7 +140,7 @@ portal-manager:
 
 node-manager:
 	NAME=node-manager VERSION=$(NODE_MANAGER_VERSION) MANIFESTS_IMAGE=$(NODE_MANAGER_MANIFESTS_IMAGE) hack/pull-manifests.sh
-	NAME=node-manager VERSION=$(NODE_MANAGER_VERSION) FROM=clusterrole-node-manager.yaml TO=node_manager_role.yaml hack/update-rbac.sh
+	NAME=node-manager VERSION=$(NODE_MANAGER_VERSION) FROM=clusterrole-storageos-node-manager.yaml TO=node_manager_role.yaml hack/update-rbac.sh
 
 fmt: ## Run go fmt against code.
 	go fmt ./...
