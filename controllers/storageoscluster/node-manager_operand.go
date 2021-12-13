@@ -35,7 +35,7 @@ const (
 	nodeManagerPackage = "node-manager"
 
 	// Kustomize image name for container image.
-	kImageKubeNodeManager = "node-manager"
+	kImageKubeNodeManager = "controller"
 
 	// Related image environment variable.
 	kubeNodeManagerEnvVar = "RELATED_IMAGE_NODE_MANAGER"
