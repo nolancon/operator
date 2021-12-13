@@ -9,4 +9,4 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: storageos-operator
-  namespace: node-operator
+  namespace: storageos
