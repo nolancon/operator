@@ -90,7 +90,7 @@ func (c *NodeManagerOperand) ReadyCheck(ctx context.Context, obj client.Object) 
 		return false, err
 	}
 
-	if nodeManagerDep.Status.AvailableReplicas == *nodeManagerDep.Spec.Replicas {
+	if nodeManagerDep.Status.AvailableReplicas > 0 {
 		log.V(4).Info("Found available replicas more than 0", "availableReplicas", nodeManagerDep.Status.AvailableReplicas)
 		return true, nil
 	}
@@ -221,10 +221,6 @@ func (c *NodeManagerOperand) Ensure(ctx context.Context, obj client.Object, owne
 	currState := c.getCurrentState()
 	if len(cluster.Spec.NodeManagerFeatures) > 0 && !currState {
 		err := b.Apply(ctx)
-
-		if err := c.updateReplicas(ctx, obj, log); err != nil {
-			return nil, err
-		}
 
 		c.setCurrentState(err == nil)
 
