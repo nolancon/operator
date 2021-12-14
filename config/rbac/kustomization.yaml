@@ -8,6 +8,8 @@ resources:
 - bases/api_manager_role_binding.yaml
 - bases/portal_manager_role.yaml
 - bases/portal_manager_role_binding.yaml
+- bases/node_manager_role.yaml
+- bases/node_manager_role_binding.yaml
 - bases/auth_proxy_role.yaml
 - bases/auth_proxy_role_binding.yaml
 - bases/auth_proxy_client_clusterrole.yaml

@@ -2,14 +2,15 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: storageos:node-manager
   labels:
+    app: storageos
     app.kubernetes.io/component: node-manager
+  name: storageos:proxy:node-manager
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: storageos:node-manager
+  name: storageos:proxy:node-manager
 subjects:
 - kind: ServiceAccount
   name: storageos-node-manager
-  namespace: storageos
+  namespace: node-manager-system

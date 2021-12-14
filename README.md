@@ -83,3 +83,11 @@ portal-manager manifests are stored in the repo but updated manually. To update 
  * Edit `PORTAL_MANAGER_VERSION` in `Makefile` or pass it to make target.
  * Execute `make portal-manager` command.
  * Enjoy new version.
+
+## Update node-manager manifests
+
+node-manager manifests are stored in the repo but updated manually. To update the manifests please follow the instructions below.
+
+ * Edit `NODE_MANAGER_VERSION` in `Makefile` or pass it to make target.
+ * Execute `make node-manager` command.
+ * Enjoy new version.

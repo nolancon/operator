@@ -17,7 +17,9 @@ metadata:
   name: storageos-node-manager
   namespace: default
   labels:
+    app: storageos      
     app.kubernetes.io/component: node-manager
+    control-plane: storageos-node-manager
 spec:
   replicas: 1
 status:

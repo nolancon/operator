@@ -1,8 +1,8 @@
-commonLabels:
-  app: storageos
-
 resources:
-- clusterrole.yaml
-- clusterrolebinding.yaml
-- deployment.yaml
-- serviceaccount.yaml
+- serviceaccount-storageos-node-manager.yaml
+- clusterrole-storageos-node-manager.yaml
+- clusterrole-storageos-proxy-node-manager.yaml
+- clusterrolebinding-storageos-node-manager.yaml
+- clusterrolebinding-storageos-proxy-node-manager.yaml
+- configmap-storageos-node-manager.yaml
+- deployment-storageos-node-manager.yaml
