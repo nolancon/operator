@@ -180,6 +180,7 @@ type ContainerImages struct {
 	NFSContainer                       string `json:"nfsContainer,omitempty"`
 	APIManagerContainer                string `json:"apiManagerContainer,omitempty"`
 	NodeManagerContainer               string `json:"nodeManagerContainer,omitempty"`
+	UpgradeGuardContainer              string `json:"upgradeGuardContainer,omitempty"`
 	PortalManagerContainer             string `json:"portalManagerContainer,omitempty"`
 }
 

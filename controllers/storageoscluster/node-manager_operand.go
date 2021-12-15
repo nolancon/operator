@@ -23,6 +23,7 @@ import (
 	tappv1 "k8s.io/client-go/kubernetes/typed/apps/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/kustomize/api/filesys"
+	"sigs.k8s.io/kustomize/api/resid"
 	kustomizetypes "sigs.k8s.io/kustomize/api/types"
 
 	storageoscomv1 "github.com/storageos/operator/apis/v1"
@@ -37,14 +38,18 @@ const (
 	// Kustomize image name for container image.
 	kImageKubeNodeManager = "controller"
 
-	// Related image environment variable.
-	kubeNodeManagerEnvVar = "RELATED_IMAGE_NODE_MANAGER"
+	// Related images environment variables.
+	kubeNodeManagerEnvVar  = "RELATED_IMAGE_NODE_MANAGER"
+	kubeUpgradeGuardEnvVar = "RELATED_IMAGE_UPGRADE_GUARD"
 
 	// Name of the Node Manager deployment.
 	nmDeploymentName = "storageos-node-manager"
 
 	// Name of StorageOS Node
 	snDaemonSetName = "storageos-node"
+
+	// Node manager features.
+	upgradeGuardFeatureKey = "upgradeGuard"
 )
 
 type NodeManagerOperand struct {
@@ -299,11 +304,24 @@ func getNodeManagerBuilder(fs filesys.FileSystem, obj client.Object, kcl kubectl
 		images = append(images, *img)
 	}
 
+	mutators := []kustomize.MutateFunc{
+		kustomize.AddNamespace(cluster.GetNamespace()),
+		kustomize.AddImages(images),
+	}
+
+	nextIndex := 2 // Needs to update if number of containers changes in deployment.
+
+	// Append upgrade guard as sidecar.
+	if _, ok := cluster.Spec.NodeManagerFeatures[upgradeGuardFeatureKey]; ok {
+		mutator := getSideCarContainerMutator(nextIndex, cluster.Spec.Images.UpgradeGuardContainer, os.Getenv(kubeUpgradeGuardEnvVar), "upgrade-guard")
+		if mutator != nil {
+			// nextIndex += 1
+			mutators = append(mutators, mutator)
+		}
+	}
+
 	return declarative.NewBuilder(nodeManagerPackage, fs,
-		declarative.WithKustomizeMutationFunc([]kustomize.MutateFunc{
-			kustomize.AddNamespace(cluster.GetNamespace()),
-			kustomize.AddImages(images),
-		}),
+		declarative.WithKustomizeMutationFunc(mutators),
 		declarative.WithKubectlClient(kcl),
 	)
 }
@@ -349,9 +367,65 @@ func NewNodeManagerOperand(
 	}
 }
 
-//  patchStringValue specifies a patch operation for a uint32.
+//  patchUInt32Value specifies a patch operation for a uint32.
 type patchUInt32Value struct {
 	Op    string `json:"op"`
 	Path  string `json:"path"`
 	Value uint32 `json:"value"`
+}
+
+func getSideCarContainerMutator(nextIndex int, image, defaultImage string, containerName string) func(*kustomizetypes.Kustomization) {
+	if image == "" {
+		image = defaultImage
+	}
+	if image == "" {
+		return nil
+	}
+
+	return func(k *kustomizetypes.Kustomization) {
+		k.Patches = append(k.Patches, generateSideCarContainerPatch(nextIndex, containerName, image))
+	}
+}
+
+// generateSideCarContainerPatch generates a sidecar container patch.
+func generateSideCarContainerPatch(nextIndex int, name string, image string) kustomizetypes.Patch {
+	return kustomizetypes.Patch{
+		Patch: fmt.Sprintf(`[{
+			"op": "add",
+			"path": "/spec/template/spec/containers/%d",
+			"value": {
+				"name": "%s",
+				"image": "%s",
+				"env": [{
+					"name": "NODE_NAME",
+					"valueFrom": {
+						"fieldRef": {
+							"apiVersion": "v1",
+							"fieldPath": "spec.nodeName"
+						}
+					}
+				}],
+				"livenessProbe": {
+					"httpGet": {
+					  "path": "/healthz",
+					  "port": 8081
+					},
+					"initialDelaySeconds": 15,
+					"periodSeconds": 20
+				  },
+				  "readinessProbe": {
+					"httpGet": {
+					  "path": "/readyz",
+					  "port": 8081
+					},
+					"initialDelaySeconds": 5,
+					"periodSeconds": 10
+				  }
+			}
+		}]`, nextIndex, name, image),
+		Target: &kustomizetypes.Selector{
+			Gvk:  resid.FromKind("Deployment"),
+			Name: nmDeploymentName,
+		},
+	}
 }

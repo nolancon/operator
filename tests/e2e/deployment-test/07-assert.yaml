@@ -9,7 +9,7 @@ metadata:
   namespace: default
 spec:
   nodeManagerFeatures:
-    foo: bar
+    upgradeGuard: ""
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -22,6 +22,18 @@ metadata:
     control-plane: storageos-node-manager
 spec:
   replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: node-manager
+    spec:
+      containers:
+      - image: storageos/node-manager:develop
+        name: manager
+      - image: gcr.io/kubebuilder/kube-rbac-proxy:v0.8.0
+        name: kube-rbac-proxy
+      - image: storageos/upgrade-guard:develop
+        name: upgrade-guard
 status:
   availableReplicas: 1
   readyReplicas: 1
