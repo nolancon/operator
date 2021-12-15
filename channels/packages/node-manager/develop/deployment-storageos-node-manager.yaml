@@ -39,7 +39,7 @@ spec:
             topologyKey: kubernetes.io/hostname
       containers:
       - args:
-        - --config=controller_manager_config.yaml
+        - --config=node_manager_config.yaml
         command:
         - /node-manager
         image: controller:latest
