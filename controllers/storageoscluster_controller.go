@@ -57,7 +57,7 @@ func NewStorageOSClusterReconciler(mgr ctrl.Manager) *StorageOSClusterReconciler
 // +kubebuilder:rbac:groups=storage.k8s.io,resources=storageclasses;volumeattachments;volumeattachments/status;csinodeinfos;csinodes;csistoragecapacities;csidrivers,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=apiextensions.k8s.io,resources=customresourcedefinitions,verbs=get;create;patch;delete
 // +kubebuilder:rbac:groups=csi.storage.k8s.io,resources=csidrivers;csistoragecapacities,verbs=create;delete;list;watch
-// +kubebuilder:rbac:groups=policy,resources=poddisruptionbudgets,verbs=list;watch
+// +kubebuilder:rbac:groups=policy,resources=poddisruptionbudgets,verbs=get;create;delete;list;watch
 // +kubebuilder:rbac:groups=security.openshift.io,resources=securitycontextconstraints,resourceNames=privileged,verbs=get;create;update;delete;use
 // +kubebuilder:rbac:groups=api.storageos.com,resources=volumes;nodes,verbs=create;patch;get;watch;delete;list
 // +kubebuilder:rbac:groups=api.storageos.com,resources=volumes/status;nodes/status,verbs=get;update;patch

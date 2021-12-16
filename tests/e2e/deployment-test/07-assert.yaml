@@ -38,3 +38,16 @@ status:
   availableReplicas: 1
   readyReplicas: 1
   replicas: 1
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: storageos-upgrade-guard
+  namespace: default
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: storageos
+      app.kubernetes.io/component: node-manager
+      control-plane: storageos-node-manager
