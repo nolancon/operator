@@ -1,0 +1,10 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestSuite
+testDirs:
+- ./e2e/tests/deployment/stable
+kindConfig: e2e/kind/kind-config-1.21.yaml
+startKIND: true
+kindNodeCache: true
+kindContainers:
+  - storageos/operator:test
+timeout: 800
