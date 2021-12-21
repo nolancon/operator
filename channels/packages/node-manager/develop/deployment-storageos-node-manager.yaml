@@ -28,7 +28,7 @@ spec:
           - labelSelector:
               matchLabels:
                 app: storageos
-                app.kubernetes.io/component: node-manager
+                app.kubernetes.io/component: control-plane
             topologyKey: kubernetes.io/hostname
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
