@@ -8,6 +8,10 @@ VERSION ?= 2.5.0-beta.6
 # MIN_KUBE_VERSION is the build flag of minimum Kubernetes version.
 MIN_KUBE_VERSION ?= 1.18.0
 
+# Generate kuttl e2e tests for the following storageos/kind-node versions.
+TEST_KIND_NODES ?= 1.18.6,1.19.0,1.20.5,1.21.0,1.22.3
+REPO ?= operator
+
 # CHANNELS define the bundle channels used in the bundle.
 # Add a new line here if you would like to change its default config. (E.g CHANNELS = "candidate,fast,stable")
 # To re-generate a bundle for other specific channels without changing the standard setup, you can:
@@ -157,7 +161,10 @@ test: manifests generate fmt vet ## Run tests.
 	source ${ENVTEST_ASSETS_DIR}/setup-envtest.sh; fetch_envtest_tools $(ENVTEST_ASSETS_DIR); setup_envtest_env $(ENVTEST_ASSETS_DIR); go test ./... -coverprofile cover.out
 
 e2e: ## Run e2e tests.
-	kubectl-kuttl test --config tests/e2e/kuttl-test.yaml
+	kubectl-kuttl test --config e2e/kuttl/deployment-1.22.yaml
+
+generate-tests: ## Generate kuttl e2e tests
+	TEST_KIND_NODES=$(TEST_KIND_NODES) REPO=$(REPO) ./hack/generate-tests.sh
 
 ##@ Build
 

@@ -1,9 +1,8 @@
 apiVersion: kuttl.dev/v1beta1
 kind: TestSuite
 testDirs:
-- ./tests/e2e/
-# crdDir: config/crd/
-kindConfig: tests/e2e/kind-config.yaml
+- ./e2e/tests/deployment/stable
+kindConfig: e2e/kind/kind-config-1.20.yaml
 startKIND: true
 kindNodeCache: true
 kindContainers:

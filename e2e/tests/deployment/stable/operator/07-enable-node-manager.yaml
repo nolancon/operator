@@ -1,0 +1,5 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  - script: NAME=storageoscluster-sample NAMESPACE=default ../../../../../hack/enable-node-manager.sh
+  - script: ../../../../../hack/set-poddisruptionbudget-api-version.sh

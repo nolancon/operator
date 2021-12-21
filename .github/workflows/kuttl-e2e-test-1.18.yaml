@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   test:
-    name: e2e test
+    name: kuttl e2e test 1.18
     runs-on: ubuntu-18.04
     env:
       KUTTL: /usr/local/bin/kubectl-kuttl
@@ -13,15 +13,15 @@ jobs:
       - uses: actions/setup-go@v2
         with:
           go-version: '1.16'
-      - name: Install kuttl
+      - name: Install kuttl and kubectl
         run: |
           sudo curl -Lo $KUTTL https://github.com/kudobuilder/kuttl/releases/download/v0.11.1/kubectl-kuttl_0.11.1_linux_x86_64
           sudo chmod +x $KUTTL
-          sudo curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          sudo curl -LO https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl
           sudo chmod +x kubectl
       - name: Build and prepare manifests
         run: make manifests
       - name: Build container
         run: make operator-image
       - name: Run kuttl 1.18
-        run: kubectl-kuttl test --kind-config tests/e2e/versions/kind-config-1.18.yaml --config tests/e2e/kuttl-test.yaml
+        run: kubectl-kuttl test --config e2e/kuttl/operator-deployment-1.18.yaml
