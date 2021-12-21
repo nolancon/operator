@@ -85,7 +85,7 @@ jobs:
       - name: Build container
         run: make operator-image
       - name: Run kuttl ${major}
-        run: sudo kubectl-kuttl test --config e2e/kuttl/${REPO}-deployment-${major}.yaml
+        run: kubectl-kuttl test --config e2e/kuttl/${REPO}-deployment-${major}.yaml
 EOF
 
 done

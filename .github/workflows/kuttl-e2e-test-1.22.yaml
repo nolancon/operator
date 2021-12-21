@@ -24,4 +24,4 @@ jobs:
       - name: Build container
         run: make operator-image
       - name: Run kuttl 1.22
-        run: sudo kubectl-kuttl test --config e2e/kuttl/operator-deployment-1.22.yaml
+        run: kubectl-kuttl test --config e2e/kuttl/operator-deployment-1.22.yaml
