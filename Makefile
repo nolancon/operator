@@ -9,7 +9,7 @@ VERSION ?= 2.5.0-beta.6
 MIN_KUBE_VERSION ?= 1.18.0
 
 # Generate kuttl e2e tests for the following storageos/kind-node versions.
-TEST_KIND_NODES ?= 1.18.6,1.19.0,1.20.5,1.21.0,1.22.3
+TEST_KIND_NODES ?= 1.19.0,1.20.5,1.21.0,1.22.3,1.23.0
 REPO ?= operator
 
 # CHANNELS define the bundle channels used in the bundle.
