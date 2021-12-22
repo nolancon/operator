@@ -1,0 +1,19 @@
+manifests:
+- name: api-manager
+  version: 1.2.3
+- name: csi
+  version: 0.1.0
+- name: node
+  version: 2.5.0
+- name: node-manager
+  version: develop
+- name: portal-manager
+  version: develop
+- name: scheduler
+  version: 1.23.0
+- name: storageclass
+  version: 0.1.0
+- name: before-install
+  version: 0.1.0
+- name: after-install
+  version: 0.1.0
