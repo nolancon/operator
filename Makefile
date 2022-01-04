@@ -8,8 +8,11 @@ VERSION ?= 2.5.0-beta.6
 # MIN_KUBE_VERSION is the build flag of minimum Kubernetes version.
 MIN_KUBE_VERSION ?= 1.18.0
 
-# Generate kuttl e2e tests for the following storageos/kind-node versions.
+# Generate kuttl e2e tests for the following storageos/kind-node versions
+# TEST_KIND_NODES is not intended to be updated manually.
+# Please run 'LATEST_KIND_NODE=<latest-kind-node> make update-kind-nodes'.
 TEST_KIND_NODES ?= 1.18.6,1.19.0,1.20.5,1.21.0,1.22.3
+
 REPO ?= operator
 
 # CHANNELS define the bundle channels used in the bundle.
@@ -162,6 +165,12 @@ test: manifests generate fmt vet ## Run tests.
 
 e2e: ## Run e2e tests.
 	kubectl-kuttl test --config e2e/kuttl/deployment-1.22.yaml
+
+update-kind-nodes:
+ifndef LATEST_KIND_NODE
+	$(error LATEST_KIND_NODE is undefined)
+endif
+	LATEST_KIND_NODE=$(LATEST_KIND_NODE) ./hack/update-kind-nodes.sh
 
 generate-tests: ## Generate kuttl e2e tests
 	TEST_KIND_NODES=$(TEST_KIND_NODES) REPO=$(REPO) ./hack/generate-tests.sh
