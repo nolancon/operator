@@ -14,7 +14,7 @@ jobs:
           token: ${{ secrets.ACTION_TOKEN }}
       - name: Trim version
         run: echo "LATEST_KIND_NODE=$(echo ${{ github.event.client_payload.latest-kind-node }} | tr -d '[:v]')" >> $GITHUB_ENV
-      - name: Generate and commit tests
+      - name: Generate tests
         run: |
           make update-kind-nodes
           make generate-tests      
