@@ -49,6 +49,8 @@ spec:
           name: api-secret
       priorityClassName: system-cluster-critical
       restartPolicy: Always
+      securityContext:
+        runAsNonRoot: true
       serviceAccountName: storageos-api-manager
       terminationGracePeriodSeconds: 30
       tolerations:

@@ -64,7 +64,7 @@ spec:
       priorityClassName: system-cluster-critical
       restartPolicy: Always
       securityContext:
-        runAsUser: 65532
+        runAsNonRoot: true
       serviceAccountName: storageos-node-manager
       terminationGracePeriodSeconds: 30
       tolerations:
