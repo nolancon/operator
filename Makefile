@@ -142,14 +142,17 @@ generate: controller-gen mockgen ## Generate code containing DeepCopy, DeepCopyI
 api-manager:
 	NAME=api-manager VERSION=$(API_MANAGER_VERSION) MANIFESTS_IMAGE=$(API_MANAGER_MANIFESTS_IMAGE) hack/pull-manifests.sh
 	NAME=api-manager VERSION=$(API_MANAGER_VERSION) FROM=clusterrole-storageos-api-manager.yaml TO=api_manager_role.yaml hack/update-rbac.sh
+	make config-update
 
 portal-manager:
 	NAME=portal-manager VERSION=$(PORTAL_MANAGER_VERSION) MANIFESTS_IMAGE=$(PORTAL_MANAGER_MANIFESTS_IMAGE) hack/pull-manifests.sh
 	NAME=portal-manager VERSION=$(PORTAL_MANAGER_VERSION) FROM=clusterrole-storageos-portal-manager.yaml TO=portal_manager_role.yaml hack/update-rbac.sh
+	make config-update
 
 node-manager:
 	NAME=node-manager VERSION=$(NODE_MANAGER_VERSION) MANIFESTS_IMAGE=$(NODE_MANAGER_MANIFESTS_IMAGE) hack/pull-manifests.sh
 	NAME=node-manager VERSION=$(NODE_MANAGER_VERSION) FROM=clusterrole-storageos-node-manager.yaml TO=node_manager_role.yaml hack/update-rbac.sh
+	make config-update
 
 fmt: ## Run go fmt against code.
 	go fmt ./...

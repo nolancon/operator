@@ -140,6 +140,8 @@ spec:
                     type: string
                   portalManagerContainer:
                     type: string
+                  upgradeGuardContainer:
+                    type: string
                 type: object
               ingress:
                 description: 'Ingress defines the ingress configurations used in the cluster. Deprecated: Not used any more, please create your ingress for dashboard on your own.'
