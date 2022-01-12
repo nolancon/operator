@@ -1,0 +1,31 @@
+name: Publish release
+
+on:
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - main
+
+jobs:
+  publish-image:
+    runs-on: ubuntu-latest
+    name: Publish manifests
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set image tag env var
+        # Refer https://stackoverflow.com/a/58178121 for git tag extraction.
+        run: echo "OPERATOR_IMAGE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: Set image env vars
+        run: echo "OPERATOR_IMAGE=storageos/operator:${{ env.OPERATOR_IMAGE_TAG }}" >> $GITHUB_ENV
+      - name: Build static manifests
+        run: make install-manifest
+      - name: Compress Kustomize manifests
+        run: (cd config ; tar -czvf ../storageos-operator-kustomize.tar.gz .)
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            storageos-operator.yaml
+            storageos-operator-kustomize.tar.gz
