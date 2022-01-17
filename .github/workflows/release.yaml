@@ -4,11 +4,10 @@ on:
   push:
     tags:
       - 'v*'
-    branches:
-      - main
 
 jobs:
   publish-image:
+    if: github.event.base_ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     name: Publish manifests
     steps:
