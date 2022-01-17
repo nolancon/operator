@@ -822,7 +822,7 @@ spec:
                   name: https
                 resources: {}
               securityContext:
-                runAsUser: 65532
+                runAsNonRoot: true
               serviceAccountName: storageos-operator
               terminationGracePeriodSeconds: 10
               volumes:
@@ -855,7 +855,7 @@ spec:
   - email: support@storageos.com
     name: StorageOS, Inc
   maturity: stable
-  minKubeVersion: 1.18.0
+  minKubeVersion: 1.19.0
   provider:
     name: StorageOS, Inc
     url: https://storageos.com

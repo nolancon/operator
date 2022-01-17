@@ -6,7 +6,7 @@
 VERSION ?= 2.5.0-beta.6
 
 # MIN_KUBE_VERSION is the build flag of minimum Kubernetes version.
-MIN_KUBE_VERSION ?= 1.18.0
+MIN_KUBE_VERSION ?= 1.19.0
 
 # Generate kuttl e2e tests for the following storageos/kind-node versions
 # TEST_KIND_NODES is not intended to be updated manually.
