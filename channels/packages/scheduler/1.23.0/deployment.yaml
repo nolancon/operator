@@ -16,6 +16,13 @@ spec:
         image: kube-scheduler
         imagePullPolicy: IfNotPresent
         name: storageos-scheduler
+        resources:
+          limits:
+            cpu: 100m
+            memory: 200Mi
+          requests:
+            cpu: 10m
+            memory: 50Mi
         volumeMounts:
         - name: config
           mountPath: /scheduler

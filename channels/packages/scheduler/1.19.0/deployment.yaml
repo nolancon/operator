@@ -19,6 +19,13 @@ spec:
         volumeMounts:
         - name: config
           mountPath: /scheduler
+        resources:
+          limits:
+            cpu: 100m
+            memory: 200Mi
+          requests:
+            cpu: 10m
+            memory: 50Mi
       dnsPolicy: ClusterFirst
       priorityClassName: system-cluster-critical
       restartPolicy: Always

@@ -21,6 +21,13 @@ spec:
         name: provisioner
         securityContext:
           privileged: true
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
+          requests:
+            cpu: 5m
+            memory: 30Mi
         volumeMounts:
         - mountPath: /csi
           name: plugin-dir
@@ -33,6 +40,13 @@ spec:
         image: csi-attacher
         imagePullPolicy: IfNotPresent
         name: attacher
+        resources:
+          limits:
+            cpu: 50m
+            memory: 100Mi
+          requests:
+            cpu: 1m
+            memory: 30Mi
         securityContext:
           privileged: true
         volumeMounts:
@@ -47,6 +61,13 @@ spec:
         image: csi-resizer
         imagePullPolicy: IfNotPresent
         name: resizer
+        resources:
+          limits:
+            cpu: 50m
+            memory: 100Mi
+          requests:
+            cpu: 1m
+            memory: 30Mi
         securityContext:
           privileged: true
         volumeMounts:
