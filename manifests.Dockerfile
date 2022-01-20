@@ -13,6 +13,7 @@ RUN rm -rf /tmp/src/bin ; remake controller-gen _manifests
 RUN cd config/manager && kustomize edit set image controller=${OPERATOR_IMAGE}
 RUN kustomize build config/default > storageos-operator.yaml
 RUN cat Makefile | grep ^MIN_KUBE_VERSION | cut -d"=" -f2 | tr -d '\n ' > MIN_KUBE_VERSION
+RUN cat specs/storageos-cluster.yaml > storageos-cluster.yaml
 
 # Create the final image.
 
@@ -21,5 +22,6 @@ FROM busybox:1.33.1
 
 COPY --from=build /tmp/src/storageos-operator.yaml operator.yaml
 COPY --from=build /tmp/src/MIN_KUBE_VERSION MIN_KUBE_VERSION
+COPY --from=build /tmp/src/storageos-cluster.yaml storageos-cluster.yaml
 
 CMD cat operator.yaml
