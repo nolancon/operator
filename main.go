@@ -29,8 +29,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	configstorageoscomv1 "github.com/storageos/operator/apis/config.storageos.com/v1"
-	storageoscomv1 "github.com/storageos/operator/apis/v1"
+	configstorageoscomv1 "github.com/storageos/operator/api/config.storageos.com/v1"
+	storageoscomv1 "github.com/storageos/operator/api/v1"
 	"github.com/storageos/operator/controllers"
 	whctrlr "github.com/storageos/operator/controllers/webhook"
 	"github.com/storageos/operator/internal/version"

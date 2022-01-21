@@ -13,7 +13,7 @@ resources:
   controller: true
   group: storageos.com
   kind: StorageOSCluster
-  path: github.com/storageos/operator/apis/v1
+  path: github.com/storageos/operator/api/v1
   version: v1
   webhooks:
     validation: true
@@ -23,6 +23,6 @@ resources:
     namespaced: true
   group: config.storageos.com
   kind: OperatorConfig
-  path: github.com/storageos/operator/apis/config/v1
+  path: github.com/storageos/operator/api/config/v1
   version: v1
 version: "3"

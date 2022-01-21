@@ -166,8 +166,9 @@ test: manifests generate fmt vet ## Run tests.
 	test -f ${ENVTEST_ASSETS_DIR}/setup-envtest.sh || curl -sSLo ${ENVTEST_ASSETS_DIR}/setup-envtest.sh https://raw.githubusercontent.com/kubernetes-sigs/controller-runtime/v0.7.0/hack/setup-envtest.sh
 	source ${ENVTEST_ASSETS_DIR}/setup-envtest.sh; fetch_envtest_tools $(ENVTEST_ASSETS_DIR); setup_envtest_env $(ENVTEST_ASSETS_DIR); go test ./... -coverprofile cover.out
 
+.PHONY: e2e
 e2e: ## Run e2e tests.
-	kubectl-kuttl test --config e2e/kuttl/deployment-1.22.yaml
+	kubectl-kuttl test --config e2e/kuttl/operator-deployment-1.22.yaml
 
 update-kind-nodes:
 ifndef LATEST_KIND_NODE
@@ -281,7 +282,7 @@ endef
 
 .PHONY: bundle
 bundle: operator-sdk manifests kustomize ## Generate bundle manifests and metadata, then validate generated files.
-	$(OPERATOR_SDK) generate kustomize manifests --package=storageosoperator --apis-dir=apis/v1 -q
+	$(OPERATOR_SDK) generate kustomize manifests --package=storageosoperator --apis-dir=api/v1 -q
 	cd config/manager && $(KUSTOMIZE) edit set image controller=$(OPERATOR_IMAGE)
 	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle --overwrite --version $(VERSION) $(BUNDLE_METADATA_OPTS)
 	# Rename manifest files containing colons.

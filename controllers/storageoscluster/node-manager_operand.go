@@ -26,7 +26,7 @@ import (
 	"sigs.k8s.io/kustomize/api/resid"
 	kustomizetypes "sigs.k8s.io/kustomize/api/types"
 
-	storageoscomv1 "github.com/storageos/operator/apis/v1"
+	storageoscomv1 "github.com/storageos/operator/api/v1"
 	"github.com/storageos/operator/internal/image"
 	"github.com/storageos/operator/watchers"
 )

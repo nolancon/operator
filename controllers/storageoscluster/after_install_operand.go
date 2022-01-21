@@ -9,7 +9,7 @@ import (
 	"github.com/darkowlzz/operator-toolkit/declarative/kustomize"
 	eventv1 "github.com/darkowlzz/operator-toolkit/event/v1"
 	"github.com/darkowlzz/operator-toolkit/operator/v1/operand"
-	storageoscomv1 "github.com/storageos/operator/apis/v1"
+	storageoscomv1 "github.com/storageos/operator/api/v1"
 	policyv1beta1 "k8s.io/api/policy/v1beta1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
