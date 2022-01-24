@@ -50,6 +50,8 @@ const (
 
 	// Node manager features.
 	upgradeGuardFeatureKey = "upgradeGuard"
+
+	upgradeGuardReadinessProbeInterval = time.Second
 )
 
 type NodeManagerOperand struct {
@@ -313,7 +315,7 @@ func getNodeManagerBuilder(fs filesys.FileSystem, obj client.Object, kcl kubectl
 
 	// Append upgrade guard as sidecar.
 	if _, ok := cluster.Spec.NodeManagerFeatures[upgradeGuardFeatureKey]; ok {
-		mutator := getSideCarContainerMutator(nextIndex, cluster.Spec.Images.UpgradeGuardContainer, os.Getenv(kubeUpgradeGuardEnvVar), "upgrade-guard")
+		mutator := getSideCarContainerMutator(nextIndex, cluster.Spec.Images.UpgradeGuardContainer, os.Getenv(kubeUpgradeGuardEnvVar), "upgrade-guard", upgradeGuardReadinessProbeInterval)
 		if mutator != nil {
 			// nextIndex += 1
 			mutators = append(mutators, mutator)
@@ -374,7 +376,7 @@ type patchUInt32Value struct {
 	Value uint32 `json:"value"`
 }
 
-func getSideCarContainerMutator(nextIndex int, image, defaultImage string, containerName string) func(*kustomizetypes.Kustomization) {
+func getSideCarContainerMutator(nextIndex int, image, defaultImage string, containerName string, readinessProbeInterval time.Duration) func(*kustomizetypes.Kustomization) {
 	if image == "" {
 		image = defaultImage
 	}
@@ -383,12 +385,12 @@ func getSideCarContainerMutator(nextIndex int, image, defaultImage string, conta
 	}
 
 	return func(k *kustomizetypes.Kustomization) {
-		k.Patches = append(k.Patches, generateSideCarContainerPatch(nextIndex, containerName, image))
+		k.Patches = append(k.Patches, generateSideCarContainerPatch(nextIndex, containerName, image, readinessProbeInterval))
 	}
 }
 
 // generateSideCarContainerPatch generates a sidecar container patch.
-func generateSideCarContainerPatch(nextIndex int, name string, image string) kustomizetypes.Patch {
+func generateSideCarContainerPatch(nextIndex int, name string, image string, readinessProbeInterval time.Duration) kustomizetypes.Patch {
 	return kustomizetypes.Patch{
 		Patch: fmt.Sprintf(`[{
 			"op": "add",
@@ -419,10 +421,10 @@ func generateSideCarContainerPatch(nextIndex int, name string, image string) kus
 					  "port": 8081
 					},
 					"initialDelaySeconds": 5,
-					"periodSeconds": 10
+					"periodSeconds": %d
 				  }
 			}
-		}]`, nextIndex, name, image),
+		}]`, nextIndex, name, image, int(readinessProbeInterval.Seconds())),
 		Target: &kustomizetypes.Selector{
 			Gvk:  resid.FromKind("Deployment"),
 			Name: nmDeploymentName,
