@@ -1,0 +1,52 @@
+name: Update manifests
+
+on:
+  workflow_dispatch:
+    # Enable manual trigger of this action.
+    inputs:
+      api-manager-version:
+        description: api manager version
+        default: ""
+        required: false
+      portal-manager-version:
+        description: portal manager version
+        default: ""
+        required: false
+      node-manager-version:
+        description: portal manager version
+        default: ""
+        required: false
+
+
+jobs:
+  update-manifests:
+    runs-on: ubuntu-latest
+    name: Update manifests
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.ACTION_TOKEN }}
+      - name: Generate manifests
+        run: |
+         if  [[ -n "${{ github.event.client_payload.api-manager-version }}" ]]; then
+            sed -i 's/API_MANAGER_VERSION ?= v.*/API_MANAGER_VERSION ?= ${{ github.event.client_payload.api-manager-version }}/' Makefile
+            make api-manager
+         fi
+         if [[ -n "${{ github.event.client_payload.portal-manager-version }}" ]]; then
+            sed -i 's/PORTAL_MANAGER_VERSION ?= v.*/PORTAL_MANAGER_VERSION ?= ${{ github.event.client_payload.portal-manager-version }}/' Makefile
+            make portal-manager
+         fi
+         if [[ -n "${{ github.event.client_payload.node-manager-version }}" ]]; then
+            sed -i 's/NODE_MANAGER_VERSION ?= v.*/NODE_MANAGER_VERSION ?= ${{ github.event.client_payload.node-manager-version }}/' Makefile
+            make node-manager
+         fi
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.ACTION_TOKEN }}
+          commit-message: "Generated manifest files for new release"
+          base: "main"
+          branch: "generate-manifests"
+          title: "Auto-generated: New manifests files"
+          delete-branch: true
+ 
