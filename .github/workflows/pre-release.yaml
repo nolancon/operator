@@ -1,11 +1,10 @@
-name: Publish release
+name: Publish pre-release
 
 on:
   push:
     tags:
-      - 'v'
-      - '!v*.*.*-alpha.*'
-      - '!v*.*.*-beta.*'
+      - 'v*.*.*-alpha.*'
+      - 'v*.*.*-beta.*'
 
 jobs:
   publish-image:
@@ -24,9 +23,10 @@ jobs:
         run: make install-manifest
       - name: Compress Kustomize manifests
         run: (cd config ; tar -czvf ../storageos-operator-kustomize.tar.gz .)
-      - name: Create release
+      - name: Create pre-release
         uses: softprops/action-gh-release@v1
         with:
+          prerelease: true
           files: |
             storageos-operator.yaml
             storageos-operator-kustomize.tar.gz
