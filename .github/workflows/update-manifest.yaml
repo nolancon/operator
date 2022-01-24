@@ -28,16 +28,16 @@ jobs:
           token: ${{ secrets.ACTION_TOKEN }}
       - name: Generate manifests
         run: |
-         if  [[ -n "${{ github.event.client_payload.api-manager-version }}" ]]; then
-            sed -i 's/API_MANAGER_VERSION ?= v.*/API_MANAGER_VERSION ?= ${{ github.event.client_payload.api-manager-version }}/' Makefile
+         if  [[ -n "${{ github.event.inputs.api-manager-version }}" ]]; then
+            sed -i 's/API_MANAGER_VERSION ?= v.*/API_MANAGER_VERSION ?= ${{ github.event.inputs.api-manager-version }}/' Makefile
             make api-manager
          fi
-         if [[ -n "${{ github.event.client_payload.portal-manager-version }}" ]]; then
-            sed -i 's/PORTAL_MANAGER_VERSION ?= v.*/PORTAL_MANAGER_VERSION ?= ${{ github.event.client_payload.portal-manager-version }}/' Makefile
+         if [[ -n "${{ github.event.inputs.portal-manager-version }}" ]]; then
+            sed -i 's/PORTAL_MANAGER_VERSION ?= v.*/PORTAL_MANAGER_VERSION ?= ${{ github.event.inputs.portal-manager-version }}/' Makefile
             make portal-manager
          fi
-         if [[ -n "${{ github.event.client_payload.node-manager-version }}" ]]; then
-            sed -i 's/NODE_MANAGER_VERSION ?= v.*/NODE_MANAGER_VERSION ?= ${{ github.event.client_payload.node-manager-version }}/' Makefile
+         if [[ -n "${{ github.event.inputs.node-manager-version }}" ]]; then
+            sed -i 's/NODE_MANAGER_VERSION ?= v.*/NODE_MANAGER_VERSION ?= ${{ github.event.inputs.node-manager-version }}/' Makefile
             make node-manager
          fi
       - name: Create Pull Request
