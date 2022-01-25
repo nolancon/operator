@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -314,8 +315,8 @@ func getNodeManagerBuilder(fs filesys.FileSystem, obj client.Object, kcl kubectl
 	nextIndex := 2 // Needs to update if number of containers changes in deployment.
 
 	// Append upgrade guard as sidecar.
-	if _, ok := cluster.Spec.NodeManagerFeatures[upgradeGuardFeatureKey]; ok {
-		mutator := getSideCarContainerMutator(nextIndex, cluster.Spec.Images.UpgradeGuardContainer, os.Getenv(kubeUpgradeGuardEnvVar), "upgrade-guard", upgradeGuardReadinessProbeInterval)
+	if config, ok := cluster.Spec.NodeManagerFeatures[upgradeGuardFeatureKey]; ok {
+		mutator := getSideCarContainerMutator(nextIndex, cluster.Spec.Images.UpgradeGuardContainer, os.Getenv(kubeUpgradeGuardEnvVar), "upgrade-guard", config, upgradeGuardReadinessProbeInterval)
 		if mutator != nil {
 			// nextIndex += 1
 			mutators = append(mutators, mutator)
@@ -376,7 +377,7 @@ type patchUInt32Value struct {
 	Value uint32 `json:"value"`
 }
 
-func getSideCarContainerMutator(nextIndex int, image, defaultImage string, containerName string, readinessProbeInterval time.Duration) func(*kustomizetypes.Kustomization) {
+func getSideCarContainerMutator(nextIndex int, image, defaultImage string, containerName string, config string, readinessProbeInterval time.Duration) func(*kustomizetypes.Kustomization) {
 	if image == "" {
 		image = defaultImage
 	}
@@ -385,12 +386,29 @@ func getSideCarContainerMutator(nextIndex int, image, defaultImage string, conta
 	}
 
 	return func(k *kustomizetypes.Kustomization) {
-		k.Patches = append(k.Patches, generateSideCarContainerPatch(nextIndex, containerName, image, readinessProbeInterval))
+		k.Patches = append(k.Patches, generateSideCarContainerPatch(nextIndex, containerName, image, config, readinessProbeInterval))
 	}
 }
 
 // generateSideCarContainerPatch generates a sidecar container patch.
-func generateSideCarContainerPatch(nextIndex int, name string, image string, readinessProbeInterval time.Duration) kustomizetypes.Patch {
+func generateSideCarContainerPatch(nextIndex int, name string, image string, config string, readinessProbeInterval time.Duration) kustomizetypes.Patch {
+	// Convert sidecar context to environment variables.
+	// We don't have any other usecase at the moment.
+	envs := ""
+	if config != "" {
+		for _, item := range strings.Split(config, ",") {
+			keyValue := strings.Split(item, "=")
+			value := ""
+			if len(keyValue) > 1 {
+				value = keyValue[1]
+			}
+			envs += fmt.Sprintf(`{
+				"name": "%s",
+				"value": "%s"
+			},`, strings.TrimSpace(keyValue[0]), strings.TrimSpace(value))
+		}
+	}
+
 	return kustomizetypes.Patch{
 		Patch: fmt.Sprintf(`[{
 			"op": "add",
@@ -398,15 +416,18 @@ func generateSideCarContainerPatch(nextIndex int, name string, image string, rea
 			"value": {
 				"name": "%s",
 				"image": "%s",
-				"env": [{
-					"name": "NODE_NAME",
-					"valueFrom": {
-						"fieldRef": {
-							"apiVersion": "v1",
-							"fieldPath": "spec.nodeName"
+				"env": [
+					%s
+					{
+						"name": "NODE_NAME",
+						"valueFrom": {
+							"fieldRef": {
+								"apiVersion": "v1",
+								"fieldPath": "spec.nodeName"
+							}
 						}
 					}
-				}],
+				],
 				"livenessProbe": {
 					"httpGet": {
 					  "path": "/healthz",
@@ -424,7 +445,7 @@ func generateSideCarContainerPatch(nextIndex int, name string, image string, rea
 					"periodSeconds": %d
 				  }
 			}
-		}]`, nextIndex, name, image, int(readinessProbeInterval.Seconds())),
+		}]`, nextIndex, name, image, envs, int(readinessProbeInterval.Seconds())),
 		Target: &kustomizetypes.Selector{
 			Gvk:  resid.FromKind("Deployment"),
 			Name: nmDeploymentName,
