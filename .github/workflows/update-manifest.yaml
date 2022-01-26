@@ -13,7 +13,7 @@ on:
         default: ""
         required: false
       node-manager-version:
-        description: portal manager version
+        description: node manager version
         default: ""
         required: false
 
