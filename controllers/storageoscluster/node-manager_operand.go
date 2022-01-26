@@ -227,7 +227,7 @@ func (c *NodeManagerOperand) Ensure(ctx context.Context, obj client.Object, owne
 	}
 
 	currState := c.getCurrentState()
-	if len(cluster.Spec.NodeManagerFeatures) > 0 && !currState {
+	if len(cluster.Spec.NodeManagerFeatures) > 0 {
 		err := b.Apply(ctx)
 
 		c.setCurrentState(err == nil)
