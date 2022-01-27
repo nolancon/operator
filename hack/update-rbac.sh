@@ -5,12 +5,14 @@
 # Updates given project version in channels/stable file.
 # Replaces the given project manifests in operator repo with the new version.
 
-: ${NAME?= required}
-: ${VERSION?= required}
-: ${FROM?= required}
-: ${TO?= required}
+# shellcheck disable=SC2086
 
-if [[ $VERSION =~ ^v[0-9] ]]; then
+: "${NAME?= required}"
+: "${VERSION?= required}"
+: "${FROM?= required}"
+: "${TO?= required}"
+
+if [[ "$VERSION" =~ ^v[0-9] ]]; then
     VERSION=${VERSION#"v"}
 fi
 

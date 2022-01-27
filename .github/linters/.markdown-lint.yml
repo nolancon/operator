@@ -1,0 +1,16 @@
+# Default state for all rules
+default: true
+
+# MD001/heading-increment/header-increment - Heading levels should only increment by one level at a time
+MD001: false
+
+# MD014/commands-show-output - Dollar signs used before commands without showing output
+MD014: false
+
+# MD029/ol-prefix - Ordered list item prefix
+MD029: false
+
+# MD013/line-length - Line length
+MD013:
+  # Number of characters
+  line_length: 140

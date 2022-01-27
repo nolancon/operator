@@ -1,3 +1,7 @@
+# StorageOS Operator
+
+The StorageOS Operator deploys and configures a StorageOS cluster on Kubernetes.
+
 [![Go Report Card](https://goreportcard.com/badge/github.com/storageos/operator)](https://goreportcard.com/report/github.com/storageos/operator)
 [![e2e test](https://github.com/storageos/operator/actions/workflows/kuttl-e2e-test.yaml/badge.svg)](https://github.com/storageos/operator/actions/workflows/kuttl-e2e-test.yaml)
 [![Lint and test](https://github.com/storageos/operator/actions/workflows/test.yml/badge.svg)](https://github.com/storageos/operator/actions/workflows/test.yml)
@@ -5,10 +9,6 @@
 [![Active](http://img.shields.io/badge/Status-Active-green.svg)](https://github.com/storageos/operator)
 [![PR's Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](https://github.com/storageos/operator/pulls)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-
-# StorageOS Operator
-
-The StorageOS Operator deploys and configures a StorageOS cluster on Kubernetes.
 
 ## Setup/Development
 
@@ -72,22 +72,22 @@ Install kuttl kubectl plugin before running the e2e tests.
 
 Api-manager manifests are stored in the repo but updated manually. To update the manifests please follow the instructions below.
 
- * Edit `API_MANAGER_VERSION` in `Makefile` or pass it to make target.
- * Execute `make api-manager` command.
- * Enjoy new version.
+* Edit `API_MANAGER_VERSION` in `Makefile` or pass it to make target.
+* Execute `make api-manager` command.
+* Enjoy new version.
 
 ## Update portal-manager manifests
 
 portal-manager manifests are stored in the repo but updated manually. To update the manifests please follow the instructions below.
 
- * Edit `PORTAL_MANAGER_VERSION` in `Makefile` or pass it to make target.
- * Execute `make portal-manager` command.
- * Enjoy new version.
+* Edit `PORTAL_MANAGER_VERSION` in `Makefile` or pass it to make target.
+* Execute `make portal-manager` command.
+* Enjoy new version.
 
 ## Update node-manager manifests
 
 node-manager manifests are stored in the repo but updated manually. To update the manifests please follow the instructions below.
 
- * Edit `NODE_MANAGER_VERSION` in `Makefile` or pass it to make target.
- * Execute `make node-manager` command.
- * Enjoy new version.
+* Edit `NODE_MANAGER_VERSION` in `Makefile` or pass it to make target.
+* Execute `make node-manager` command.
+* Enjoy new version.

@@ -5,32 +5,34 @@
 # Updates given project version in channels/stable file.
 # Replaces the given project manifests in operator repo with the new version.
 
-: ${NAME?= required}
-: ${VERSION?= required}
-: ${MANIFESTS_IMAGE?= required}
+# shellcheck disable=SC2059
 
-if [[ $VERSION =~ ^v[0-9] ]]; then
+: "${NAME?= required}"
+: "${VERSION?= required}"
+: "${MANIFESTS_IMAGE?= required}"
+
+if [[ "$VERSION" =~ ^v[0-9] ]]; then
     VERSION=${VERSION#"v"}
 fi
 
 WORKDIR=channels/packages/${NAME}/${VERSION}
 
 saveManifest() {
-    : ${1?= manifest required}
+    : "${1?= manifest required}"
 
-    kind=$(echo "$1" | egrep "^kind:" | head -1 | cut -d":" -f2- | tr -d ' ')
-    name=$(echo "$1" | egrep "^  name:" | head -1 | cut -d":" -f2- | tr -d ' ')
+    kind=$(echo "$1" | grep -E "^kind:" | head -1 | cut -d":" -f2- | tr -d ' ')
+    name=$(echo "$1" | grep -E "^  name:" | head -1 | cut -d":" -f2- | tr -d ' ')
 
     echo "$1" > "$WORKDIR/${kind,,}-${name//:/-}.yaml"
-    echo "- ${kind,,}-${name//:/-}.yaml" >> ${WORKDIR}/kustomization.yaml
+    echo "- ${kind,,}-${name//:/-}.yaml" >> "${WORKDIR}"/kustomization.yaml
 }
 
-rm -rf ${WORKDIR}
-mkdir -p ${WORKDIR}
+rm -rf "${WORKDIR}"
+mkdir -p "${WORKDIR}"
 
-echo "resources:" > ${WORKDIR}/kustomization.yaml
+echo "resources:" > "${WORKDIR}"/kustomization.yaml
 
-MANIFESTS=$(docker run --rm ${MANIFESTS_IMAGE})
+MANIFESTS=$(docker run --rm "${MANIFESTS_IMAGE}")
 
 while IFS= read -r line; do
     if [[ $line == "---" ]]; then
@@ -38,7 +40,7 @@ while IFS= read -r line; do
         MANIFEST=""
         continue
     fi
-    MANIFEST=$(printf "${MANIFEST}\n${line}")
+    MANIFEST="$(printf "${MANIFEST}\n${line}")"
 done <<< "$MANIFESTS"
 
 saveManifest "$MANIFEST"
