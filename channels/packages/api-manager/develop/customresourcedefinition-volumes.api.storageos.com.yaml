@@ -153,6 +153,8 @@ spec:
             properties:
               attachedOn:
                 type: string
+              attachedOnHost:
+                type: string
               attachmentType:
                 description: AttachType is the attachment type of a volume.
                 type: string
@@ -165,6 +167,9 @@ spec:
                 properties:
                   health:
                     description: Health is the health of the master.
+                    type: string
+                  hostname:
+                    description: The hostname of the node that is hosting the deployment
                     type: string
                   id:
                     description: A unique identifier for a volume deployment. The
@@ -188,6 +193,9 @@ spec:
                   properties:
                     health:
                       description: Health is the health of the replica.
+                      type: string
+                    hostname:
+                      description: The hostname of the node that is hosting the deployment
                       type: string
                     id:
                       description: A unique identifier for a volume deployment. The

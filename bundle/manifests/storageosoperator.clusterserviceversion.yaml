@@ -803,7 +803,13 @@ spec:
                     port: 8081
                   initialDelaySeconds: 5
                   periodSeconds: 10
-                resources: {}
+                resources:
+                  limits:
+                    cpu: 100m
+                    memory: 200Mi
+                  requests:
+                    cpu: 5m
+                    memory: 80Mi
                 securityContext:
                   allowPrivilegeEscalation: false
                 volumeMounts:

@@ -73,7 +73,7 @@ LD_FLAGS = -X main.SupportedMinKubeVersion=$(MIN_KUBE_VERSION)
 SHELL = /usr/bin/env bash -o pipefail
 .SHELLFLAGS = -ec
 
-API_MANAGER_VERSION ?= v1.2.4
+API_MANAGER_VERSION ?= develop
 API_MANAGER_IMAGE ?= storageos/api-manager:$(API_MANAGER_VERSION)
 API_MANAGER_MANIFESTS_IMAGE ?= storageos/api-manager-manifests:$(API_MANAGER_VERSION)
 PORTAL_MANAGER_VERSION ?= develop
@@ -109,6 +109,9 @@ RELATED_IMAGE_CSIV1_LIVENESS_PROBE=${LIVENESS_PROBE_IMAGE}
 endef
 export REL_IMAGE_CONF
 
+_env:
+	env
+	
 all: build
 
 ##@ General
