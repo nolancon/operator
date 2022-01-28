@@ -95,16 +95,11 @@ func (c *NodeManagerOperand) ReadyCheck(ctx context.Context, obj client.Object) 
 	nodeManagerDep := &appsv1.Deployment{}
 	key := client.ObjectKey{Name: nmDeploymentName, Namespace: obj.GetNamespace()}
 	if err := c.client.Get(ctx, key, nodeManagerDep); err != nil {
+		log.V(4).Info("node-manager not ready")
 		return false, err
 	}
 
-	if nodeManagerDep.Status.AvailableReplicas > 0 {
-		log.V(4).Info("Found available replicas more than 0", "availableReplicas", nodeManagerDep.Status.AvailableReplicas)
-		return true, nil
-	}
-
-	log.V(4).Info("node-manager not ready")
-	return false, nil
+	return true, nil
 }
 
 func (c *NodeManagerOperand) PostReady(ctx context.Context, obj client.Object) error {
@@ -132,7 +127,7 @@ func (c *NodeManagerOperand) PostReady(ctx context.Context, obj client.Object) e
 		return err
 	}
 
-	if err := c.updateReplicas(ctx, obj, log); err != nil {
+	if err := c.updateNodeManagerReplicas(ctx, obj, log); err != nil {
 		return err
 	}
 
@@ -160,7 +155,7 @@ func (c *NodeManagerOperand) PostReady(ctx context.Context, obj client.Object) e
 					for {
 						select {
 						case <-ticker.C:
-							if err = c.updateReplicas(ctx, obj, log); err != nil {
+							if err = c.updateNodeManagerReplicas(ctx, obj, log); err != nil {
 								log.Error(err, "unable to update replicas")
 								continue
 							}
@@ -227,12 +222,22 @@ func (c *NodeManagerOperand) Ensure(ctx context.Context, obj client.Object, owne
 	}
 
 	currState := c.getCurrentState()
-	if len(cluster.Spec.NodeManagerFeatures) > 0 {
+	if len(cluster.Spec.NodeManagerFeatures) > 0 && !currState {
 		err := b.Apply(ctx)
 
 		c.setCurrentState(err == nil)
-
 		return nil, err
+	} else if len(cluster.Spec.NodeManagerFeatures) > 0 && currState {
+		if err := c.setNodeManagerReplicas(ctx, obj, log, 0); err != nil {
+			return nil, err
+		}
+		if err := b.Apply(ctx); err != nil {
+			return nil, err
+		}
+		if err := c.updateNodeManagerReplicas(ctx, obj, log); err != nil {
+			log.Error(err, "unable to update replicas")
+			return nil, err
+		}
 	} else if len(cluster.Spec.NodeManagerFeatures) == 0 && currState {
 		c.setCurrentState(false)
 
@@ -268,18 +273,31 @@ func (c *NodeManagerOperand) Delete(ctx context.Context, obj client.Object) (eve
 	return nil, err
 }
 
-func (c *NodeManagerOperand) updateReplicas(ctx context.Context, obj client.Object, log logr.Logger) error {
-	ds := &appsv1.DaemonSet{}
-	objKey := types.NamespacedName{Namespace: obj.GetNamespace(), Name: snDaemonSetName}
-	if err := c.client.Get(ctx, objKey, ds); err != nil {
+func (c *NodeManagerOperand) updateNodeManagerReplicas(ctx context.Context, obj client.Object, log logr.Logger) error {
+	replicas, err := c.getNodeReplicas(ctx, obj, log)
+	if err != nil {
 		return err
 	}
 
-	log.Info("set replicas to", "replicas", ds.Status.DesiredNumberScheduled)
+	return c.setNodeManagerReplicas(ctx, obj, log, replicas)
+}
+
+func (c *NodeManagerOperand) getNodeReplicas(ctx context.Context, obj client.Object, log logr.Logger) (uint32, error) {
+	ds := &appsv1.DaemonSet{}
+	objKey := types.NamespacedName{Namespace: obj.GetNamespace(), Name: snDaemonSetName}
+	if err := c.client.Get(ctx, objKey, ds); err != nil {
+		return 0, err
+	}
+
+	return uint32(ds.Status.DesiredNumberScheduled), nil
+}
+
+func (c *NodeManagerOperand) setNodeManagerReplicas(ctx context.Context, obj client.Object, log logr.Logger, replicas uint32) error {
+	log.Info("set replicas to", "replicas", replicas)
 	payload := []patchUInt32Value{{
 		Op:    "replace",
 		Path:  "/spec/replicas",
-		Value: uint32(ds.Status.DesiredNumberScheduled),
+		Value: replicas,
 	}}
 	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
