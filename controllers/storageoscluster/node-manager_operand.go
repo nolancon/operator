@@ -231,6 +231,11 @@ func (c *NodeManagerOperand) Ensure(ctx context.Context, obj client.Object, owne
 		if err := c.setNodeManagerReplicas(ctx, obj, log, 0); err != nil {
 			return nil, err
 		}
+		if err = waitFor(func() error {
+			return c.nodeManagerHasDesiredReplicas(ctx, obj, log, 0)
+		}, 30, 1); err != nil {
+			return nil, err
+		}
 		if err := b.Apply(ctx); err != nil {
 			return nil, err
 		}
@@ -292,6 +297,16 @@ func (c *NodeManagerOperand) getNodeReplicas(ctx context.Context, obj client.Obj
 	return uint32(ds.Status.DesiredNumberScheduled), nil
 }
 
+func (c *NodeManagerOperand) getNodeManagerReplicas(ctx context.Context, obj client.Object, log logr.Logger) (uint32, error) {
+	dp := &appsv1.Deployment{}
+	objKey := types.NamespacedName{Namespace: obj.GetNamespace(), Name: nmDeploymentName}
+	if err := c.client.Get(ctx, objKey, dp); err != nil {
+		return 0, err
+	}
+
+	return uint32(dp.Status.AvailableReplicas), nil
+}
+
 func (c *NodeManagerOperand) setNodeManagerReplicas(ctx context.Context, obj client.Object, log logr.Logger, replicas uint32) error {
 	log.Info("set replicas to", "replicas", replicas)
 	payload := []patchUInt32Value{{
@@ -308,6 +323,18 @@ func (c *NodeManagerOperand) setNodeManagerReplicas(ctx context.Context, obj cli
 		Patch(ctx, nmDeploymentName, types.JSONPatchType, payloadBytes, metav1.PatchOptions{})
 
 	return err
+}
+
+func (c *NodeManagerOperand) nodeManagerHasDesiredReplicas(ctx context.Context, obj client.Object, log logr.Logger, desired uint32) error {
+	replicas, err := c.getNodeManagerReplicas(ctx, obj, log)
+	if err != nil {
+		return err
+	}
+
+	if replicas != desired {
+		return fmt.Errorf("node-manager does not have desired number of replicas")
+	}
+	return nil
 }
 
 func getNodeManagerBuilder(fs filesys.FileSystem, obj client.Object, kcl kubectl.KubectlClient) (*declarative.Builder, error) {
@@ -468,5 +495,25 @@ func generateSideCarContainerPatch(nextIndex int, name string, image string, con
 			Gvk:  resid.FromKind("Deployment"),
 			Name: nmDeploymentName,
 		},
+	}
+}
+
+// waitFor runs 'fn' every 'interval' for duration of 'limit', returning no error only if 'fn' returns no
+// error inside 'limit'
+func waitFor(fn func() error, limit, interval time.Duration) error {
+	timeout := time.After(time.Second * limit)
+	ticker := time.NewTicker(time.Second * interval)
+	defer ticker.Stop()
+	var err error
+	for {
+		select {
+		case <-timeout:
+			return fmt.Errorf("timeout error")
+		case <-ticker.C:
+			err = fn()
+			if err == nil {
+				return nil
+			}
+		}
 	}
 }
