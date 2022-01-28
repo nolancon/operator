@@ -23,7 +23,7 @@ env:
 
 jobs:
   publish-image:
-    if: github.event.base_ref == 'refs/heads/main'
+    if: startsWith(github.event.base_ref, 'refs/heads/release-v')
     runs-on: ubuntu-latest
     name: Publish manifests
     steps:

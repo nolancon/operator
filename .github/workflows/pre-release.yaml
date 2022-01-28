@@ -6,9 +6,23 @@ on:
       - 'v*.*.*-alpha.*'
       - 'v*.*.*-beta.*'
 
+env:
+  EXPECTED_REL_IMAGE_CONF: |
+    REL_IMAGE_CONF=RELATED_IMAGE_API_MANAGER=storageos/api-manager:v1.2.4
+    RELATED_IMAGE_PORTAL_MANAGER=storageos/portal-manager:v1.0.0
+    RELATED_IMAGE_CSIV1_EXTERNAL_PROVISIONER=storageos/csi-provisioner:v2.1.1-patched
+    RELATED_IMAGE_CSIV1_EXTERNAL_ATTACHER_V3=quay.io/k8scsi/csi-attacher:v3.1.0
+    RELATED_IMAGE_CSIV1_EXTERNAL_RESIZER=quay.io/k8scsi/csi-resizer:v1.1.0
+    RELATED_IMAGE_STORAGEOS_INIT=storageos/init:v2.1.1
+    RELATED_IMAGE_STORAGEOS_NODE=storageos/node:v2.5.0
+    RELATED_IMAGE_NODE_MANAGER=storageos/node-manager:v1.0.0
+    RELATED_IMAGE_UPGRADE_GUARD=storageos/upgrade-guard:v1.0.0
+    RELATED_IMAGE_CSIV1_NODE_DRIVER_REGISTRAR=quay.io/k8scsi/csi-node-driver-registrar:v2.1.0
+    RELATED_IMAGE_CSIV1_LIVENESS_PROBE=quay.io/k8scsi/livenessprobe:v2.2.0
+
 jobs:
   publish-image:
-    if: github.event.base_ref == 'refs/heads/main'
+    if: startsWith(github.event.base_ref, 'refs/heads/release-v')
     runs-on: ubuntu-latest
     name: Publish manifests
     steps:
@@ -18,13 +32,23 @@ jobs:
           access_token: ${{ github.token }}
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Verify component versions
+        run: |
+          EXPECTED_REL_IMAGE_CONF="$(echo "$EXPECTED_REL_IMAGE_CONF" | tr -d '[:blank:]')"
+          echo -$EXPECTED_REL_IMAGE_CONF-
+          ACTUAL_REL_IMAGE_CONF="$(env -i bash -c "make _env 2>/dev/null | grep RELATED_IMAGE | tr -d '[:blank:]'")"
+          echo -$ACTUAL_REL_IMAGE_CONF-
+          [[ "$EXPECTED_REL_IMAGE_CONF" == "$ACTUAL_REL_IMAGE_CONF" ]] || exit 1
       - name: Set image tag env var
         # Refer https://stackoverflow.com/a/58178121 for git tag extraction.
         run: echo "OPERATOR_IMAGE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - name: Set image env vars
         run: echo "OPERATOR_IMAGE=storageos/operator:${{ env.OPERATOR_IMAGE_TAG }}" >> $GITHUB_ENV
       - name: Build static manifests
-        run: make install-manifest
+        run: make api-manager node-manager portal-manager install-manifest generate
+      - name: Verify empty git status
+        run: |
+          [[ -z "$(git status --short)" ]] || exit 1
       - name: Compress Kustomize manifests
         run: (cd config ; tar -czvf ../storageos-operator-kustomize.tar.gz .)
       - name: Create pre-release
