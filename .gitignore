@@ -27,3 +27,4 @@ storageos-operator.yaml
 *.swp
 *.swo
 *~
+.vscode

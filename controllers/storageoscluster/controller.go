@@ -124,7 +124,6 @@ func (c *StorageOSClusterController) UpdateStatus(ctx context.Context, obj clien
 	if meta.IsStatusConditionTrue(conditions, schedulerReadyType) ||
 		meta.IsStatusConditionTrue(conditions, nodeReadyType) ||
 		meta.IsStatusConditionTrue(conditions, apiManagerReadyType) ||
-		(!cluster.Spec.EnablePortalManager || meta.IsStatusConditionTrue(conditions, portalManagerReadyType)) ||
 		(len(cluster.Spec.NodeManagerFeatures) == 0 || meta.IsStatusConditionTrue(conditions, nodeManagerReadyType)) ||
 		meta.IsStatusConditionTrue(conditions, csiReadyType) {
 		// Some components are ready, Creating phase.
@@ -135,7 +134,6 @@ func (c *StorageOSClusterController) UpdateStatus(ctx context.Context, obj clien
 	if meta.IsStatusConditionTrue(conditions, schedulerReadyType) &&
 		meta.IsStatusConditionTrue(conditions, nodeReadyType) &&
 		meta.IsStatusConditionTrue(conditions, apiManagerReadyType) &&
-		(!cluster.Spec.EnablePortalManager || meta.IsStatusConditionTrue(conditions, portalManagerReadyType)) &&
 		(len(cluster.Spec.NodeManagerFeatures) == 0 || meta.IsStatusConditionTrue(conditions, nodeManagerReadyType)) &&
 		meta.IsStatusConditionTrue(conditions, csiReadyType) {
 		// Remove progressing condition and set cluster Ready status.
