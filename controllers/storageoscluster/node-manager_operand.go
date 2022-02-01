@@ -99,7 +99,13 @@ func (c *NodeManagerOperand) ReadyCheck(ctx context.Context, obj client.Object) 
 		return false, err
 	}
 
-	return true, nil
+	if nodeManagerDep.Status.AvailableReplicas > 0 {
+		log.V(4).Info("Found available replicas more than 0", "availableReplicas", nodeManagerDep.Status.AvailableReplicas)
+		return true, nil
+	}
+
+	log.V(4).Info("node-manager not ready")
+	return false, nil
 }
 
 func (c *NodeManagerOperand) PostReady(ctx context.Context, obj client.Object) error {
@@ -241,6 +247,11 @@ func (c *NodeManagerOperand) Ensure(ctx context.Context, obj client.Object, owne
 		}
 		if err := c.updateNodeManagerReplicas(ctx, obj, log); err != nil {
 			log.Error(err, "unable to update replicas")
+			return nil, err
+		}
+		if err = waitFor(func() error {
+			return c.nodeManagerHasDesiredReplicas(ctx, obj, log, 1)
+		}, 30, 1); err != nil {
 			return nil, err
 		}
 	} else if len(cluster.Spec.NodeManagerFeatures) == 0 && currState {
