@@ -68,11 +68,11 @@ func (c *SchedulerOperand) ReadyCheck(ctx context.Context, obj client.Object) (b
 	}
 
 	if schedulerDep.Status.AvailableReplicas > 0 {
-		log.V(4).Info("Found available replicas more than 0", "availableReplicas", schedulerDep.Status.AvailableReplicas)
+		log.Info("Found available replicas more than 0", "availableReplicas", schedulerDep.Status.AvailableReplicas)
 		return true, nil
 	}
 
-	log.V(4).Info("scheduler not ready")
+	log.Info("scheduler not ready")
 	return false, nil
 }
 

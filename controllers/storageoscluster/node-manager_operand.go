@@ -95,7 +95,7 @@ func (c *NodeManagerOperand) ReadyCheck(ctx context.Context, obj client.Object) 
 	nodeManagerDep := &appsv1.Deployment{}
 	key := client.ObjectKey{Name: nmDeploymentName, Namespace: obj.GetNamespace()}
 	if err := c.client.Get(ctx, key, nodeManagerDep); err != nil {
-		log.V(4).Info("node-manager not ready")
+		log.Info("node-manager not ready")
 		return false, err
 	}
 
@@ -203,7 +203,7 @@ func (c *NodeManagerOperand) Ensure(ctx context.Context, obj client.Object, owne
 
 		c.setCurrentState(err == nil)
 
-		log.V(4).Info("node-manager state", "deployed", c.currentState)
+		log.Info("node-manager state", "deployed", c.currentState)
 	})
 	if err != nil && !apierrors.IsNotFound(err) {
 		span.RecordError(err)

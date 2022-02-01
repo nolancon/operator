@@ -100,11 +100,11 @@ func (c *NodeOperand) ReadyCheck(ctx context.Context, obj client.Object) (bool, 
 	}
 
 	if nodeDS.Status.NumberReady > 0 {
-		log.V(4).Info("Found more than 0 ready nodes", "NumberReady", nodeDS.Status.NumberReady)
+		log.Info("Found more than 0 ready nodes", "NumberReady", nodeDS.Status.NumberReady)
 		return true, nil
 	}
 
-	log.V(4).Info("node not ready")
+	log.Info("node not ready")
 	return false, nil
 }
 

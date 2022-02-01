@@ -68,11 +68,11 @@ func (c *CSIOperand) ReadyCheck(ctx context.Context, obj client.Object) (bool, e
 	}
 
 	if csiDep.Status.AvailableReplicas > 0 {
-		log.V(4).Info("Found available replicas more than 0", "availableReplicas", csiDep.Status.AvailableReplicas)
+		log.Info("Found available replicas more than 0", "availableReplicas", csiDep.Status.AvailableReplicas)
 		return true, nil
 	}
 
-	log.V(4).Info("csi-helper not ready")
+	log.Info("csi-helper not ready")
 	return false, nil
 }
 

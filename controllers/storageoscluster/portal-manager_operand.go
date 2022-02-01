@@ -76,11 +76,11 @@ func (c *PortalManagerOperand) ReadyCheck(ctx context.Context, obj client.Object
 	}
 
 	if portalManagerDep.Status.AvailableReplicas > 0 {
-		log.V(4).Info("Found available replicas more than 0", "availableReplicas", portalManagerDep.Status.AvailableReplicas)
+		log.Info("Found available replicas more than 0", "availableReplicas", portalManagerDep.Status.AvailableReplicas)
 		return true, nil
 	}
 
-	log.V(4).Info("portal-manager not ready")
+	log.Info("portal-manager not ready")
 	return false, nil
 }
 
@@ -101,7 +101,7 @@ func (c *PortalManagerOperand) Ensure(ctx context.Context, obj client.Object, ow
 		err = c.client.Get(ctx, key, portalManagerDep)
 		c.setCurrentState(err == nil)
 
-		log.V(4).Info("portal-manager state", "deployed", c.currentState)
+		log.Info("portal-manager state", "deployed", c.currentState)
 	})
 	if err != nil && !apierrors.IsNotFound(err) {
 		span.RecordError(err)

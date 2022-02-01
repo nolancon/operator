@@ -66,11 +66,11 @@ func (c *APIManagerOperand) ReadyCheck(ctx context.Context, obj client.Object) (
 	}
 
 	if amDep.Status.AvailableReplicas > 0 {
-		log.V(4).Info("Found available replicas more than 0", "availableReplicas", amDep.Status.AvailableReplicas)
+		log.Info("Found available replicas more than 0", "availableReplicas", amDep.Status.AvailableReplicas)
 		return true, nil
 	}
 
-	log.V(4).Info("api-manager not ready")
+	log.Info("api-manager not ready")
 	return false, nil
 }
 
