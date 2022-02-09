@@ -226,8 +226,6 @@ func main() {
 		os.Exit(1)
 	}
 	watcher.Start(ctx, func(watchChan <-chan watch.Event) error {
-		defer cancel()
-
 		for {
 			event, ok := <-watchChan
 			if !ok {
@@ -236,7 +234,9 @@ func main() {
 			}
 
 			if event.Type == watch.Modified {
+				// If this happens we want to restart the operator, so cancel the root context
 				setupLog.Info("config map has updated")
+				cancel()
 				break
 			}
 		}
