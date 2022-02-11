@@ -1,24 +1,10 @@
----
-#################################
-#################################
-## Super Linter GitHub Actions ##
-#################################
-#################################
 name: Lint Full Codebase
 
-#
 # Documentation:
 # https://help.github.com/en/articles/workflow-syntax-for-github-actions
-#
 
-#############################
-# Start the job on all push #
-#############################
-on: [ push, pull_request ]
+on: [ push ]
 
-###############
-# Set the Job #
-###############
 jobs:
   golangci:
     name: Go Linter
@@ -47,35 +33,25 @@ jobs:
           version: v1.42.1
           args: -c=".github/linters/.golangci.yml"
   build:
-    # Name the Job
     name: Super Linter (non-Go)
-    # Set the agent to run on
     runs-on: ubuntu-latest
-
-    ##################
-    # Load all steps #
-    ##################
     steps:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.9.1
         with:
           access_token: ${{ github.token }}
-      ##########################
-      # Checkout the code base #
-      ##########################
       - name: Checkout Code
         uses: actions/checkout@v2
         with:
           # Full git history is needed to get a proper list of changed files within `super-linter`
           fetch-depth: 0
 
-      ################################
       # Run Linter against code base #
-      ################################
       - name: super-linter
-        uses: github/super-linter@v4
+        uses: github/super-linter/slim@v4 # slim image has - 2gb and excludes support for languages we don't use
         env:
-          VALIDATE_ALL_CODEBASE: true
+          VALIDATE_ALL_CODEBASE: false # only new or edited files
+          FILTER_REGEX_EXCLUDE: vendor/* # avoid linting deps
           VALIDATE_MARKDOWN: true
           VALIDATE_SHELL_SHFMT: true
           VALIDATE_YAML: true

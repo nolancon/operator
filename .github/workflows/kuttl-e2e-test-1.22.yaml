@@ -1,6 +1,6 @@
 name: kuttl e2e test 1.22
 
-on: [push, pull_request]
+on: [ push ]
 
 jobs:
   test:
