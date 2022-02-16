@@ -1,0 +1,11 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: storageos-upgrade-guard
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+        app: storageos
+        app.kubernetes.io/component: node-manager
+        control-plane: storageos-node-manager
