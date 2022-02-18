@@ -3,7 +3,7 @@
 The StorageOS Operator deploys and configures a StorageOS cluster on Kubernetes.
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/storageos/operator)](https://goreportcard.com/report/github.com/storageos/operator)
-[![e2e test](https://github.com/storageos/operator/actions/workflows/kuttl-e2e-test.yaml/badge.svg)](https://github.com/storageos/operator/actions/workflows/kuttl-e2e-test.yaml)
+[![e2e test](https://github.com/storageos/operator/actions/workflows/kuttl-e2e-test-1.23.yaml/badge.svg)](https://github.com/storageos/operator/actions/workflows/kuttl-e2e-test-1.23.yaml)
 [![Lint and test](https://github.com/storageos/operator/actions/workflows/test.yml/badge.svg)](https://github.com/storageos/operator/actions/workflows/test.yml)
 [![CodeQL](https://github.com/storageos/operator/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/storageos/operator/actions/workflows/codeql-analysis.yml)
 [![Active](http://img.shields.io/badge/Status-Active-green.svg)](https://github.com/storageos/operator)
