@@ -21,7 +21,7 @@ metadata:
       ]
     capabilities: Deep Insights
     categories: Storage
-    containerImage: storageos/operator:v2.5.0
+    containerImage: storageos/operator:v2.6.0
     createdAt: ""
     description: Cloud-native, persistent storage for containers.
     repository: https://github.com/storageos/operator
