@@ -2,12 +2,15 @@ package watchers
 
 import (
 	"context"
+	"math"
 	"time"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
 	ctrl "sigs.k8s.io/controller-runtime"
 )
+
+const maxWaitPeriod = 120
 
 // WatchConsumer consumes watch events.
 type WatchConsumer func(<-chan watch.Event) error
@@ -20,7 +23,7 @@ func start(ctx context.Context, name string, watchFunc watchFunc) {
 	go func() {
 		log := ctrl.Log.WithName(name + " watcher")
 
-		for waitPeriod := 0; ; waitPeriod = (waitPeriod + 1) * 2 {
+		for waitPeriod := 0; ; waitPeriod = int(math.Min(float64((waitPeriod+1)*2), float64(maxWaitPeriod))) {
 			waitDuration := time.Second * time.Duration(waitPeriod)
 			if waitPeriod != 0 {
 				log.Info("wait before start", "period", waitPeriod)
