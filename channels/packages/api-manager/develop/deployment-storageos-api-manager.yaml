@@ -47,7 +47,7 @@ spec:
         resources:
           limits:
             cpu: 100m
-            memory: 100Mi
+            memory: 190Mi
           requests:
             cpu: 5m
             memory: 50Mi
@@ -71,6 +71,14 @@ spec:
         key: node.kubernetes.io/unreachable
         operator: Exists
         tolerationSeconds: 30
+      topologySpreadConstraints:
+      - labelSelector:
+          matchLabels:
+            app: storageos
+            app.kubernetes.io/component: api-manager
+        maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
       volumes:
       - name: api-secret
         secret:
