@@ -11,8 +11,6 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 )
 
-var dsWatcherLog = ctrl.Log.WithName("daemonset watcher")
-
 // DaemonSetWatcher watches StorageOS related daemonsets.
 type DaemonSetWatcher struct {
 	name    string
@@ -48,9 +46,9 @@ func (w *DaemonSetWatcher) Setup(ctx context.Context, fromNow bool, labelSelecto
 	return nil
 }
 
-// Start wathing daemonsets.
-func (w *DaemonSetWatcher) Start(ctx context.Context, watchConsumer WatchConsumer) {
-	start(ctx, w.name, watchChange(ctx, w.client, w.listOpt, watchConsumer))
+// Start watching daemonsets.
+func (w *DaemonSetWatcher) Start(ctx context.Context, watchConsumer WatchConsumer) <-chan error {
+	return start(ctx, w.name, watchChange(ctx, w.client, w.listOpt, watchConsumer))
 }
 
 // NewDaemonSetWatcher consructs a new daemonset watcher.

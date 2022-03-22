@@ -46,9 +46,9 @@ func (w *ConfigMapWatcher) Setup(ctx context.Context, fromNow bool, labelSelecto
 	return nil
 }
 
-// Start wathing config maps.
-func (w *ConfigMapWatcher) Start(ctx context.Context, watchConsumer WatchConsumer) {
-	start(ctx, w.name, watchChange(ctx, w.client, w.listOpt, watchConsumer))
+// Start watching config maps.
+func (w *ConfigMapWatcher) Start(ctx context.Context, watchConsumer WatchConsumer) <-chan error {
+	return start(ctx, w.name, watchChange(ctx, w.client, w.listOpt, watchConsumer))
 }
 
 // NewConfigMapWatcher consructs a new config map watcher.

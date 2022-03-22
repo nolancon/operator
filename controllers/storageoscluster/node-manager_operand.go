@@ -99,15 +99,8 @@ func (c *NodeManagerOperand) ReadyCheck(ctx context.Context, obj client.Object) 
 		return false, err
 	}
 
-	// Get node replicas to compare.
-	replicas, err := c.getNodeReplicas(context.Background(), obj, log)
-	if err != nil {
-		log.Info("node fetch error")
-		return false, err
-	}
-
-	if nodeManagerDep.Status.AvailableReplicas == int32(replicas) {
-		log.V(4).Info("Available replicas match desired replica count", "availableReplicas", nodeManagerDep.Status.AvailableReplicas)
+	if nodeManagerDep.Status.Replicas > 0 {
+		log.V(4).Info("Found more than 0 replicas", "Replicas", nodeManagerDep.Status.Replicas)
 		return true, nil
 	}
 
@@ -144,7 +137,9 @@ func (c *NodeManagerOperand) PostReady(ctx context.Context, obj client.Object) e
 		return err
 	}
 
-	c.watcher.Start(ctx, func(watchChan <-chan watch.Event) error {
+	closeWatchWaiter := make(chan bool)
+
+	watchErrChan := c.watcher.Start(ctx, func(watchChan <-chan watch.Event) error {
 		log.Info("watcher has started")
 		for {
 			select {
@@ -187,15 +182,27 @@ func (c *NodeManagerOperand) PostReady(ctx context.Context, obj client.Object) e
 				log.Info("resource has deleted")
 
 				c.watchLock <- true
-				defer func() {
-					<-c.watchLock
-				}()
 				c.watcher = nil
+				<-c.watchLock
+
+				close(closeWatchWaiter)
 
 				return nil
 			}
 		}
 	})
+
+	go func() {
+		select {
+		case <-closeWatchWaiter:
+			return
+		case err := <-watchErrChan:
+			log.Error(err, "node watcher encountered error")
+			// I didn't find any nice way to shut down operator from here.
+			// Anyway a non working watcher is a panic situation :)
+			panic(err)
+		}
+	}()
 
 	return nil
 }

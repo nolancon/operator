@@ -2,7 +2,6 @@ package watchers
 
 import (
 	"context"
-	"math"
 	"time"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -10,38 +9,43 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 )
 
-const maxWaitPeriod = 30
+const maxWatcherRecoveryPeriod = 30
 
 // WatchConsumer consumes watch events.
 type WatchConsumer func(<-chan watch.Event) error
 
 // watchFunc manages object watching.
-type watchFunc func(context.Context, time.Duration) error
+type watchFunc func(context.Context) error
 
-// start wathing given resources.
-func start(ctx context.Context, name string, watchFunc watchFunc) {
+// start watching given resources.
+func start(ctx context.Context, name string, watchFunc watchFunc) <-chan error {
+	errChan := make(chan error)
+
 	go func() {
 		log := ctrl.Log.WithName(name + " watcher")
 
-		for waitPeriod := 0; ; waitPeriod = int(math.Min(float64((waitPeriod+1)*2), float64(maxWaitPeriod))) {
-			waitDuration := time.Second * time.Duration(waitPeriod)
-			if waitPeriod != 0 {
-				log.Info("wait before start", "period", waitPeriod)
-				time.Sleep(waitDuration)
+		watcherRecoveryPeriod := 0
+		for {
+			err := watchFunc(ctx)
+			if err == nil {
+				log.Info("watch process ended gracefully")
+				close(errChan)
+				break
 			}
 
-			err := watchFunc(ctx, waitDuration)
-			if err != nil {
-				log.Error(err, "there was an error during watch")
-				// Increase wait period of reconnect.
-				continue
+			if watcherRecoveryPeriod >= maxWatcherRecoveryPeriod {
+				log.Error(err, "watcher not able to recover from failure within allowed time limit")
+				errChan <- err
+				break
 			}
 
-			// Watch should be stop.
-			log.Info("watch has ended")
-			break
+			watcherRecoveryPeriod = (watcherRecoveryPeriod + 1) * 2
+			log.Error(err, "there was an error while watching resource, sleep", "second", watcherRecoveryPeriod)
+			time.Sleep(time.Second * time.Duration(watcherRecoveryPeriod))
 		}
 	}()
+
+	return errChan
 }
 
 type watchClient interface {
@@ -50,17 +54,12 @@ type watchClient interface {
 
 // watchChange return a func which does watch and calls consumer.
 func watchChange(ctx context.Context, watchClient watchClient, listOpt metav1.ListOptions, consume WatchConsumer) watchFunc {
-	return func(ctx context.Context, waitDuration time.Duration) error {
+	return func(ctx context.Context) error {
 		watcher, err := watchClient.Watch(ctx, listOpt)
 		if err != nil {
 			return err
 		}
 		defer watcher.Stop()
-
-		if waitDuration != 0 {
-			dsWatcherLog.Info("wait before reading channel", "period", waitDuration)
-			time.Sleep(waitDuration)
-		}
 
 		return consume(watcher.ResultChan())
 	}

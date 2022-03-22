@@ -231,7 +231,7 @@ func main() {
 		setupLog.Error(err, "unable to set config map watcher")
 		os.Exit(1)
 	}
-	watcher.Start(ctx, func(watchChan <-chan watch.Event) error {
+	watchErrChan := watcher.Start(ctx, func(watchChan <-chan watch.Event) error {
 		for {
 			event, ok := <-watchChan
 			if !ok {
@@ -249,6 +249,11 @@ func main() {
 
 		return nil
 	})
+	go func() {
+		err := <-watchErrChan
+		setupLog.Error(err, "config map watcher encountered error")
+		cancel()
+	}()
 
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctx); err != nil {
