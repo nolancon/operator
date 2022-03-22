@@ -95,12 +95,19 @@ func (c *NodeManagerOperand) ReadyCheck(ctx context.Context, obj client.Object) 
 	nodeManagerDep := &appsv1.Deployment{}
 	key := client.ObjectKey{Name: nmDeploymentName, Namespace: obj.GetNamespace()}
 	if err := c.client.Get(ctx, key, nodeManagerDep); err != nil {
-		log.Info("node-manager not ready")
+		log.Info("node-manager fetch error")
 		return false, err
 	}
 
-	if nodeManagerDep.Status.AvailableReplicas > 0 {
-		log.V(4).Info("Found available replicas more than 0", "availableReplicas", nodeManagerDep.Status.AvailableReplicas)
+	// Get node replicas to compare.
+	replicas, err := c.getNodeReplicas(context.Background(), obj, log)
+	if err != nil {
+		log.Info("node fetch error")
+		return false, err
+	}
+
+	if nodeManagerDep.Status.AvailableReplicas == int32(replicas) {
+		log.V(4).Info("Available replicas match desired replica count", "availableReplicas", nodeManagerDep.Status.AvailableReplicas)
 		return true, nil
 	}
 
@@ -203,9 +210,8 @@ func (c *NodeManagerOperand) Ensure(ctx context.Context, obj client.Object, owne
 		defer cancel()
 
 		// Get current state of the deployment object.
-		nodeManagerDep := &appsv1.Deployment{}
 		key := client.ObjectKey{Name: nmDeploymentName, Namespace: obj.GetNamespace()}
-		err = c.client.Get(ctx, key, nodeManagerDep)
+		err = c.client.Get(ctx, key, &appsv1.Deployment{})
 
 		c.setCurrentState(err == nil)
 
@@ -216,7 +222,7 @@ func (c *NodeManagerOperand) Ensure(ctx context.Context, obj client.Object, owne
 		return nil, err
 	}
 
-	b, err := getNodeManagerBuilder(c.fs, obj, c.kubectlClient)
+	b, err := c.getNodeManagerBuilder(c.fs, obj, c.kubectlClient, log)
 	if err != nil {
 		span.RecordError(err)
 		return nil, err
@@ -228,36 +234,18 @@ func (c *NodeManagerOperand) Ensure(ctx context.Context, obj client.Object, owne
 	}
 
 	currState := c.getCurrentState()
-	if len(cluster.Spec.NodeManagerFeatures) > 0 && !currState {
+	if len(cluster.Spec.NodeManagerFeatures) > 0 {
 		err := b.Apply(ctx)
 
-		c.setCurrentState(err == nil)
-		return nil, err
-	} else if len(cluster.Spec.NodeManagerFeatures) > 0 && currState {
-		if err := c.setNodeManagerReplicas(ctx, obj, log, 0); err != nil {
-			return nil, err
+		if !currState {
+			c.setCurrentState(err == nil)
 		}
-		if err = waitFor(func() error {
-			return c.nodeManagerHasDesiredReplicas(ctx, obj, log, 0)
-		}, 30, 1); err != nil {
-			return nil, err
-		}
-		if err := b.Apply(ctx); err != nil {
-			return nil, err
-		}
-		if err := c.updateNodeManagerReplicas(ctx, obj, log); err != nil {
-			log.Error(err, "unable to update replicas")
-			return nil, err
-		}
-		if err = waitFor(func() error {
-			return c.nodeManagerHasDesiredReplicas(ctx, obj, log, 1)
-		}, 30, 1); err != nil {
-			return nil, err
-		}
-	} else if len(cluster.Spec.NodeManagerFeatures) == 0 && currState {
-		c.setCurrentState(false)
 
+		return nil, err
+	} else if currState {
 		if err = b.Delete(ctx); err == nil {
+			c.setCurrentState(false)
+
 			c.watchCloseChan <- true
 		}
 
@@ -273,10 +261,10 @@ func (c *NodeManagerOperand) Delete(ctx context.Context, obj client.Object) (eve
 		return nil, nil
 	}
 
-	ctx, span, _, _ := instrumentation.Start(ctx, "NodeManagerOperand.Delete")
+	ctx, span, _, log := instrumentation.Start(ctx, "NodeManagerOperand.Delete")
 	defer span.End()
 
-	b, err := getNodeManagerBuilder(c.fs, obj, c.kubectlClient)
+	b, err := c.getNodeManagerBuilder(c.fs, obj, c.kubectlClient, log)
 	if err != nil {
 		span.RecordError(err)
 		return nil, err
@@ -308,16 +296,6 @@ func (c *NodeManagerOperand) getNodeReplicas(ctx context.Context, obj client.Obj
 	return uint32(ds.Status.DesiredNumberScheduled), nil
 }
 
-func (c *NodeManagerOperand) getNodeManagerReplicas(ctx context.Context, obj client.Object, log logr.Logger) (uint32, error) {
-	dp := &appsv1.Deployment{}
-	objKey := types.NamespacedName{Namespace: obj.GetNamespace(), Name: nmDeploymentName}
-	if err := c.client.Get(ctx, objKey, dp); err != nil {
-		return 0, err
-	}
-
-	return uint32(dp.Status.AvailableReplicas), nil
-}
-
 func (c *NodeManagerOperand) setNodeManagerReplicas(ctx context.Context, obj client.Object, log logr.Logger, replicas uint32) error {
 	log.Info("set replicas to", "replicas", replicas)
 	payload := []patchUInt32Value{{
@@ -336,19 +314,7 @@ func (c *NodeManagerOperand) setNodeManagerReplicas(ctx context.Context, obj cli
 	return err
 }
 
-func (c *NodeManagerOperand) nodeManagerHasDesiredReplicas(ctx context.Context, obj client.Object, log logr.Logger, desired uint32) error {
-	replicas, err := c.getNodeManagerReplicas(ctx, obj, log)
-	if err != nil {
-		return err
-	}
-
-	if replicas != desired {
-		return fmt.Errorf("node-manager does not have desired number of replicas")
-	}
-	return nil
-}
-
-func getNodeManagerBuilder(fs filesys.FileSystem, obj client.Object, kcl kubectl.KubectlClient) (*declarative.Builder, error) {
+func (c *NodeManagerOperand) getNodeManagerBuilder(fs filesys.FileSystem, obj client.Object, kcl kubectl.KubectlClient, log logr.Logger) (*declarative.Builder, error) {
 	cluster, ok := obj.(*storageoscomv1.StorageOSCluster)
 	if !ok {
 		return nil, fmt.Errorf("failed to convert %v to StorageOSCluster", obj)
@@ -363,9 +329,22 @@ func getNodeManagerBuilder(fs filesys.FileSystem, obj client.Object, kcl kubectl
 		images = append(images, *img)
 	}
 
+	replicas, err := c.getNodeReplicas(context.Background(), obj, log)
+	if err != nil && !apierrors.IsNotFound(err) {
+		return nil, err
+	}
+
 	mutators := []kustomize.MutateFunc{
 		kustomize.AddNamespace(cluster.GetNamespace()),
 		kustomize.AddImages(images),
+		func(k *kustomizetypes.Kustomization) {
+			k.Replicas = []kustomizetypes.Replica{
+				{
+					Name:  nmDeploymentName,
+					Count: int64(replicas),
+				},
+			}
+		},
 	}
 
 	nextIndex := 2 // Needs to update if number of containers changes in deployment.
@@ -506,25 +485,5 @@ func generateSideCarContainerPatch(nextIndex int, name string, image string, con
 			Gvk:  resid.FromKind("Deployment"),
 			Name: nmDeploymentName,
 		},
-	}
-}
-
-// waitFor runs 'fn' every 'interval' for duration of 'limit', returning no error only if 'fn' returns no
-// error inside 'limit'
-func waitFor(fn func() error, limit, interval time.Duration) error {
-	timeout := time.After(time.Second * limit)
-	ticker := time.NewTicker(time.Second * interval)
-	defer ticker.Stop()
-	var err error
-	for {
-		select {
-		case <-timeout:
-			return fmt.Errorf("timeout error")
-		case <-ticker.C:
-			err = fn()
-			if err == nil {
-				return nil
-			}
-		}
 	}
 }

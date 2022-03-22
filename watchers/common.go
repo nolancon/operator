@@ -10,7 +10,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 )
 
-const maxWaitPeriod = 120
+const maxWaitPeriod = 30
 
 // WatchConsumer consumes watch events.
 type WatchConsumer func(<-chan watch.Event) error

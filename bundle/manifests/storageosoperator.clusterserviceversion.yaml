@@ -805,11 +805,11 @@ spec:
                   periodSeconds: 10
                 resources:
                   limits:
-                    cpu: 100m
+                    cpu: 250m
                     memory: 200Mi
                   requests:
-                    cpu: 5m
-                    memory: 80Mi
+                    cpu: 10m
+                    memory: 100Mi
                 securityContext:
                   allowPrivilegeEscalation: false
                 volumeMounts:
@@ -831,6 +831,13 @@ spec:
                 runAsNonRoot: true
               serviceAccountName: storageos-operator
               terminationGracePeriodSeconds: 10
+              topologySpreadConstraints:
+              - labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/component: operator
+                maxSkew: 1
+                topologyKey: kubernetes.io/hostname
+                whenUnsatisfiable: ScheduleAnyway
               volumes:
               - configMap:
                   name: storageos-operator

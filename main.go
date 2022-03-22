@@ -42,8 +42,11 @@ import (
 const podNamespace = "POD_NAMESPACE"
 
 var (
-	scheme   = runtime.NewScheme()
-	setupLog = ctrl.Log.WithName("setup")
+	renewDeadline       = 5 * time.Second
+	leaseDuration       = 7 * time.Second
+	leaderRetryDuration = time.Second
+	scheme              = runtime.NewScheme()
+	setupLog            = ctrl.Log.WithName("setup")
 )
 
 var SupportedMinKubeVersion string
@@ -106,6 +109,9 @@ func main() {
 		Scheme:                  scheme,
 		LeaderElectionID:        "storageos-operator-leader",
 		LeaderElectionNamespace: currentNS,
+		RenewDeadline:           &renewDeadline,
+		LeaseDuration:           &leaseDuration,
+		RetryPeriod:             &leaderRetryDuration,
 	}
 	if configFile != "" {
 		var err error

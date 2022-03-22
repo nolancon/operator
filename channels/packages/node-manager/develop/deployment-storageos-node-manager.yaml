@@ -15,6 +15,11 @@ spec:
       app: storageos
       app.kubernetes.io/component: node-manager
       control-plane: storageos-node-manager
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
   template:
     metadata:
       labels:
@@ -67,6 +72,13 @@ spec:
         runAsNonRoot: true
       serviceAccountName: storageos-node-manager
       terminationGracePeriodSeconds: 30
+      topologySpreadConstraints:
+      - labelSelector:
+          matchLabels:
+            app.kubernetes.io/component: node-manager
+        maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
       tolerations:
       - key: node.kubernetes.io/disk-pressure
         operator: Exists
