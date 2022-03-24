@@ -9,15 +9,15 @@ on:
 
 env:
   EXPECTED_REL_IMAGE_CONF: |
-    REL_IMAGE_CONF=RELATED_IMAGE_API_MANAGER=storageos/api-manager:v1.2.4
-    RELATED_IMAGE_PORTAL_MANAGER=storageos/portal-manager:v1.0.1
+    REL_IMAGE_CONF=RELATED_IMAGE_API_MANAGER=storageos/api-manager:v1.2.8
+    RELATED_IMAGE_PORTAL_MANAGER=storageos/portal-manager:v1.0.2
     RELATED_IMAGE_CSIV1_EXTERNAL_PROVISIONER=storageos/csi-provisioner:v2.1.1-patched
     RELATED_IMAGE_CSIV1_EXTERNAL_ATTACHER_V3=quay.io/k8scsi/csi-attacher:v3.1.0
     RELATED_IMAGE_CSIV1_EXTERNAL_RESIZER=quay.io/k8scsi/csi-resizer:v1.1.0
-    RELATED_IMAGE_STORAGEOS_INIT=storageos/init:v2.1.1
-    RELATED_IMAGE_STORAGEOS_NODE=storageos/node:v2.5.0
-    RELATED_IMAGE_NODE_MANAGER=storageos/node-manager:develop
-    RELATED_IMAGE_UPGRADE_GUARD=storageos/upgrade-guard:develop
+    RELATED_IMAGE_STORAGEOS_INIT=storageos/init:v2.1.2
+    RELATED_IMAGE_STORAGEOS_NODE=soegarots/node:v2-release-v2.7.0-24
+    RELATED_IMAGE_NODE_MANAGER=storageos/node-manager:v0.0.3
+    RELATED_IMAGE_UPGRADE_GUARD=storageos/upgrade-guard:v0.0.4
     RELATED_IMAGE_CSIV1_NODE_DRIVER_REGISTRAR=quay.io/k8scsi/csi-node-driver-registrar:v2.1.0
     RELATED_IMAGE_CSIV1_LIVENESS_PROBE=quay.io/k8scsi/livenessprobe:v2.2.0
 
