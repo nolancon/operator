@@ -99,8 +99,8 @@ func (c *NodeManagerOperand) ReadyCheck(ctx context.Context, obj client.Object) 
 		return false, err
 	}
 
-	if nodeManagerDep.Status.Replicas > 0 {
-		log.V(4).Info("Found more than 0 replicas", "Replicas", nodeManagerDep.Status.Replicas)
+	if nodeManagerDep.Status.AvailableReplicas > 0 {
+		log.Info("Found available replicas more than 0", "availableReplicas", nodeManagerDep.Status.Replicas)
 		return true, nil
 	}
 
