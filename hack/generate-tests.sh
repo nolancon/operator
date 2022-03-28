@@ -90,6 +90,12 @@ jobs:
         run: make operator-image
       - name: Run kuttl ${major}
         run: kubectl-kuttl test --config e2e/kuttl/${REPO}-deployment-${major}.yaml
+
+      - uses: actions/upload-artifact@v3
+        if: \${{ always() }} 
+        with:
+          name: kind-logs
+          path: kind-logs-*
 EOF
 
 done
