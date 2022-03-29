@@ -14,9 +14,9 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"k8s.io/klog/v2"
 
-	"github.com/darkowlzz/operator-toolkit/declarative/loader"
-	"github.com/darkowlzz/operator-toolkit/telemetry/export"
-	"github.com/darkowlzz/operator-toolkit/webhook/cert"
+	"github.com/ondat/operator-toolkit/declarative/loader"
+	"github.com/ondat/operator-toolkit/telemetry/export"
+	"github.com/ondat/operator-toolkit/webhook/cert"
 	"go.uber.org/zap/zapcore"
 	admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
 	"k8s.io/apimachinery/pkg/runtime"

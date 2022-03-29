@@ -1,7 +1,7 @@
 package transform
 
 import (
-	"github.com/darkowlzz/operator-toolkit/declarative/transform"
+	"github.com/ondat/operator-toolkit/declarative/transform"
 	"sigs.k8s.io/kustomize/kyaml/yaml"
 )
 

@@ -38,36 +38,6 @@ github.com/chai2010/gettext-go/gettext
 github.com/chai2010/gettext-go/gettext/mo
 github.com/chai2010/gettext-go/gettext/plural
 github.com/chai2010/gettext-go/gettext/po
-# github.com/darkowlzz/operator-toolkit v0.0.0-20210721205719-05b03cd74f02
-## explicit
-github.com/darkowlzz/operator-toolkit/constant
-github.com/darkowlzz/operator-toolkit/controller
-github.com/darkowlzz/operator-toolkit/controller/composite/v1
-github.com/darkowlzz/operator-toolkit/declarative
-github.com/darkowlzz/operator-toolkit/declarative/applier
-github.com/darkowlzz/operator-toolkit/declarative/deleter
-github.com/darkowlzz/operator-toolkit/declarative/kubectl
-github.com/darkowlzz/operator-toolkit/declarative/kustomize
-github.com/darkowlzz/operator-toolkit/declarative/loader
-github.com/darkowlzz/operator-toolkit/declarative/transform
-github.com/darkowlzz/operator-toolkit/event/v1
-github.com/darkowlzz/operator-toolkit/internal/pkiutil
-github.com/darkowlzz/operator-toolkit/internal/webhook/cert
-github.com/darkowlzz/operator-toolkit/internal/webhook/cert/generator
-github.com/darkowlzz/operator-toolkit/internal/webhook/cert/writer
-github.com/darkowlzz/operator-toolkit/object
-github.com/darkowlzz/operator-toolkit/operator/v1
-github.com/darkowlzz/operator-toolkit/operator/v1/dag
-github.com/darkowlzz/operator-toolkit/operator/v1/executor
-github.com/darkowlzz/operator-toolkit/operator/v1/operand
-github.com/darkowlzz/operator-toolkit/predicate
-github.com/darkowlzz/operator-toolkit/singleton
-github.com/darkowlzz/operator-toolkit/telemetry
-github.com/darkowlzz/operator-toolkit/telemetry/export
-github.com/darkowlzz/operator-toolkit/telemetry/tracing
-github.com/darkowlzz/operator-toolkit/webhook/admission
-github.com/darkowlzz/operator-toolkit/webhook/builder
-github.com/darkowlzz/operator-toolkit/webhook/cert
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
 # github.com/docker/spdystream v0.0.0-20160310174837-449fdfce4d96
@@ -268,6 +238,36 @@ github.com/nxadm/tail/ratelimiter
 github.com/nxadm/tail/util
 github.com/nxadm/tail/watch
 github.com/nxadm/tail/winfile
+# github.com/ondat/operator-toolkit v0.0.0-20220329091754-84ef19f3309b
+## explicit
+github.com/ondat/operator-toolkit/constant
+github.com/ondat/operator-toolkit/controller
+github.com/ondat/operator-toolkit/controller/composite/v1
+github.com/ondat/operator-toolkit/declarative
+github.com/ondat/operator-toolkit/declarative/applier
+github.com/ondat/operator-toolkit/declarative/deleter
+github.com/ondat/operator-toolkit/declarative/kubectl
+github.com/ondat/operator-toolkit/declarative/kustomize
+github.com/ondat/operator-toolkit/declarative/loader
+github.com/ondat/operator-toolkit/declarative/transform
+github.com/ondat/operator-toolkit/event/v1
+github.com/ondat/operator-toolkit/internal/pkiutil
+github.com/ondat/operator-toolkit/internal/webhook/cert
+github.com/ondat/operator-toolkit/internal/webhook/cert/generator
+github.com/ondat/operator-toolkit/internal/webhook/cert/writer
+github.com/ondat/operator-toolkit/object
+github.com/ondat/operator-toolkit/operator/v1
+github.com/ondat/operator-toolkit/operator/v1/dag
+github.com/ondat/operator-toolkit/operator/v1/executor
+github.com/ondat/operator-toolkit/operator/v1/operand
+github.com/ondat/operator-toolkit/predicate
+github.com/ondat/operator-toolkit/singleton
+github.com/ondat/operator-toolkit/telemetry
+github.com/ondat/operator-toolkit/telemetry/export
+github.com/ondat/operator-toolkit/telemetry/tracing
+github.com/ondat/operator-toolkit/webhook/admission
+github.com/ondat/operator-toolkit/webhook/builder
+github.com/ondat/operator-toolkit/webhook/cert
 # github.com/onsi/ginkgo v1.14.1
 ## explicit
 github.com/onsi/ginkgo

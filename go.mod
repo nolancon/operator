@@ -4,9 +4,9 @@ go 1.16
 
 require (
 	github.com/blang/semver v3.5.1+incompatible
-	github.com/darkowlzz/operator-toolkit v0.0.0-20210721205719-05b03cd74f02
 	github.com/go-logr/logr v0.3.0
 	github.com/golang/mock v1.6.0
+	github.com/ondat/operator-toolkit v0.0.0-20220329091754-84ef19f3309b
 	github.com/onsi/ginkgo v1.14.1
 	github.com/onsi/gomega v1.10.2
 	github.com/storageos/go-api v0.0.0-20220209143821-59d68c680d51

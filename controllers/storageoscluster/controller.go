@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	compositev1 "github.com/darkowlzz/operator-toolkit/controller/composite/v1"
-	"github.com/darkowlzz/operator-toolkit/object"
-	operatorv1 "github.com/darkowlzz/operator-toolkit/operator/v1"
 	"github.com/go-logr/logr"
+	compositev1 "github.com/ondat/operator-toolkit/controller/composite/v1"
+	"github.com/ondat/operator-toolkit/object"
+	operatorv1 "github.com/ondat/operator-toolkit/operator/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"

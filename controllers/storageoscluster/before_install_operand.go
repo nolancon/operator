@@ -3,10 +3,10 @@ package storageoscluster
 import (
 	"context"
 
-	"github.com/darkowlzz/operator-toolkit/declarative"
-	"github.com/darkowlzz/operator-toolkit/declarative/kubectl"
-	eventv1 "github.com/darkowlzz/operator-toolkit/event/v1"
-	"github.com/darkowlzz/operator-toolkit/operator/v1/operand"
+	"github.com/ondat/operator-toolkit/declarative"
+	"github.com/ondat/operator-toolkit/declarative/kubectl"
+	eventv1 "github.com/ondat/operator-toolkit/event/v1"
+	"github.com/ondat/operator-toolkit/operator/v1/operand"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/kustomize/api/filesys"

@@ -6,16 +6,16 @@ import (
 	"io/ioutil"
 	"time"
 
-	operatorv1 "github.com/darkowlzz/operator-toolkit/operator/v1"
-	"github.com/darkowlzz/operator-toolkit/operator/v1/executor"
-	"github.com/darkowlzz/operator-toolkit/operator/v1/operand"
-	"github.com/darkowlzz/operator-toolkit/telemetry"
+	operatorv1 "github.com/ondat/operator-toolkit/operator/v1"
+	"github.com/ondat/operator-toolkit/operator/v1/executor"
+	"github.com/ondat/operator-toolkit/operator/v1/operand"
+	"github.com/ondat/operator-toolkit/telemetry"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	tappv1 "k8s.io/client-go/kubernetes/typed/apps/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/kustomize/api/filesys"
 
-	"github.com/darkowlzz/operator-toolkit/declarative/kubectl"
+	"github.com/ondat/operator-toolkit/declarative/kubectl"
 )
 
 const instrumentationName = "github.com/storageos/operator/controllers/storageoscluster"
