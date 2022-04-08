@@ -609,6 +609,18 @@ spec:
           - list
           - watch
         - apiGroups:
+          - security.openshift.io
+          resourceNames:
+          - privileged
+          resources:
+          - securitycontextconstraints
+          verbs:
+          - create
+          - delete
+          - get
+          - update
+          - use
+        - apiGroups:
           - storageos.com
           resources:
           - storageosclusters
@@ -828,7 +840,7 @@ spec:
                   name: https
                 resources: {}
               securityContext:
-                runAsNonRoot: true
+                runAsUser: 65532
               serviceAccountName: storageos-operator
               terminationGracePeriodSeconds: 10
               topologySpreadConstraints:
