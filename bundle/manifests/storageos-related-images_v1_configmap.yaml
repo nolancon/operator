@@ -9,7 +9,7 @@ data:
   RELATED_IMAGE_NODE_MANAGER: storageos/node-manager:develop
   RELATED_IMAGE_PORTAL_MANAGER: storageos/portal-manager:develop
   RELATED_IMAGE_STORAGEOS_INIT: storageos/init:v2.1.2
-  RELATED_IMAGE_STORAGEOS_NODE: soegarots/node:v2-release-v2.7.0-24
+  RELATED_IMAGE_STORAGEOS_NODE: storageos/node:v2.7.0
   RELATED_IMAGE_UPGRADE_GUARD: storageos/upgrade-guard:develop
 kind: ConfigMap
 metadata:

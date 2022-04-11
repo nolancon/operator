@@ -83,7 +83,7 @@ Results:
         State: pass
 
         Log:
-                Loaded ClusterServiceVersion: storageosoperator.v2.5.0
+                Loaded ClusterServiceVersion: storageosoperator.v2.7.0
                 Loaded 1 Custom Resources from alm-examples
 
 ...
