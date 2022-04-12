@@ -2,12 +2,18 @@ package storageoscluster
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/ondat/operator-toolkit/declarative"
 	"github.com/ondat/operator-toolkit/declarative/kubectl"
 	eventv1 "github.com/ondat/operator-toolkit/event/v1"
 	"github.com/ondat/operator-toolkit/operator/v1/operand"
+	storageoscomv1 "github.com/storageos/operator/api/v1"
+	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/kustomize/api/filesys"
 )
@@ -39,6 +45,10 @@ func (bi *BeforeInstallOperand) Ensure(ctx context.Context, obj client.Object, o
 	ctx, span, _, _ := instrumentation.Start(ctx, "BeforeInstallOperand.Ensure")
 	defer span.End()
 
+	if err := deleteNodeIfNewEnvDetected(ctx, obj, bi.client); err != nil {
+		return nil, err
+	}
+
 	b, err := getBeforeInstallBuilder(bi.fs, obj, bi.kubectlClient)
 	if err != nil {
 		span.RecordError(err)
@@ -65,6 +75,52 @@ func getBeforeInstallBuilder(fs filesys.FileSystem, obj client.Object, kcl kubec
 	return declarative.NewBuilder(beforeInstallPackage, fs,
 		declarative.WithKubectlClient(kcl),
 	)
+}
+
+func deleteNodeIfNewEnvDetected(ctx context.Context, obj client.Object, cl client.Client) error {
+	ctx, span, _, log := instrumentation.Start(ctx, "BeforeInstallOperand.deleteNodeIfNewEnvDetected")
+	defer span.End()
+
+	cluster, ok := obj.(*storageoscomv1.StorageOSCluster)
+	if !ok {
+		return fmt.Errorf("failed to convert %v to StorageOSCluster", obj)
+	}
+
+	envVars := failoverPolicyToImplement(cluster.Spec.NodeFailoverPolicy)
+	if envVars == nil {
+		return nil
+	}
+
+	log.Info("Check environment variables of node failover policy against those in node configmap")
+
+	nodeConfigMap := &corev1.ConfigMap{}
+	err := cl.Get(ctx, types.NamespacedName{
+		Name:      "storageos-node",
+		Namespace: obj.GetNamespace(),
+	}, nodeConfigMap)
+	if err != nil && !apierrors.IsNotFound(err) {
+		span.RecordError(err)
+		return err
+	}
+
+	if nodeConfigMap.Data[nodeFailoverPolicyEnvVar] == envVars[nodeFailoverPolicyEnvVar] {
+		return nil
+	}
+
+	log.Info("Delete node daemonset to enforce new environment variables set by failover policy")
+
+	err = cl.Delete(ctx, &appsv1.DaemonSet{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "storageos-node",
+			Namespace: obj.GetNamespace(),
+		},
+	}, &client.DeleteOptions{})
+	if err != nil && !apierrors.IsNotFound(err) {
+		span.RecordError(err)
+		return err
+	}
+
+	return nil
 }
 
 func NewBeforeInstallOperand(

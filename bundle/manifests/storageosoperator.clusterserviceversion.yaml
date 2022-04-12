@@ -24,7 +24,7 @@ metadata:
     containerImage: storageos/operator:v2.6.0
     createdAt: ""
     description: Cloud-native, persistent storage for containers.
-    operators.operatorframework.io/builder: operator-sdk-v1.7.1+git
+    operators.operatorframework.io/builder: operator-sdk-v1.6.1+git
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/storageos/operator
     support: StorageOS, Inc
@@ -887,7 +887,7 @@ spec:
   selector:
     matchLabels:
       operated-by: storageosoperator
-  version: 2.5.0-beta.6
+  version: 2.7.0
   webhookdefinitions:
   - admissionReviewVersions:
     - v1

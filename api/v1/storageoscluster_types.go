@@ -163,6 +163,11 @@ type StorageOSClusterSpec struct {
 
 	// Node manager feature list with optional configurations.
 	NodeManagerFeatures map[string]string `json:"nodeManagerFeatures,omitempty"`
+
+	// NodeFailoverPolicy determines how likely the node daemon is to failover
+	// during network disruptions.
+	// Policy options: "strict", "tolerant"
+	NodeFailoverPolicy string `json:"nodeFailoverPolicy,omitempty"`
 }
 
 // ContainerImages contains image names of all the containers used by the operator.

@@ -225,6 +225,11 @@ spec:
                   resources are provisioned. Deprecated: StorageOS uses namespace
                   of storageosclusters.storageos.com resource.'
                 type: string
+              nodeFailoverPolicy:
+                description: 'NodeFailoverPolicy determines how likely the node daemon
+                  is to failover during network disruptions. Policy options: "strict",
+                  "tolerant"'
+                type: string
               nodeManagerFeatures:
                 additionalProperties:
                   type: string

@@ -65,6 +65,15 @@ const (
 	nodeImageEnvVar             = "RELATED_IMAGE_STORAGEOS_NODE"
 	csiNodeDriverRegImageEnvVar = "RELATED_IMAGE_CSIV1_NODE_DRIVER_REGISTRAR"
 	csiLivenessProbeImageEnvVar = "RELATED_IMAGE_CSIV1_LIVENESS_PROBE"
+
+	// Node container env vars
+	volumeLockTTLEnvVar       = "VOLUME_LOCK_TTL"
+	healthProbeIntervalEnvVar = "HEALTH_PROBE_INTERVAL"
+	nodeFailoverPolicyEnvVar  = "NODE_FAILOVER_POLICY"
+
+	// Node failover policy names
+	policyTolerant = "tolerant"
+	policyStrict   = "strict"
 )
 
 type NodeOperand struct {
@@ -200,6 +209,13 @@ func getNodeBuilder(fs filesys.FileSystem, obj client.Object, kcl kubectl.Kubect
 		stransform.SetConfigMapData("DISABLE_CRASH_REPORTING", strconv.FormatBool(cluster.Spec.DisableTelemetry)),
 		stransform.SetConfigMapData("CSI_ENDPOINT", cluster.GetCSIEndpoint()),
 		stransform.SetConfigMapData("LOG_LEVEL", cluster.GetLogLevel()),
+	}
+
+	// Set failover policy related environmental variables for node if a failover
+	// policy has been specified.
+	policyEnvVars := failoverPolicyToImplement(cluster.Spec.NodeFailoverPolicy)
+	for k, v := range policyEnvVars {
+		configmapTransforms = append(configmapTransforms, stransform.SetConfigMapData(k, v))
 	}
 
 	// Set extra environment variables for node.
@@ -367,6 +383,32 @@ func configureControlPlane(ctx context.Context, stosCl *storageos.Client, cluste
 	}
 	log.Info("current config doesn't match the desired config, applying update")
 	return stosCl.UpdateCluster(ctx, desiredConfig)
+}
+
+// failoverPolicyToImplement returns the failoverPolicy environment variables to implement
+// if a valid NodeFailoverPolicy has been set.
+func failoverPolicyToImplement(nodeFailoverPolicyName string) map[string]string {
+	type failoverPolicies map[string]map[string]string
+
+	policies := failoverPolicies{
+		policyTolerant: map[string]string{
+			volumeLockTTLEnvVar:       "5s",
+			healthProbeIntervalEnvVar: "1s",
+			nodeFailoverPolicyEnvVar:  policyTolerant,
+		},
+		policyStrict: map[string]string{
+			volumeLockTTLEnvVar:       "10s",
+			healthProbeIntervalEnvVar: "5s",
+			nodeFailoverPolicyEnvVar:  policyStrict,
+		},
+	}
+
+	envVars, ok := policies[nodeFailoverPolicyName]
+	if !ok {
+		return nil
+	}
+
+	return envVars
 }
 
 func NewNodeOperand(
