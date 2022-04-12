@@ -202,6 +202,12 @@ func getNodeBuilder(fs filesys.FileSystem, obj client.Object, kcl kubectl.Kubect
 		stransform.SetConfigMapData("LOG_LEVEL", cluster.GetLogLevel()),
 	}
 
+	// Set failover policy related environmental variables for node.
+	policyEnvVars := storageos.FailoverPolicyEnvVars(cluster.Spec.NodeFailoverPolicy)
+	for k, v := range policyEnvVars {
+		configmapTransforms = append(configmapTransforms, stransform.SetConfigMapData(k, v))
+	}
+
 	// Set extra environment variables for node.
 	for k, v := range cluster.Spec.Environment {
 		configmapTransforms = append(configmapTransforms, stransform.SetConfigMapData(k, v))

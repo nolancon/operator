@@ -19,6 +19,7 @@ import (
 	"github.com/ondat/operator-toolkit/webhook/cert"
 	"go.uber.org/zap/zapcore"
 	admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
@@ -224,24 +225,55 @@ func main() {
 
 	ctx, cancel := context.WithCancel(ctrl.SetupSignalHandler())
 
-	// Watch config maps and restart on change.
-	setupLog.Info("starting config map watcher")
+	// Watch storageos node config map and restart on change.
+	setupLog.Info("starting storageos node configmap watcher")
+	nodeConfigWatcher := watchers.NewConfigMapWatcher(defaultKubeClient.CoreV1().ConfigMaps(currentNS), "config change")
+	if err := nodeConfigWatcher.Setup(ctx, true, "app.kubernetes.io/component=control-plane"); err != nil {
+		setupLog.Error(err, "unable to set storageos node configmap watcher")
+		os.Exit(1)
+	}
+	dsClient := defaultKubeClient.AppsV1().DaemonSets(currentNS)
+
+	nodeConfigWatchErrChan := nodeConfigWatcher.Start(ctx, func(nodeConfigWatchChan <-chan watch.Event) error {
+		for {
+			event, ok := <-nodeConfigWatchChan
+			if !ok {
+				setupLog.Info("storageos node configmap watcher has closed")
+				return errors.New("storageos node configmap watcher has closed")
+			}
+
+			if event.Type == watch.Modified {
+				setupLog.Info("storageos node config map has updated, delete node daemonset to enforce new environment variables")
+				err := dsClient.Delete(ctx, "storageos-node", metav1.DeleteOptions{})
+				if err != nil {
+					return errors.New("failed to delete storageos node daemonset")
+				}
+			}
+		}
+	})
+	go func() {
+		err := <-nodeConfigWatchErrChan
+		setupLog.Error(err, "storageos node config map watcher encountered error")
+	}()
+
+	// Watch storageos operator config map and restart on change.
+	setupLog.Info("starting storageos operator config map watcher")
 	watcher := watchers.NewConfigMapWatcher(defaultKubeClient.CoreV1().ConfigMaps(currentNS), "config change")
 	if err := watcher.Setup(ctx, true, "app.kubernetes.io/component=operator"); err != nil {
-		setupLog.Error(err, "unable to set config map watcher")
+		setupLog.Error(err, "unable to set storageos operator config map watcher")
 		os.Exit(1)
 	}
 	watchErrChan := watcher.Start(ctx, func(watchChan <-chan watch.Event) error {
 		for {
 			event, ok := <-watchChan
 			if !ok {
-				setupLog.Info("watcher has closed")
-				return errors.New("watcher has closed")
+				setupLog.Info("storageos operator configmap watcher has closed")
+				return errors.New("storageos operator configmap watcher has closed")
 			}
 
 			if event.Type == watch.Modified {
 				// If this happens we want to restart the operator, so cancel the root context
-				setupLog.Info("config map has updated")
+				setupLog.Info("storageos operator config map has updated")
 				cancel()
 				break
 			}
@@ -251,7 +283,7 @@ func main() {
 	})
 	go func() {
 		err := <-watchErrChan
-		setupLog.Error(err, "config map watcher encountered error")
+		setupLog.Error(err, "storageos operator config map watcher encountered error")
 		cancel()
 	}()
 
